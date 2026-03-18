@@ -58,3 +58,21 @@ Additionally, make sure that the following extensions are enabled in your PHP:
 - json (enabled by default - don't turn it off)
 - [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
 - [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+
+## CampusVoice Database Snapshot
+
+The latest local MySQL snapshot is stored at `database/campusvoice_latest.sql`.
+
+Import it with XAMPP MySQL from PowerShell:
+
+```powershell
+C:\xampp\mysql\bin\mysql.exe -u root -p campusvoice < database\campusvoice_latest.sql
+```
+
+If your local MySQL root account has no password, use:
+
+```powershell
+C:\xampp\mysql\bin\mysql.exe -u root campusvoice < database\campusvoice_latest.sql
+```
+
+This snapshot includes the current schema and data from the local `campusvoice` database at export time.
