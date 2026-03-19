@@ -1,0 +1,13 @@
+# Route all requests through /public so URLs can use /campusvoice/... directly.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Do not rewrite requests already targeting /public
+    RewriteCond %{REQUEST_URI} !^/campusvoice/public/ [NC]
+
+    # Preserve existing files and folders at project root
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
