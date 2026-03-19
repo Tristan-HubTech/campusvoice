@@ -123,12 +123,21 @@ Notes:
 In `.env`, set:
 
 ```ini
+<<<<<<< HEAD
 email.fromEmail = 'aclcmandaue8@gmail.com'
 email.fromName = 'CampusVoice'
 email.protocol = smtp
 email.SMTPHost = 'smtp.gmail.com'
 email.SMTPUser = 'aclcmandaue8@gmail.com'
 email.SMTPPass = 'gqjn dmrd upls ooor'
+=======
+email.fromEmail = 'yourgmail@gmail.com'
+email.fromName = 'CampusVoice'
+email.protocol = smtp
+email.SMTPHost = 'smtp.gmail.com'
+email.SMTPUser = 'yourgmail@gmail.com'
+email.SMTPPass = 'your-16-char-app-password'
+>>>>>>> 8f683a475b049c70f2e46bdc1a59b56eb5b110f1
 email.SMTPPort = 587
 email.SMTPCrypto = 'tls'
 ```

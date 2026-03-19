@@ -43,7 +43,11 @@ class Filters extends BaseConfig
             // 'invalidchars',
         ],
         'after' => [
+<<<<<<< HEAD
             // 'toolbar',
+=======
+            'toolbar',
+>>>>>>> 8f683a475b049c70f2e46bdc1a59b56eb5b110f1
             // 'honeypot',
             // 'secureheaders',
         ],

@@ -5,6 +5,7 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
+<<<<<<< HEAD
 $routes->get('/', 'SocialController::index');
 
 $routes->get('feed', 'SocialController::index');
@@ -15,6 +16,9 @@ $routes->post('posts/(:num)/comment', 'SocialController::comment/$1');
 $routes->post('posts/(:num)/share', 'SocialController::share/$1');
 $routes->get('users/(:num)', 'SocialController::profile/$1');
 $routes->match(['get', 'post'], 'settings', 'SocialController::settings');
+=======
+$routes->get('/', 'Home::index');
+>>>>>>> 8f683a475b049c70f2e46bdc1a59b56eb5b110f1
 
 $routes->match(['get', 'post'], 'admin/login', 'Admin\\AuthController::login');
 $routes->get('admin/logout', 'Admin\\AuthController::logout', ['filter' => 'adminauth']);

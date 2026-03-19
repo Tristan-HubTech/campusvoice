@@ -6,7 +6,11 @@
     <div class="auth-brand">
         <img src="<?= base_url('assets/admin/logo.svg') ?>" alt="CampusVoice" class="auth-logo">
         <h1>CampusVoice</h1>
+<<<<<<< HEAD
         <p>Welcome</p>
+=======
+        <p>User Access</p>
+>>>>>>> 8f683a475b049c70f2e46bdc1a59b56eb5b110f1
     </div>
 
     <div class="auth-tab-switch" id="auth-tab-switch">
@@ -61,6 +65,12 @@
             <label for="reg-email">Email Address</label>
             <input id="reg-email" name="email" type="email" required maxlength="150" placeholder="you@example.com" value="<?= esc((string) (old('email') ?? '')) ?>">
 
+<<<<<<< HEAD
+=======
+            <label for="reg-student-no">Student Number <small>(optional)</small></label>
+            <input id="reg-student-no" name="student_no" type="text" maxlength="50" placeholder="e.g. 2023-00001" value="<?= esc((string) (old('student_no') ?? '')) ?>">
+
+>>>>>>> 8f683a475b049c70f2e46bdc1a59b56eb5b110f1
             <label for="reg-phone">Phone <small>(optional)</small></label>
             <input id="reg-phone" name="phone" type="tel" maxlength="30" placeholder="e.g. 09xx-xxx-xxxx" value="<?= esc((string) (old('phone') ?? '')) ?>">
 
@@ -74,7 +84,11 @@
         </form>
     </section>
 
+<<<<<<< HEAD
 
+=======
+    <p class="auth-footer-text">Admin access is on a separate page: <a href="<?= site_url('admin/login') ?>">Admin Login</a></p>
+>>>>>>> 8f683a475b049c70f2e46bdc1a59b56eb5b110f1
 </div>
 
 <script>

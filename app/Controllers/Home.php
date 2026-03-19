@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 class Home extends BaseController
 {
+<<<<<<< HEAD
     public function index()
     {
         // If already logged in as student, go to portal dashboard
@@ -19,5 +20,10 @@ class Home extends BaseController
         }
 
         return view('landing');
+=======
+    public function index(): string
+    {
+        return view('welcome_message');
+>>>>>>> 8f683a475b049c70f2e46bdc1a59b56eb5b110f1
     }
 }

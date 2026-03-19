@@ -11,7 +11,11 @@ class AuthController extends Controller
     public function login()
     {
         if (! empty((array) session()->get('student_auth')) && ! empty(session()->get('student_auth')['id'])) {
+<<<<<<< HEAD
             return redirect()->to(site_url('feed'));
+=======
+            return redirect()->to(site_url('portal'));
+>>>>>>> 8f683a475b049c70f2e46bdc1a59b56eb5b110f1
         }
 
         $mode = strtolower(trim((string) ($this->request->getGet('mode') ?? 'login')));
@@ -19,7 +23,11 @@ class AuthController extends Controller
             $mode = 'login';
         }
 
+<<<<<<< HEAD
         if (strtolower($this->request->getMethod()) === 'post') {
+=======
+        if ($this->request->getMethod() === 'POST') {
+>>>>>>> 8f683a475b049c70f2e46bdc1a59b56eb5b110f1
             $postedMode = strtolower(trim((string) ($this->request->getPost('auth_mode') ?? 'login')));
             if ($postedMode === 'register') {
                 return $this->handleRegister();
@@ -37,11 +45,19 @@ class AuthController extends Controller
     public function register()
     {
         if (! empty((array) session()->get('student_auth')) && ! empty(session()->get('student_auth')['id'])) {
+<<<<<<< HEAD
             return redirect()->to(site_url('feed'));
         }
 
         // Keep compatibility for old route/form actions.
         if (strtolower($this->request->getMethod()) === 'post') {
+=======
+            return redirect()->to(site_url('portal'));
+        }
+
+        // Keep compatibility for old route/form actions.
+        if ($this->request->getMethod() === 'POST') {
+>>>>>>> 8f683a475b049c70f2e46bdc1a59b56eb5b110f1
             return $this->handleRegister();
         }
 
@@ -93,7 +109,11 @@ class AuthController extends Controller
             'role'  => $user['role'],
         ]);
 
+<<<<<<< HEAD
         return redirect()->to(site_url('feed'));
+=======
+        return redirect()->to(site_url('portal'));
+>>>>>>> 8f683a475b049c70f2e46bdc1a59b56eb5b110f1
     }
 
     private function handleRegister()

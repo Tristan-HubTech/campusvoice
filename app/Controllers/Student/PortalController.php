@@ -15,9 +15,47 @@ class PortalController extends Controller
         return (array) (session()->get('student_auth') ?? []);
     }
 
+<<<<<<< HEAD
     public function index()
     {
         return redirect()->to(site_url('feed'));
+=======
+    public function index(): string
+    {
+        $studentUser = $this->studentUser();
+        $userId = (int) ($studentUser['id'] ?? 0);
+
+        $myFeedback = (new FeedbackModel())
+            ->select('feedbacks.*, feedback_categories.name as category_name')
+            ->join('feedback_categories', 'feedback_categories.id = feedbacks.category_id', 'left')
+            ->where('feedbacks.user_id', $userId)
+            ->orderBy('feedbacks.created_at', 'DESC')
+            ->findAll(5);
+
+        $announcements = (new AnnouncementModel())
+            ->where('is_published', 1)
+            ->groupStart()
+                ->where('expires_at IS NULL')
+                ->orWhere('expires_at >=', date('Y-m-d H:i:s'))
+            ->groupEnd()
+            ->orderBy('created_at', 'DESC')
+            ->findAll(5);
+
+        $stats = [
+            'total'    => (new FeedbackModel())->where('user_id', $userId)->countAllResults(),
+            'new'      => (new FeedbackModel())->where('user_id', $userId)->where('status', 'new')->countAllResults(),
+            'reviewed' => (new FeedbackModel())->where('user_id', $userId)->where('status', 'reviewed')->countAllResults(),
+            'resolved' => (new FeedbackModel())->where('user_id', $userId)->where('status', 'resolved')->countAllResults(),
+        ];
+
+        return view('student/portal/home', [
+            'title'         => 'My Portal',
+            'studentUser'   => $studentUser,
+            'myFeedback'    => $myFeedback,
+            'announcements' => $announcements,
+            'stats'         => $stats,
+        ]);
+>>>>>>> 8f683a475b049c70f2e46bdc1a59b56eb5b110f1
     }
 
     public function myFeedback(): string
@@ -49,7 +87,11 @@ class PortalController extends Controller
             ->orderBy('name', 'ASC')
             ->findAll();
 
+<<<<<<< HEAD
         if (strtolower($this->request->getMethod()) === 'post') {
+=======
+        if ($this->request->getMethod() === 'POST') {
+>>>>>>> 8f683a475b049c70f2e46bdc1a59b56eb5b110f1
             $post = $this->request->getPost();
 
             $rules = [
@@ -87,7 +129,11 @@ class PortalController extends Controller
         ]);
     }
 
+<<<<<<< HEAD
     public function viewFeedback(int $id)
+=======
+    public function viewFeedback(int $id): string
+>>>>>>> 8f683a475b049c70f2e46bdc1a59b56eb5b110f1
     {
         $studentUser = $this->studentUser();
         $userId = (int) ($studentUser['id'] ?? 0);
