@@ -203,12 +203,6 @@
                 transform: translateY(0);
             }
         }
-
-        @media (max-width: 980px) {
-            .grid {
-                grid-template-columns: 1fr;
-            }
-        }
     </style>
 </head>
 <body>

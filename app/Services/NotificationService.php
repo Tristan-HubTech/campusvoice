@@ -29,7 +29,7 @@ class NotificationService
         $subject     = trim((string) ($feedback['subject'] ?? ''));
         $feedbackId  = (int) ($feedback['id'] ?? 0);
         $statusLabel = ucfirst($newStatus);
-        $portalLink  = site_url('portal/feedback/' . $feedbackId);
+        $portalLink  = site_url('users/feedback/' . $feedbackId);
 
         $body =
             "Hello " . ($name !== '' ? $name : 'Student') . ",\n\n" .
@@ -61,7 +61,7 @@ class NotificationService
         $name        = trim(((string) ($user['first_name'] ?? '')) . ' ' . ((string) ($user['last_name'] ?? '')));
         $subject     = trim((string) ($feedback['subject'] ?? ''));
         $feedbackId  = (int) ($feedback['id'] ?? 0);
-        $portalLink  = site_url('portal/feedback/' . $feedbackId);
+        $portalLink  = site_url('users/feedback/' . $feedbackId);
         $preview     = strlen($replyMessage) > 200 ? substr($replyMessage, 0, 200) . '...' : $replyMessage;
 
         $body =

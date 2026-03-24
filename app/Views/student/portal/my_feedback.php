@@ -7,7 +7,7 @@
             <h2>My Feedback Submissions</h2>
             <p class="muted">Track statuses and read admin replies on each submission.</p>
         </div>
-        <a href="<?= site_url('portal/feedback/submit') ?>" class="btn-primary">+ Submit Feedback</a>
+        <a href="<?= site_url('users/feedback/submit') ?>" class="btn-primary">+ Submit Feedback</a>
     </div>
 
     <section class="portal-card">
@@ -31,7 +31,7 @@
                             <td><?= esc((string) ($item['category_name'] ?? 'N/A')) ?></td>
                             <td><span class="pill type-<?= esc((string) ($item['type'] ?? 'suggestion')) ?>"><?= esc(ucfirst((string) ($item['type'] ?? 'suggestion'))) ?></span></td>
                             <td>
-                                <a href="<?= site_url('portal/feedback/' . (int) $item['id']) ?>">
+                                <a href="<?= site_url('users/feedback/' . (int) $item['id']) ?>">
                                     <?= esc((string) ($item['subject'] ?? 'Feedback #' . (int) $item['id'])) ?>
                                 </a>
                             </td>
@@ -43,7 +43,7 @@
                 </table>
             </div>
         <?php else: ?>
-            <p class="muted empty-hint">No submissions yet. <a href="<?= site_url('portal/feedback/submit') ?>">Submit your first feedback.</a></p>
+            <p class="muted empty-hint">No submissions yet. <a href="<?= site_url('users/feedback/submit') ?>">Submit your first feedback.</a></p>
         <?php endif; ?>
     </section>
 </div>

@@ -300,7 +300,7 @@ class SocialController extends BaseController
     private function requireUser()
     {
         if (empty($this->viewer()['id'])) {
-            return redirect()->to(site_url('portal/login'))->with('error', 'Please log in to continue.');
+            return redirect()->to(site_url('users/login'))->with('error', 'Please log in to continue.');
         }
 
         return null;
@@ -431,7 +431,7 @@ class SocialController extends BaseController
             $post['comments'] = array_slice($commentsByPost[(int) $post['id']] ?? [], -3);
             $post['comment_total'] = count($commentsByPost[(int) $post['id']] ?? []);
             $post['permalink'] = site_url('posts/' . (int) $post['id']);
-            $post['profile_url'] = site_url('users/' . $postUserId);
+            $post['profile_url'] = site_url('profile/' . $postUserId);
         }
         unset($post);
 

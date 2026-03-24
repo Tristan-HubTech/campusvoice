@@ -25,8 +25,8 @@
                 </div>
                 <p>Browse what people are posting. Log in or create an account to publish, react, comment, and share.</p>
                 <div class="inline-actions">
-                    <a href="<?= site_url('portal/login') ?>" class="solid-btn">Log in</a>
-                    <a href="<?= site_url('portal/login?mode=register') ?>" class="ghost-btn">Register</a>
+                    <a href="<?= site_url('users/login') ?>" class="solid-btn">Log in</a>
+                    <a href="<?= site_url('users/login?mode=register') ?>" class="ghost-btn">Register</a>
                 </div>
             </section>
         <?php endif; ?>
@@ -64,7 +64,7 @@
             </div>
             <div class="user-list">
                 <?php foreach ($topCreators as $creator): ?>
-                    <a href="<?= site_url('users/' . (int) $creator['id']) ?>" class="user-list-item">
+                    <a href="<?= site_url('profile/' . (int) $creator['id']) ?>" class="user-list-item">
                         <div class="avatar avatar-small avatar-<?= esc((string) ($creator['avatar_color'] ?? 'blue')) ?>"><?= esc(strtoupper(substr((string) $creator['first_name'], 0, 1) . substr((string) $creator['last_name'], 0, 1))) ?></div>
                         <div>
                             <strong><?= esc(trim((string) $creator['first_name'] . ' ' . (string) $creator['last_name'])) ?></strong>

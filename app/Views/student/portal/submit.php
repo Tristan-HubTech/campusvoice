@@ -7,11 +7,11 @@
             <h2>Submit Feedback</h2>
             <p class="muted">Your voice matters. Share a complaint, suggestion, or praise.</p>
         </div>
-        <a href="<?= site_url('portal/feedback') ?>" class="link-more">Back to My Feedback</a>
+        <a href="<?= site_url('users/feedback') ?>" class="link-more">Back to My Feedback</a>
     </div>
 
     <section class="portal-card">
-        <form method="post" action="<?= site_url('portal/feedback/submit') ?>" class="portal-form">
+        <form method="post" action="<?= site_url('users/feedback/submit') ?>" class="portal-form">
             <label for="category_id">Category</label>
             <select id="category_id" name="category_id" required>
                 <option value="">Select category</option>

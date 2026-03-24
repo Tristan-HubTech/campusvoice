@@ -8,7 +8,7 @@
         <p>Create a Student Account</p>
     </div>
 
-    <form method="post" action="<?= site_url('portal/register') ?>" class="auth-form" novalidate>
+    <form method="post" action="<?= site_url('users/register') ?>" class="auth-form" novalidate>
         <div class="form-row-half">
             <div>
                 <label for="reg-first">First Name</label>
@@ -51,7 +51,7 @@
     </form>
 
     <p class="auth-footer-text">
-        Already have an account? <a href="<?= site_url('portal/login') ?>">Log in here</a>
+        Already have an account? <a href="<?= site_url('users/login') ?>">Log in here</a>
     </p>
 </div>
 <?= $this->endSection() ?>

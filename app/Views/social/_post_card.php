@@ -38,7 +38,7 @@
             </form>
             <button type="button" class="action-btn" data-share-url="<?= esc((string) $post['permalink']) ?>">Copy Link</button>
         <?php else: ?>
-            <a href="<?= site_url('portal/login') ?>" class="action-btn link-btn">Log in to react</a>
+            <a href="<?= site_url('users/login') ?>" class="action-btn link-btn">Log in to react</a>
             <button type="button" class="action-btn" data-share-url="<?= esc((string) $post['permalink']) ?>">Copy Link</button>
         <?php endif; ?>
     </div>
@@ -66,7 +66,7 @@
                 <button type="submit" class="solid-btn">Comment</button>
             </form>
         <?php else: ?>
-            <p class="summary-muted"><a href="<?= site_url('portal/login') ?>">Log in</a> to comment on this post.</p>
+            <p class="summary-muted"><a href="<?= site_url('users/login') ?>">Log in</a> to comment on this post.</p>
         <?php endif; ?>
     </div>
 </article>

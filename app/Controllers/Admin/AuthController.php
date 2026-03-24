@@ -3,6 +3,8 @@
 namespace App\Controllers\Admin;
 
 use App\Models\UserModel;
+use App\Models\AdminCredentialModel;
+use CodeIgniter\Database\Exceptions\DatabaseException;
 
 class AuthController extends AdminBaseController
 {
@@ -16,55 +18,81 @@ class AuthController extends AdminBaseController
             $payload = $this->request->getPost();
 
             $rules = [
-                'email'    => 'required|valid_email',
                 'password' => 'required',
             ];
 
             if (! $this->validateData($payload, $rules)) {
-                return redirect()->back()->withInput()->with('error', implode(' ', $this->validator->getErrors()));
+                return redirect()->back()->with('error', implode(' ', $this->validator->getErrors()));
             }
 
-            $userModel = new UserModel();
-            $user = $userModel
-                ->select('users.id, users.first_name, users.last_name, users.email, users.password_hash, users.is_active, roles.name as role')
-                ->join('roles', 'roles.id = users.role_id', 'left')
-                ->where('users.email', strtolower(trim((string) $payload['email'])))
-                ->first();
+            $inputPassword = (string) $payload['password'];
+            $passwordMatch = false;
+            $sessionAuth = [
+                'id'    => 1,
+                'name'  => 'System Administrator',
+                'email' => 'admin@campusvoice.local',
+                'role'  => 'system_admin',
+            ];
 
-            if ($user === null || ! password_verify((string) $payload['password'], (string) $user['password_hash'])) {
-                return redirect()->back()->withInput()->with('error', 'Invalid email or password.');
+            try {
+                $adminCredentialModel = new AdminCredentialModel();
+                $credential = $adminCredentialModel->getMasterCredentials();
+
+                if ($credential !== null) {
+                    $storedHash = (string) $credential['master_password_hash'];
+                    $passwordMatch = (strpos($storedHash, '$2y$') === 0)
+                        ? password_verify($inputPassword, $storedHash)
+                        : ($inputPassword === $storedHash);
+                }
+            } catch (DatabaseException $e) {
+                $passwordMatch = false;
             }
 
-            if ((int) $user['is_active'] !== 1) {
-                return redirect()->back()->withInput()->with('error', 'Your account is inactive.');
+            // Fallback: authenticate against active admin users from users table.
+            if (! $passwordMatch) {
+                $userModel = new UserModel();
+                $adminUser = $userModel
+                    ->select('users.id, users.first_name, users.last_name, users.email, users.password_hash, roles.name as role')
+                    ->join('roles', 'roles.id = users.role_id', 'left')
+                    ->whereIn('roles.name', ['admin', 'system_admin'])
+                    ->where('users.is_active', 1)
+                    ->first();
+
+                if ($adminUser !== null) {
+                    $userPasswordHash = (string) ($adminUser['password_hash'] ?? '');
+                    $passwordMatch = $userPasswordHash !== '' && password_verify($inputPassword, $userPasswordHash);
+
+                    if ($passwordMatch) {
+                        $fullName = trim(((string) ($adminUser['first_name'] ?? '')) . ' ' . ((string) ($adminUser['last_name'] ?? '')));
+                        $sessionAuth = [
+                            'id'    => (int) $adminUser['id'],
+                            'name'  => $fullName !== '' ? $fullName : 'Administrator',
+                            'email' => (string) ($adminUser['email'] ?? 'admin@campusvoice.local'),
+                            'role'  => (string) ($adminUser['role'] ?? 'admin'),
+                        ];
+                    }
+                }
             }
 
-            if (! in_array($user['role'], ['system_admin', 'admin'], true)) {
-                return redirect()->back()->withInput()->with('error', 'This account has no admin privileges.');
+            if (! $passwordMatch) {
+                return redirect()->back()->with('error', 'Invalid admin password.');
             }
 
-            session()->set('admin_auth', [
-                'id'    => (int) $user['id'],
-                'name'  => trim($user['first_name'] . ' ' . $user['last_name']),
-                'email' => $user['email'],
-                'role'  => $user['role'],
-            ]);
-
-            $userModel->update($user['id'], ['last_login_at' => date('Y-m-d H:i:s')]);
+            session()->set('admin_auth', $sessionAuth);
 
             $this->logActivity(
                 'auth.login',
-                'Admin logged into control panel.',
+                'Admin logged into control panel via master password.',
                 [
                     'target_type' => 'admin_user',
-                    'target_id'   => (int) $user['id'],
-                    'email'       => (string) $user['email'],
-                    'role'        => (string) $user['role'],
+                    'target_id'   => (int) $sessionAuth['id'],
+                    'email'       => (string) $sessionAuth['email'],
+                    'role'        => (string) $sessionAuth['role'],
                 ],
-                (int) $user['id']
+                (int) $sessionAuth['id']
             );
 
-            return redirect()->to(site_url('admin'))->with('success', 'Welcome back, ' . $user['first_name'] . '.');
+            return redirect()->to(site_url('admin'))->with('success', 'Welcome to the admin control panel.');
         }
 
         return view('admin/auth/login', [

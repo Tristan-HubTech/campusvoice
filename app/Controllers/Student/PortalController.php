@@ -15,11 +15,6 @@ class PortalController extends Controller
         return (array) (session()->get('student_auth') ?? []);
     }
 
-<<<<<<< HEAD
-    public function index()
-    {
-        return redirect()->to(site_url('feed'));
-=======
     public function index(): string
     {
         $studentUser = $this->studentUser();
@@ -55,7 +50,6 @@ class PortalController extends Controller
             'announcements' => $announcements,
             'stats'         => $stats,
         ]);
->>>>>>> 8f683a475b049c70f2e46bdc1a59b56eb5b110f1
     }
 
     public function myFeedback(): string
@@ -87,11 +81,7 @@ class PortalController extends Controller
             ->orderBy('name', 'ASC')
             ->findAll();
 
-<<<<<<< HEAD
-        if (strtolower($this->request->getMethod()) === 'post') {
-=======
-        if ($this->request->getMethod() === 'POST') {
->>>>>>> 8f683a475b049c70f2e46bdc1a59b56eb5b110f1
+        if ($this->request->getMethod() === 'post') {
             $post = $this->request->getPost();
 
             $rules = [
@@ -119,7 +109,7 @@ class PortalController extends Controller
                 'submitted_at' => date('Y-m-d H:i:s'),
             ]);
 
-            return redirect()->to(site_url('portal/feedback'))->with('success', 'Your feedback has been submitted successfully.');
+            return redirect()->to(site_url('users/feedback'))->with('success', 'Your feedback has been submitted successfully.');
         }
 
         return view('student/portal/submit', [
@@ -129,11 +119,7 @@ class PortalController extends Controller
         ]);
     }
 
-<<<<<<< HEAD
-    public function viewFeedback(int $id)
-=======
     public function viewFeedback(int $id): string
->>>>>>> 8f683a475b049c70f2e46bdc1a59b56eb5b110f1
     {
         $studentUser = $this->studentUser();
         $userId = (int) ($studentUser['id'] ?? 0);
@@ -146,7 +132,7 @@ class PortalController extends Controller
             ->first();
 
         if ($feedback === null) {
-            return redirect()->to(site_url('portal/feedback'))->with('error', 'Feedback not found or you do not have access.');
+            return redirect()->to(site_url('users/feedback'))->with('error', 'Feedback not found or you do not have access.');
         }
 
         $replies = (new FeedbackReplyModel())

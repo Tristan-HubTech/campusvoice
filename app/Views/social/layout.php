@@ -24,20 +24,20 @@
         <nav class="sidebar-nav">
             <a href="<?= site_url('feed') ?>" class="<?= ($pageKey ?? '') === 'feed' ? 'active' : '' ?>">Feed</a>
             <?php if (! empty($currentUser['id'])): ?>
-                <a href="<?= site_url('users/' . (int) $currentUser['id']) ?>" class="<?= ($pageKey ?? '') === 'profile' ? 'active' : '' ?>">My Profile</a>
+                <a href="<?= site_url('profile/' . (int) $currentUser['id']) ?>" class="<?= ($pageKey ?? '') === 'profile' ? 'active' : '' ?>">My Profile</a>
                 <a href="<?= site_url('settings') ?>" class="<?= ($pageKey ?? '') === 'settings' ? 'active' : '' ?>">Settings</a>
-                <a href="<?= site_url('portal/feedback') ?>">My Feedback</a>
-                <a href="<?= site_url('portal/announcements') ?>">Announcements</a>
+                <a href="<?= site_url('users/feedback') ?>">My Feedback</a>
+                <a href="<?= site_url('users/announcements') ?>">Announcements</a>
             <?php else: ?>
-                <a href="<?= site_url('portal/login') ?>">Log In</a>
-                <a href="<?= site_url('portal/login?mode=register') ?>">Register</a>
+                <a href="<?= site_url('users/login') ?>">Log In</a>
+                <a href="<?= site_url('users/login?mode=register') ?>">Register</a>
             <?php endif; ?>
         </nav>
 
         <div class="sidebar-foot">
             <?php if (! empty($currentUser['id'])): ?>
                 <span class="role-chip">USER SPACE</span>
-                <a class="logout-link" href="<?= site_url('portal/logout') ?>">Logout</a>
+                <a class="logout-link" href="<?= site_url('users/logout') ?>">Logout</a>
             <?php else: ?>
                 <span class="role-chip">PUBLIC FEED</span>
             <?php endif; ?>
@@ -60,8 +60,8 @@
                         <small><?= esc((string) ($currentUser['email'] ?? '')) ?></small>
                     </div>
                 <?php else: ?>
-                    <a href="<?= site_url('portal/login?mode=register') ?>" class="ghost-btn">Join now</a>
-                    <a href="<?= site_url('portal/login') ?>" class="solid-btn">Log in</a>
+                    <a href="<?= site_url('users/login?mode=register') ?>" class="ghost-btn">Join now</a>
+                    <a href="<?= site_url('users/login') ?>" class="solid-btn">Log in</a>
                 <?php endif; ?>
             </div>
         </header>

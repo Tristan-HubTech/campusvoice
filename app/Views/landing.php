@@ -147,8 +147,8 @@
             CampusVoice
         </a>
         <div class="nav-links">
-            <a href="<?= site_url('portal/login?mode=register') ?>" class="btn-outline">Register</a>
-            <a href="<?= site_url('portal/login') ?>" class="btn-fill">Log In</a>
+            <a href="<?= site_url('users/login?mode=register') ?>" class="btn-outline">Register</a>
+            <a href="<?= site_url('users/login') ?>" class="btn-fill">Log In</a>
         </div>
     </div>
 </nav>
@@ -158,8 +158,8 @@
         <h1>Your voice shapes a <span>better campus</span></h1>
         <p>Submit feedback, track progress, and stay informed with CampusVoice — the student portal that keeps you connected to your school.</p>
         <div class="hero-cta">
-            <a href="<?= site_url('portal/login') ?>" class="btn-fill">Get Started</a>
-            <a href="<?= site_url('portal/login?mode=register') ?>" class="btn-outline">Create Account</a>
+            <a href="<?= site_url('users/login') ?>" class="btn-fill">Get Started</a>
+            <a href="<?= site_url('users/login?mode=register') ?>" class="btn-outline">Create Account</a>
         </div>
     </div>
     <div class="hero-card">

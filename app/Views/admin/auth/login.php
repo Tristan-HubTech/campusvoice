@@ -31,11 +31,8 @@
         <?php endif; ?>
 
         <form method="post" action="<?= site_url('admin/login') ?>" class="login-form">
-            <label for="email">Email</label>
-            <input id="email" name="email" type="email" required value="<?= esc((string) old('email')) ?>" placeholder="admin@campusvoice.local">
-
-            <label for="password">Password</label>
-            <input id="password" name="password" type="password" required placeholder="Your password">
+            <label for="password">Master Password</label>
+            <input id="password" name="password" type="password" required placeholder="Enter master password" autofocus>
 
             <button type="submit">Sign In</button>
         </form>

@@ -56,7 +56,7 @@ $settingsProfile = (array) ($currentUserProfile ?? []);
 
         <div class="settings-actions">
             <button type="submit" class="solid-btn">Save Changes</button>
-            <a href="<?= site_url('users/' . (int) ($settingsUser['id'] ?? 0)) ?>" class="ghost-btn">View Profile</a>
+            <a href="<?= site_url('profile/' . (int) ($settingsUser['id'] ?? 0)) ?>" class="ghost-btn">View Profile</a>
         </div>
     </form>
 </section>

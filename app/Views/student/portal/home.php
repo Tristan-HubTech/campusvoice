@@ -7,7 +7,7 @@
             <h2>Welcome back, <?= esc((string) ($studentUser['name'] ?? 'Student')) ?>!</h2>
             <p class="muted">Here's an overview of your CampusVoice activity.</p>
         </div>
-        <a href="<?= site_url('portal/feedback/submit') ?>" class="btn-primary">+ Submit Feedback</a>
+        <a href="<?= site_url('users/feedback/submit') ?>" class="btn-primary">+ Submit Feedback</a>
     </div>
 
     <div class="stats-row">
@@ -33,13 +33,13 @@
         <section class="portal-card">
             <div class="card-head">
                 <h3>Recent Submissions</h3>
-                <a href="<?= site_url('portal/feedback') ?>" class="link-more">View all</a>
+                <a href="<?= site_url('users/feedback') ?>" class="link-more">View all</a>
             </div>
             <?php if (! empty($myFeedback)): ?>
                 <ul class="feedback-mini-list">
                     <?php foreach ($myFeedback as $item): ?>
                         <li>
-                            <a href="<?= site_url('portal/feedback/' . (int) $item['id']) ?>">
+                            <a href="<?= site_url('users/feedback/' . (int) $item['id']) ?>">
                                 <span class="fb-subject"><?= esc(strlen((string) $item['subject']) > 60 ? substr((string) $item['subject'], 0, 60) . '…' : (string) $item['subject']) ?></span>
                                 <span class="fb-meta">
                                     <?= esc((string) ($item['category_name'] ?? 'General')) ?>
@@ -51,14 +51,14 @@
                     <?php endforeach; ?>
                 </ul>
             <?php else: ?>
-                <p class="muted empty-hint">No submissions yet. <a href="<?= site_url('portal/feedback/submit') ?>">Submit your first feedback.</a></p>
+                <p class="muted empty-hint">No submissions yet. <a href="<?= site_url('users/feedback/submit') ?>">Submit your first feedback.</a></p>
             <?php endif; ?>
         </section>
 
         <section class="portal-card">
             <div class="card-head">
                 <h3>Latest Announcements</h3>
-                <a href="<?= site_url('portal/announcements') ?>" class="link-more">View all</a>
+                <a href="<?= site_url('users/announcements') ?>" class="link-more">View all</a>
             </div>
             <?php if (! empty($announcements)): ?>
                 <ul class="announce-mini-list">

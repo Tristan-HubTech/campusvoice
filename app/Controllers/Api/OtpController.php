@@ -157,9 +157,16 @@ class OtpController extends ApiController
             return null;
         }
 
+        $recordToIncrement = null;
+
         foreach ($records as $record) {
             if ((int) $record['attempts'] >= (int) $record['max_attempts']) {
                 continue;
+            }
+
+            if ($recordToIncrement === null) {
+                // Charge failed attempts against only one active record to avoid mass lockouts.
+                $recordToIncrement = $record;
             }
 
             if (password_verify($otp, $record['otp_hash'])) {
@@ -169,8 +176,10 @@ class OtpController extends ApiController
 
                 return $record;
             }
+        }
 
-            $otpModel->update($record['id'], ['attempts' => ((int) $record['attempts']) + 1]);
+        if ($recordToIncrement !== null) {
+            $otpModel->update($recordToIncrement['id'], ['attempts' => ((int) $recordToIncrement['attempts']) + 1]);
         }
 
         return null;

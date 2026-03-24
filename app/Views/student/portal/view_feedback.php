@@ -13,7 +13,7 @@
                 Status: <span class="pill status-<?= esc((string) ($feedback['status'] ?? 'new')) ?>"><?= esc(ucfirst((string) ($feedback['status'] ?? 'new'))) ?></span>
             </p>
         </div>
-        <a href="<?= site_url('portal/feedback') ?>" class="link-more">Back to My Feedback</a>
+        <a href="<?= site_url('users/feedback') ?>" class="link-more">Back to My Feedback</a>
     </div>
 
     <section class="portal-card">

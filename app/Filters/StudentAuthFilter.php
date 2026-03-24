@@ -14,7 +14,7 @@ class StudentAuthFilter implements FilterInterface
         $studentAuth = $session->get('student_auth');
 
         if (empty($studentAuth) || empty($studentAuth['id'])) {
-            return redirect()->to(site_url('portal/login'))->with('error', 'Please log in to continue.');
+            return redirect()->to(site_url('users/login'))->with('error', 'Please log in to continue.');
         }
 
         return null;

@@ -53,7 +53,7 @@ class UserManagementController extends AdminBaseController
                 "Hello " . trim($user['first_name'] . ' ' . $user['last_name']) . ",\n\n" .
                 "An administrator has reset your CampusVoice account password.\n\n" .
                 "Your temporary password is: " . $tempPassword . "\n\n" .
-                "Please log in at " . site_url('portal/login') . " and change your password immediately.\n\n" .
+                "Please log in at " . site_url('users/login') . " and change your password immediately.\n\n" .
                 "If you did not request this, please contact your campus administrator.\n\n" .
                 "— CampusVoice Team"
             );

@@ -5,7 +5,6 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
-<<<<<<< HEAD
 $routes->get('/', 'SocialController::index');
 
 $routes->get('feed', 'SocialController::index');
@@ -14,11 +13,8 @@ $routes->get('posts/(:num)', 'SocialController::show/$1');
 $routes->post('posts/(:num)/react', 'SocialController::react/$1');
 $routes->post('posts/(:num)/comment', 'SocialController::comment/$1');
 $routes->post('posts/(:num)/share', 'SocialController::share/$1');
-$routes->get('users/(:num)', 'SocialController::profile/$1');
+$routes->get('profile/(:num)', 'SocialController::profile/$1');
 $routes->match(['get', 'post'], 'settings', 'SocialController::settings');
-=======
-$routes->get('/', 'Home::index');
->>>>>>> 8f683a475b049c70f2e46bdc1a59b56eb5b110f1
 
 $routes->match(['get', 'post'], 'admin/login', 'Admin\\AuthController::login');
 $routes->get('admin/logout', 'Admin\\AuthController::logout', ['filter' => 'adminauth']);
@@ -55,9 +51,30 @@ $routes->group('admin', ['filter' => 'adminauth'], static function (RouteCollect
 });
 
 // Student Portal
+$routes->match(['get', 'post'], 'users/login', 'Student\\AuthController::login');
+$routes->match(['get', 'post'], 'users/register', 'Student\\AuthController::register');
+$routes->post('users/register/send-otp', 'Student\\AuthController::sendRegisterOtp');
+$routes->match(['get', 'post'], 'users/forgot-password', 'Student\\AuthController::forgotPassword');
+$routes->post('users/forgot-password/send-otp', 'Student\\AuthController::sendForgotOtp');
+$routes->post('users/forgot-password/verify-otp', 'Student\\AuthController::verifyForgotOtp');
+$routes->get('users/logout', 'Student\\AuthController::logout');
+
+// Legacy portal aliases (kept for old bookmarks/links)
 $routes->match(['get', 'post'], 'portal/login', 'Student\\AuthController::login');
 $routes->match(['get', 'post'], 'portal/register', 'Student\\AuthController::register');
+$routes->post('portal/register/send-otp', 'Student\\AuthController::sendRegisterOtp');
+$routes->match(['get', 'post'], 'portal/forgot-password', 'Student\\AuthController::forgotPassword');
+$routes->post('portal/forgot-password/send-otp', 'Student\\AuthController::sendForgotOtp');
+$routes->post('portal/forgot-password/verify-otp', 'Student\\AuthController::verifyForgotOtp');
 $routes->get('portal/logout', 'Student\\AuthController::logout');
+
+$routes->group('users', ['filter' => 'studentauth'], static function (RouteCollection $routes): void {
+	$routes->get('/', 'Student\\PortalController::index');
+	$routes->get('announcements', 'Student\\PortalController::announcements');
+	$routes->get('feedback', 'Student\\PortalController::myFeedback');
+	$routes->match(['get', 'post'], 'feedback/submit', 'Student\\PortalController::submitFeedback');
+	$routes->get('feedback/(:num)', 'Student\\PortalController::viewFeedback/$1');
+});
 
 $routes->group('portal', ['filter' => 'studentauth'], static function (RouteCollection $routes): void {
 	$routes->get('/', 'Student\\PortalController::index');

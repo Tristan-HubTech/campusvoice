@@ -109,7 +109,6 @@ class InitialDataSeeder extends Seeder
                 'updated_at'    => $now,
             ]);
         }
-<<<<<<< HEAD
 
         if (! $this->db->tableExists('social_profiles') || ! $this->db->tableExists('social_posts')) {
             return;
@@ -285,7 +284,5 @@ class InitialDataSeeder extends Seeder
                 ]);
             }
         }
-=======
->>>>>>> 8f683a475b049c70f2e46bdc1a59b56eb5b110f1
     }
 }
