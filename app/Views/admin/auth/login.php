@@ -38,7 +38,7 @@
         </form>
 
         <div class="login-note">
-            If this is your first run, seed defaults with: <code>spark db:seed InitialDataSeeder</code>
+
         </div>
     </section>
 </main>

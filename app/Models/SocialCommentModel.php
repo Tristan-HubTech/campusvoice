@@ -15,6 +15,7 @@ class SocialCommentModel extends Model
         'post_id',
         'user_id',
         'body',
+        'is_anonymous',
     ];
 
     protected bool $allowEmptyInserts = false;

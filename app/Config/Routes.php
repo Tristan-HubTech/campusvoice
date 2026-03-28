@@ -15,6 +15,7 @@ $routes->post('posts/(:num)/comment', 'SocialController::comment/$1');
 $routes->post('posts/(:num)/share', 'SocialController::share/$1');
 $routes->get('profile/(:num)', 'SocialController::profile/$1');
 $routes->match(['get', 'post'], 'settings', 'SocialController::settings');
+$routes->post('settings/anonymous', 'SocialController::toggleAnonymous');
 
 $routes->match(['get', 'post'], 'admin/login', 'Admin\\AuthController::login');
 $routes->get('admin/logout', 'Admin\\AuthController::logout', ['filter' => 'adminauth']);
@@ -74,6 +75,7 @@ $routes->group('users', ['filter' => 'studentauth'], static function (RouteColle
 	$routes->get('feedback', 'Student\\PortalController::myFeedback');
 	$routes->match(['get', 'post'], 'feedback/submit', 'Student\\PortalController::submitFeedback');
 	$routes->get('feedback/(:num)', 'Student\\PortalController::viewFeedback/$1');
+	$routes->post('feedback/(:num)/delete', 'Student\\PortalController::deleteFeedback/$1');
 });
 
 $routes->group('portal', ['filter' => 'studentauth'], static function (RouteCollection $routes): void {
@@ -82,6 +84,7 @@ $routes->group('portal', ['filter' => 'studentauth'], static function (RouteColl
 	$routes->get('feedback', 'Student\\PortalController::myFeedback');
 	$routes->match(['get', 'post'], 'feedback/submit', 'Student\\PortalController::submitFeedback');
 	$routes->get('feedback/(:num)', 'Student\\PortalController::viewFeedback/$1');
+	$routes->post('feedback/(:num)/delete', 'Student\\PortalController::deleteFeedback/$1');
 });
 
 $routes->group('api', ['namespace' => 'App\\Controllers\\Api'], static function (RouteCollection $routes): void {

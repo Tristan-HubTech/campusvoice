@@ -7,7 +7,6 @@
             <h2>Campus Announcements</h2>
             <p class="muted">Latest updates from the administration.</p>
         </div>
-        <a href="<?= site_url('users') ?>" class="link-more">Back to Home</a>
     </div>
 
     <section class="portal-card">

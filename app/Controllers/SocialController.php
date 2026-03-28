@@ -2,8 +2,6 @@
 
 namespace App\Controllers;
 
-use App\Models\AnnouncementModel;
-use App\Models\FeedbackModel;
 use App\Models\SocialCommentModel;
 use App\Models\SocialPostModel;
 use App\Models\SocialProfileModel;
@@ -22,19 +20,19 @@ class SocialController extends BaseController
         $viewerId = (int) ($viewer['id'] ?? 0);
 
         if ($viewerId > 0) {
-            $this->ensureProfile($viewerId);
+            $profile = $this->ensureProfile($viewerId);
         }
+
+        $isAnon = (int) (($profile ?? [])['is_anonymous'] ?? 0) === 1;
 
         return view('social/feed', [
             'title'              => 'Community Feed',
             'pageKey'            => 'feed',
             'studentUser'        => $viewer,
             'currentUser'        => $viewer,
-            'currentUserProfile' => $viewerId > 0 ? $this->ensureProfile($viewerId) : null,
             'posts'              => $this->buildPosts($viewerId),
-            'stats'              => $this->communityStats($viewerId),
-            'topCreators'        => $this->topCreators(),
-            'announcements'      => $this->latestAnnouncements(),
+            'isAnonymous'        => $isAnon,
+            'anonAlias'          => $isAnon ? $this->anonymousAlias($viewerId) : '',
         ]);
     }
 
@@ -48,17 +46,21 @@ class SocialController extends BaseController
             throw PageNotFoundException::forPageNotFound('Post not found.');
         }
 
+        $isAnon = false;
+        if ($viewerId > 0) {
+            $p = $this->ensureProfile($viewerId);
+            $isAnon = (int) ($p['is_anonymous'] ?? 0) === 1;
+        }
+
         return view('social/feed', [
             'title'              => 'Post',
             'pageKey'            => 'feed',
             'studentUser'        => $viewer,
             'currentUser'        => $viewer,
-            'currentUserProfile' => $viewerId > 0 ? $this->ensureProfile($viewerId) : null,
             'posts'              => $posts,
-            'stats'              => $this->communityStats($viewerId),
-            'topCreators'        => $this->topCreators(),
-            'announcements'      => $this->latestAnnouncements(),
             'focusMode'          => true,
+            'isAnonymous'        => $isAnon,
+            'anonAlias'          => $isAnon ? $this->anonymousAlias($viewerId) : '',
         ]);
     }
 
@@ -83,11 +85,12 @@ class SocialController extends BaseController
             'pageKey'            => 'profile',
             'studentUser'        => $viewer,
             'currentUser'        => $viewer,
-            'currentUserProfile' => $viewerId > 0 ? $this->ensureProfile($viewerId) : null,
             'profileUser'        => $user,
             'profileDetails'     => $profile,
             'profileStats'       => $this->profileStats((int) $user['id']),
             'posts'              => $this->buildPosts($viewerId, (int) $user['id']),
+            'isAnonymous'        => $viewerId > 0 && (int) ($this->ensureProfile($viewerId)['is_anonymous'] ?? 0) === 1,
+            'anonAlias'          => $viewerId > 0 ? $this->anonymousAlias($viewerId) : '',
         ]);
     }
 
@@ -102,19 +105,21 @@ class SocialController extends BaseController
         $viewerId = (int) $viewer['id'];
         $profile = $this->ensureProfile($viewerId);
         $userModel = new UserModel();
+        $user = $userModel->find($viewerId);
 
         if (strtolower($this->request->getMethod()) === 'post') {
             $rules = [
                 'first_name' => 'required|min_length[2]|max_length[100]',
                 'last_name'  => 'required|min_length[2]|max_length[100]',
-                'phone'      => 'permit_empty|max_length[30]',
                 'bio'        => 'permit_empty|max_length[500]',
                 'avatar_color' => 'required|in_list[' . implode(',', $this->avatarPalette) . ']',
+                'is_anonymous' => 'permit_empty|in_list[0,1]',
             ];
 
             $password = (string) ($this->request->getPost('password') ?? '');
             $passwordConfirm = (string) ($this->request->getPost('password_confirm') ?? '');
             if ($password !== '' || $passwordConfirm !== '') {
+                $rules['current_password'] = 'required';
                 $rules['password'] = 'required|min_length[8]|max_length[255]';
                 $rules['password_confirm'] = 'required|matches[password]';
             }
@@ -123,10 +128,17 @@ class SocialController extends BaseController
                 return redirect()->back()->with('error', implode(' ', $this->validator->getErrors()))->withInput();
             }
 
+            if ($password !== '' || $passwordConfirm !== '') {
+                $currentPassword = (string) ($this->request->getPost('current_password') ?? '');
+                $storedHash = (string) ($user['password_hash'] ?? '');
+                if ($storedHash === '' || ! password_verify($currentPassword, $storedHash)) {
+                    return redirect()->back()->with('error', 'Current password is incorrect.')->withInput();
+                }
+            }
+
             $updateUser = [
                 'first_name' => trim((string) $this->request->getPost('first_name')),
                 'last_name'  => trim((string) $this->request->getPost('last_name')),
-                'phone'      => trim((string) ($this->request->getPost('phone') ?? '')) ?: null,
             ];
 
             if ($password !== '') {
@@ -136,10 +148,16 @@ class SocialController extends BaseController
             $userModel->update($viewerId, $updateUser);
 
             $profileModel = new SocialProfileModel();
-            $profileModel->update((int) $profile['id'], [
+            $profilePayload = [
                 'bio'          => trim((string) ($this->request->getPost('bio') ?? '')) ?: null,
                 'avatar_color' => (string) $this->request->getPost('avatar_color'),
-            ]);
+            ];
+
+            if (db_connect()->fieldExists('is_anonymous', 'social_profiles')) {
+                $profilePayload['is_anonymous'] = (int) ($this->request->getPost('is_anonymous') ?? 0);
+            }
+
+            $profileModel->update((int) $profile['id'], $profilePayload);
 
             $user = $userModel->find($viewerId);
             session()->set('student_auth', [
@@ -152,15 +170,39 @@ class SocialController extends BaseController
             return redirect()->to(site_url('settings'))->with('success', 'Your account settings were updated.');
         }
 
+        $settingsProfile = $this->ensureProfile($viewerId);
+        $isAnon = (int) ($settingsProfile['is_anonymous'] ?? 0) === 1;
+
         return view('social/settings', [
             'title'              => 'Settings',
             'pageKey'            => 'settings',
             'studentUser'        => $viewer,
             'currentUser'        => $viewer,
-            'currentUserProfile' => $this->ensureProfile($viewerId),
+            'currentUserProfile' => $settingsProfile,
             'avatarPalette'      => $this->avatarPalette,
             'settingsUser'       => $userModel->find($viewerId),
+            'isAnonymous'        => $isAnon,
+            'anonAlias'          => $isAnon ? $this->anonymousAlias($viewerId) : '',
         ]);
+    }
+
+    public function toggleAnonymous()
+    {
+        $guard = $this->requireUser();
+        if ($guard !== null) {
+            return $this->response->setJSON(['ok' => false])->setStatusCode(401);
+        }
+
+        $viewer   = $this->viewer();
+        $viewerId = (int) $viewer['id'];
+        $value    = (int) ($this->request->getPost('is_anonymous') ?? 0) === 1 ? 1 : 0;
+
+        if (db_connect()->fieldExists('is_anonymous', 'social_profiles')) {
+            $profile = $this->ensureProfile($viewerId);
+            (new SocialProfileModel())->update((int) $profile['id'], ['is_anonymous' => $value]);
+        }
+
+        return $this->response->setJSON(['ok' => true, 'is_anonymous' => $value]);
     }
 
     public function createPost()
@@ -172,17 +214,30 @@ class SocialController extends BaseController
 
         $rules = [
             'body' => 'required|min_length[3]|max_length[4000]',
+            'is_anonymous' => 'permit_empty|in_list[0,1]',
         ];
 
         if (! $this->validate($rules)) {
             return redirect()->back()->with('error', implode(' ', $this->validator->getErrors()))->withInput();
         }
 
-        (new SocialPostModel())->insert([
+        $isAnonymous = (int) ($this->request->getPost('is_anonymous') ?? 0);
+        if ($isAnonymous !== 1) {
+            $profile = $this->ensureProfile((int) $this->viewer()['id']);
+            $isAnonymous = (int) ($profile['is_anonymous'] ?? 0);
+        }
+
+        $postPayload = [
             'user_id'   => (int) $this->viewer()['id'],
-            'body'      => trim((string) $this->request->getPost('body')),
+            'body'      => trim(strip_tags((string) $this->request->getPost('body'))),
             'is_public' => 1,
-        ]);
+        ];
+
+        if (db_connect()->fieldExists('is_anonymous', 'social_posts')) {
+            $postPayload['is_anonymous'] = $isAnonymous === 1 ? 1 : 0;
+        }
+
+        (new SocialPostModel())->insert($postPayload);
 
         return redirect()->to(site_url('feed'))->with('success', 'Your post is now live.');
     }
@@ -227,7 +282,31 @@ class SocialController extends BaseController
             $reactionModel->save($payload);
         }
 
-        return $this->redirectToReferrer('posts/' . $postId);
+        if ($this->request->isAJAX()) {
+            $reactionRows = db_connect()->table('social_post_reactions')
+                ->select('reaction_type, COUNT(*) as total')
+                ->where('post_id', $postId)
+                ->groupBy('reaction_type')
+                ->get()->getResultArray();
+            $breakdown = [];
+            $reactionTotal = 0;
+            foreach ($reactionRows as $r) {
+                $breakdown[$r['reaction_type']] = (int) $r['total'];
+                $reactionTotal += (int) $r['total'];
+            }
+            $viewerReaction = (new SocialReactionModel())
+                ->where('post_id', $postId)
+                ->where('user_id', $viewerId)
+                ->first();
+            return $this->response->setJSON([
+                'ok' => true,
+                'reaction_total' => $reactionTotal,
+                'reaction_breakdown' => $breakdown,
+                'viewer_reaction' => $viewerReaction ? (string) $viewerReaction['reaction_type'] : null,
+            ]);
+        }
+
+        return $this->redirectToReferrer('posts/' . $postId, 'post-' . $postId);
     }
 
     public function comment(int $postId)
@@ -239,6 +318,7 @@ class SocialController extends BaseController
 
         $rules = [
             'body' => 'required|min_length[1]|max_length[1000]',
+            'is_anonymous' => 'permit_empty|in_list[0,1]',
         ];
 
         if (! $this->validate($rules)) {
@@ -250,13 +330,48 @@ class SocialController extends BaseController
             return $this->redirectToReferrer('feed')->with('error', 'Post not found.');
         }
 
-        (new SocialCommentModel())->insert([
+        $isAnonymous = (int) ($this->request->getPost('is_anonymous') ?? 0);
+        if ($isAnonymous !== 1) {
+            $profile = $this->ensureProfile((int) $this->viewer()['id']);
+            $isAnonymous = (int) ($profile['is_anonymous'] ?? 0);
+        }
+
+        $commentPayload = [
             'post_id' => $postId,
             'user_id' => (int) $this->viewer()['id'],
-            'body'    => trim((string) $this->request->getPost('body')),
-        ]);
+            'body'    => trim(strip_tags((string) $this->request->getPost('body'))),
+        ];
 
-        return $this->redirectToReferrer('posts/' . $postId)->with('success', 'Comment added.');
+        if (db_connect()->fieldExists('is_anonymous', 'social_post_comments')) {
+            $commentPayload['is_anonymous'] = $isAnonymous === 1 ? 1 : 0;
+        }
+
+        (new SocialCommentModel())->insert($commentPayload);
+
+        if ($this->request->isAJAX()) {
+            $viewer = $this->viewer();
+            $profile = $this->ensureProfile((int) $viewer['id']);
+            $isAnonComment = $isAnonymous === 1;
+            $authorName = $isAnonComment
+                ? $this->anonymousAlias((int) $viewer['id'])
+                : trim((string) ($viewer['name'] ?? 'User'));
+            $avatarColor = $isAnonComment ? 'violet' : (string) ($profile['avatar_color'] ?? 'blue');
+            $initial = strtoupper(substr($authorName, 0, 1));
+            $commentTotal = (new SocialCommentModel())->where('post_id', $postId)->where('deleted_at', null)->countAllResults();
+
+            return $this->response->setJSON([
+                'ok' => true,
+                'comment' => [
+                    'author_name' => $authorName,
+                    'avatar_color' => $avatarColor,
+                    'initial' => $initial,
+                    'body' => trim(strip_tags((string) $this->request->getPost('body'))),
+                ],
+                'comment_total' => $commentTotal,
+            ]);
+        }
+
+        return $this->redirectToReferrer('posts/' . $postId, 'post-' . $postId)->with('success', 'Comment added.');
     }
 
     public function share(int $postId)
@@ -289,12 +404,27 @@ class SocialController extends BaseController
             ]);
         }
 
-        return $this->redirectToReferrer('posts/' . $postId)->with('success', 'Post link saved to your shares.');
+        $shareTotal = (new SocialShareModel())->where('post_id', $postId)->countAllResults();
+
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'ok' => true,
+                'share_total' => $shareTotal,
+            ]);
+        }
+
+        return $this->redirectToReferrer('posts/' . $postId, 'post-' . $postId)->with('success', 'Post link saved to your shares.');
     }
 
     private function viewer(): array
     {
         return (array) (session()->get('student_auth') ?? []);
+    }
+
+    private function anonymousAlias(int $userId): string
+    {
+        $number = str_pad((string) (($userId * 31 + 7) % 100), 2, '0', STR_PAD_LEFT);
+        return 'Versace' . $number;
     }
 
     private function requireUser()
@@ -306,14 +436,21 @@ class SocialController extends BaseController
         return null;
     }
 
-    private function redirectToReferrer(string $fallback)
+    private function redirectToReferrer(string $fallback, string $anchor = '')
     {
         $referer = trim((string) $this->request->getServer('HTTP_REFERER'));
-        if ($referer !== '') {
-            return redirect()->to($referer);
+
+        // Strip any existing fragment from the URL before appending the new one
+        if ($anchor !== '') {
+            $anchor = '#' . ltrim($anchor, '#');
         }
 
-        return redirect()->to(site_url($fallback));
+        if ($referer !== '') {
+            $referer = preg_replace('/#.*$/', '', $referer);
+            return redirect()->to($referer . $anchor);
+        }
+
+        return redirect()->to(site_url($fallback) . $anchor);
     }
 
     private function ensureProfile(int $userId): array
@@ -336,7 +473,7 @@ class SocialController extends BaseController
     private function buildPosts(int $viewerId = 0, ?int $userId = null, ?int $postId = null): array
     {
         $query = (new SocialPostModel())
-            ->select('social_posts.*, users.first_name, users.last_name, users.email, social_profiles.avatar_color, social_profiles.bio')
+            ->select('social_posts.*, users.first_name, users.last_name, users.email, social_profiles.avatar_color, social_profiles.bio, social_profiles.is_anonymous as profile_is_anonymous')
             ->join('users', 'users.id = social_posts.user_id', 'inner')
             ->join('social_profiles', 'social_profiles.user_id = users.id', 'left')
             ->where('users.is_active', 1)
@@ -403,7 +540,7 @@ class SocialController extends BaseController
         }
 
         $commentRows = $db->table('social_post_comments')
-            ->select('social_post_comments.*, users.first_name, users.last_name, social_profiles.avatar_color')
+            ->select('social_post_comments.*, users.first_name, users.last_name, social_profiles.avatar_color, social_profiles.is_anonymous as profile_is_anonymous')
             ->join('users', 'users.id = social_post_comments.user_id', 'inner')
             ->join('social_profiles', 'social_profiles.user_id = users.id', 'left')
             ->whereIn('social_post_comments.post_id', $postIds)
@@ -414,47 +551,41 @@ class SocialController extends BaseController
 
         $commentsByPost = [];
         foreach ($commentRows as $row) {
-            $row['author_name'] = trim((string) $row['first_name'] . ' ' . (string) $row['last_name']);
-            $row['avatar_color'] = (string) ($row['avatar_color'] ?? 'blue');
+            $commentIsAnonymous = (int) ($row['is_anonymous'] ?? 0) === 1 || (int) ($row['profile_is_anonymous'] ?? 0) === 1;
+            $row['author_name'] = $commentIsAnonymous
+                ? $this->anonymousAlias((int) $row['user_id'])
+                : trim((string) $row['first_name'] . ' ' . (string) $row['last_name']);
+            $row['avatar_color'] = $commentIsAnonymous
+                ? 'violet'
+                : (string) ($row['avatar_color'] ?? 'blue');
             $commentsByPost[(int) $row['post_id']][] = $row;
         }
 
         foreach ($posts as &$post) {
             $postUserId = (int) $post['user_id'];
-            $post['author_name'] = trim((string) $post['first_name'] . ' ' . (string) $post['last_name']);
-            $post['avatar_color'] = (string) ($post['avatar_color'] ?? $this->avatarPalette[$postUserId % count($this->avatarPalette)]);
-            $post['initials'] = strtoupper(substr((string) $post['first_name'], 0, 1) . substr((string) $post['last_name'], 0, 1));
+            $postIsAnonymous = (int) ($post['is_anonymous'] ?? 0) === 1 || (int) ($post['profile_is_anonymous'] ?? 0) === 1;
+            $post['author_name'] = $postIsAnonymous
+                ? $this->anonymousAlias($postUserId)
+                : trim((string) $post['first_name'] . ' ' . (string) $post['last_name']);
+            $post['avatar_color'] = $postIsAnonymous
+                ? 'violet'
+                : (string) ($post['avatar_color'] ?? $this->avatarPalette[$postUserId % count($this->avatarPalette)]);
+            $post['initials'] = $postIsAnonymous
+                ? 'AN'
+                : strtoupper(substr((string) $post['first_name'], 0, 1) . substr((string) $post['last_name'], 0, 1));
             $post['reaction_total'] = (int) ($reactionTotals[(int) $post['id']] ?? 0);
             $post['reaction_breakdown'] = $reactionBreakdown[(int) $post['id']] ?? [];
             $post['viewer_reaction'] = $viewerReactions[(int) $post['id']] ?? null;
             $post['share_total'] = (int) ($shareTotals[(int) $post['id']] ?? 0);
-            $post['comments'] = array_slice($commentsByPost[(int) $post['id']] ?? [], -3);
+            $post['comments'] = $commentsByPost[(int) $post['id']] ?? [];
             $post['comment_total'] = count($commentsByPost[(int) $post['id']] ?? []);
             $post['permalink'] = site_url('posts/' . (int) $post['id']);
-            $post['profile_url'] = site_url('profile/' . $postUserId);
+            $post['profile_url'] = $postIsAnonymous ? '' : site_url('profile/' . $postUserId);
+            $post['is_anonymous'] = $postIsAnonymous ? 1 : 0;
         }
         unset($post);
 
         return $posts;
-    }
-
-    private function communityStats(int $viewerId): array
-    {
-        $postModel = new SocialPostModel();
-        $commentModel = new SocialCommentModel();
-        $reactionModel = new SocialReactionModel();
-        $shareModel = new SocialShareModel();
-        $userModel = new UserModel();
-        $feedbackModel = new FeedbackModel();
-
-        return [
-            'posts'       => $postModel->countAllResults(),
-            'people'      => $userModel->where('is_active', 1)->countAllResults(),
-            'comments'    => $commentModel->countAllResults(),
-            'reactions'   => $reactionModel->countAllResults(),
-            'shares'      => $shareModel->countAllResults(),
-            'my_feedback' => $viewerId > 0 ? $feedbackModel->where('user_id', $viewerId)->countAllResults() : 0,
-        ];
     }
 
     private function profileStats(int $userId): array
@@ -467,28 +598,4 @@ class SocialController extends BaseController
         ];
     }
 
-    private function topCreators(): array
-    {
-        return db_connect()->table('social_posts')
-            ->select('users.id, users.first_name, users.last_name, social_profiles.avatar_color, COUNT(social_posts.id) as post_total')
-            ->join('users', 'users.id = social_posts.user_id', 'inner')
-            ->join('social_profiles', 'social_profiles.user_id = users.id', 'left')
-            ->groupBy('users.id, users.first_name, users.last_name, social_profiles.avatar_color')
-            ->orderBy('post_total', 'DESC')
-            ->limit(5)
-            ->get()
-            ->getResultArray();
-    }
-
-    private function latestAnnouncements(): array
-    {
-        return (new AnnouncementModel())
-            ->where('is_published', 1)
-            ->groupStart()
-                ->where('expires_at IS NULL')
-                ->orWhere('expires_at >=', date('Y-m-d H:i:s'))
-            ->groupEnd()
-            ->orderBy('created_at', 'DESC')
-            ->findAll(3);
-    }
 }

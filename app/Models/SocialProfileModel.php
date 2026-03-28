@@ -14,6 +14,7 @@ class SocialProfileModel extends Model
         'user_id',
         'bio',
         'avatar_color',
+        'is_anonymous',
     ];
 
     protected bool $allowEmptyInserts = false;

@@ -8,7 +8,7 @@ $initials = strtoupper(substr((string) $profileUser['first_name'], 0, 1) . subst
 ?>
 <div class="profile-shell">
     <section class="panel-card profile-hero">
-        <div class="avatar avatar-large avatar-<?= esc($avatarColor) ?>"><?= esc($initials) ?></div>
+        <div class="avatar avatar-large avatar-<?= esc($avatarColor) ?>\"><?= esc($initials) ?></div>
         <div class="profile-copy">
             <h2><?= esc($fullName) ?></h2>
             <p><?= esc((string) ($profileDetails['bio'] ?: 'No bio yet.')) ?></p>

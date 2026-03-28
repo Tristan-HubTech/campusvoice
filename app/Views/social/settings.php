@@ -24,8 +24,8 @@ $settingsProfile = (array) ($currentUserProfile ?? []);
 
         <div class="field-row">
             <div>
-                <label for="phone">Phone</label>
-                <input id="phone" name="phone" type="text" maxlength="30" value="<?= esc((string) old('phone', (string) ($settingsUser['phone'] ?? ''))) ?>">
+                <label for="email">Email</label>
+                <input id="email" name="email" type="email" value="<?= esc((string) ($settingsUser['email'] ?? '')) ?>" readonly>
             </div>
             <div>
                 <label for="avatar_color">Avatar Color</label>
@@ -38,12 +38,54 @@ $settingsProfile = (array) ($currentUserProfile ?? []);
             </div>
         </div>
 
-        <div>
-            <label for="bio">Bio</label>
-            <textarea id="bio" name="bio" rows="4" maxlength="500" placeholder="Tell people what you care about on campus."><?= esc((string) old('bio', (string) ($settingsProfile['bio'] ?? ''))) ?></textarea>
+        <div class="field-row anon-toggle-row">
+            <div>
+                <div>
+                    <label class="toggle-label-text">Anonymous Mode</label>
+                    <p class="toggle-desc">Your posts and comments will appear as "Anonymous"</p>
+                </div>
+                <?php $anonVal = old('is_anonymous', (string) ($settingsProfile['is_anonymous'] ?? '0')) === '1' ? '1' : '0'; ?>
+                <div class="anon-seg" id="anonSeg" data-checked="<?= $anonVal ?>">
+                    <input id="is_anonymous" name="is_anonymous" type="checkbox" value="1" <?= $anonVal === '1' ? 'checked' : '' ?>>
+                    <button type="button" class="seg-btn seg-off" onclick="setAnon(false)">OFF</button>
+                    <button type="button" class="seg-btn seg-on" onclick="setAnon(true)">ON</button>
+                </div>
+            </div>
+            <div></div>
         </div>
+        <script>
+        (function(){
+            var cb  = document.getElementById('is_anonymous');
+            var seg = document.getElementById('anonSeg');
+            window.setAnon = function(val){
+                var prev = cb.checked;
+                cb.checked = val;
+                seg.setAttribute('data-checked', val ? '1' : '0');
+                fetch('<?= site_url('settings/anonymous') ?>', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: 'is_anonymous=' + (val ? '1' : '0')
+                }).then(function(res){
+                    if (!res.ok) {
+                        cb.checked = prev;
+                        seg.setAttribute('data-checked', prev ? '1' : '0');
+                    }
+                }).catch(function(){
+                    cb.checked = prev;
+                    seg.setAttribute('data-checked', prev ? '1' : '0');
+                });
+            };
+        })();
+        </script>
 
         <div class="field-row">
+            <div>
+                <label for="current_password">Current Password</label>
+                <input id="current_password" name="current_password" type="password" maxlength="255" placeholder="Required only when changing password">
+            </div>
             <div>
                 <label for="password">New Password</label>
                 <input id="password" name="password" type="password" maxlength="255" placeholder="Leave blank to keep current password">
@@ -56,7 +98,6 @@ $settingsProfile = (array) ($currentUserProfile ?? []);
 
         <div class="settings-actions">
             <button type="submit" class="solid-btn">Save Changes</button>
-            <a href="<?= site_url('profile/' . (int) ($settingsUser['id'] ?? 0)) ?>" class="ghost-btn">View Profile</a>
         </div>
     </form>
 </section>

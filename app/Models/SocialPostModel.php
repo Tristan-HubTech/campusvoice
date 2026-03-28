@@ -15,6 +15,7 @@ class SocialPostModel extends Model
         'user_id',
         'body',
         'is_public',
+        'is_anonymous',
     ];
 
     protected bool $allowEmptyInserts = false;

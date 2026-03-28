@@ -22,6 +22,7 @@
                         <th>Subject</th>
                         <th>Status</th>
                         <th>Submitted</th>
+                        <th>Action</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -37,6 +38,9 @@
                             </td>
                             <td><span class="pill status-<?= esc((string) ($item['status'] ?? 'new')) ?>"><?= esc(ucfirst((string) ($item['status'] ?? 'new'))) ?></span></td>
                             <td><?= esc(date('M d, Y H:i', strtotime((string) ($item['created_at'] ?? 'now')))) ?></td>
+                            <td>
+                                <button type="button" class="btn-delete-sm" data-delete-url="<?= site_url('users/feedback/' . (int) $item['id'] . '/delete') ?>">Delete</button>
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                     </tbody>
@@ -47,4 +51,45 @@
         <?php endif; ?>
     </section>
 </div>
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal-card">
+        <div class="modal-icon">🗑️</div>
+        <h3 class="modal-title">Delete Feedback</h3>
+        <p class="modal-text">Are you sure you want to delete this submission? This action cannot be undone.</p>
+        <div class="modal-actions">
+            <button type="button" class="modal-btn modal-btn--cancel" id="modalCancel">Cancel</button>
+            <form method="post" id="deleteForm" style="margin:0;">
+                <button type="submit" class="modal-btn modal-btn--confirm">Yes, Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+(function(){
+    const overlay = document.getElementById('deleteModal');
+    const form    = document.getElementById('deleteForm');
+    const cancel  = document.getElementById('modalCancel');
+
+    document.querySelectorAll('.btn-delete-sm[data-delete-url]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+            form.action = btn.getAttribute('data-delete-url');
+            overlay.classList.add('is-visible');
+        });
+    });
+
+    cancel.addEventListener('click', function(){
+        overlay.classList.remove('is-visible');
+    });
+
+    overlay.addEventListener('click', function(e){
+        if(e.target === overlay) overlay.classList.remove('is-visible');
+    });
+
+    document.addEventListener('keydown', function(e){
+        if(e.key === 'Escape') overlay.classList.remove('is-visible');
+    });
+})();
+</script>
 <?= $this->endSection() ?>

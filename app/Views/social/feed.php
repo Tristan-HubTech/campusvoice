@@ -43,55 +43,6 @@
         <?php endif; ?>
     </section>
 
-    <aside class="rail-column">
-        <section class="panel-card stats-card">
-            <div class="panel-head">
-                <h2>Community Stats</h2>
-            </div>
-            <div class="stats-grid compact">
-                <div class="stat-card"><span>Posts</span><strong><?= (int) ($stats['posts'] ?? 0) ?></strong></div>
-                <div class="stat-card"><span>People</span><strong><?= (int) ($stats['people'] ?? 0) ?></strong></div>
-                <div class="stat-card"><span>Comments</span><strong><?= (int) ($stats['comments'] ?? 0) ?></strong></div>
-                <div class="stat-card"><span>Reactions</span><strong><?= (int) ($stats['reactions'] ?? 0) ?></strong></div>
-                <div class="stat-card"><span>Shares</span><strong><?= (int) ($stats['shares'] ?? 0) ?></strong></div>
-                <div class="stat-card"><span>My Feedback</span><strong><?= (int) ($stats['my_feedback'] ?? 0) ?></strong></div>
-            </div>
-        </section>
 
-        <section class="panel-card">
-            <div class="panel-head">
-                <h2>Top Creators</h2>
-            </div>
-            <div class="user-list">
-                <?php foreach ($topCreators as $creator): ?>
-                    <a href="<?= site_url('profile/' . (int) $creator['id']) ?>" class="user-list-item">
-                        <div class="avatar avatar-small avatar-<?= esc((string) ($creator['avatar_color'] ?? 'blue')) ?>"><?= esc(strtoupper(substr((string) $creator['first_name'], 0, 1) . substr((string) $creator['last_name'], 0, 1))) ?></div>
-                        <div>
-                            <strong><?= esc(trim((string) $creator['first_name'] . ' ' . (string) $creator['last_name'])) ?></strong>
-                            <small><?= (int) $creator['post_total'] ?> posts</small>
-                        </div>
-                    </a>
-                <?php endforeach; ?>
-            </div>
-        </section>
-
-        <section class="panel-card">
-            <div class="panel-head">
-                <h2>Announcements</h2>
-            </div>
-            <div class="rail-list">
-                <?php if (! empty($announcements)): ?>
-                    <?php foreach ($announcements as $item): ?>
-                        <article class="rail-item">
-                            <strong><?= esc((string) $item['title']) ?></strong>
-                            <p><?= esc(strlen((string) $item['body']) > 90 ? substr((string) $item['body'], 0, 90) . '...' : (string) $item['body']) ?></p>
-                        </article>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <p class="summary-muted">No announcements published yet.</p>
-                <?php endif; ?>
-            </div>
-        </section>
-    </aside>
 </div>
 <?= $this->endSection() ?>
