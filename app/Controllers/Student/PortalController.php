@@ -124,6 +124,20 @@ class PortalController extends Controller
                 'submitted_at' => date('Y-m-d H:i:s'),
             ]);
 
+            // Also create a Community Feed post so feedback appears in the feed
+            $feedbackType = ucfirst(trim((string) $post['type']));
+            $feedbackSubject = trim((string) $post['subject']);
+            $feedbackMessage = trim((string) $post['message']);
+            // Remove emoji for maximum compatibility
+            $feedBody = "{$feedbackType}: {$feedbackSubject}\n\n{$feedbackMessage}";
+
+            (new SocialPostModel())->insert([
+                'user_id'      => $userId,
+                'body'         => $feedBody,
+                'is_public'    => 1,
+                'is_anonymous' => $isAnonymous,
+            ]);
+
             return redirect()->to(site_url('users/feedback'))->with('success', 'Your feedback has been submitted successfully.');
         }
 
@@ -312,7 +326,6 @@ class PortalController extends Controller
             $post['share_total'] = (int) ($shareTotals[(int) $post['id']] ?? 0);
             $post['comments'] = $commentsByPost[(int) $post['id']] ?? [];
             $post['comment_total'] = count($commentsByPost[(int) $post['id']] ?? []);
-            $post['permalink'] = site_url('posts/' . (int) $post['id']);
             $post['profile_url'] = $postIsAnonymous ? '' : site_url('profile/' . $postUserId);
             $post['is_anonymous'] = $postIsAnonymous ? 1 : 0;
         }

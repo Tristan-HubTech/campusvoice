@@ -1,23 +1,8 @@
 <?php
-$mysqli = new mysqli('localhost', 'root', '', 'campusvoice');
-if ($mysqli->connect_error) {
-    fwrite(STDERR, 'DB connect error: ' . $mysqli->connect_error . PHP_EOL);
-    exit(1);
+$db = new mysqli('localhost', 'root', '', 'campusvoice');
+if ($db->connect_error) { echo 'ERR:' . $db->connect_error; exit; }
+$r = $db->query('SELECT id, email, first_name, is_active FROM users LIMIT 5');
+while ($row = $r->fetch_assoc()) {
+    echo $row['id'] . ' | ' . $row['email'] . ' | ' . $row['first_name'] . ' | active=' . $row['is_active'] . PHP_EOL;
 }
-$sql = "SELECT id, email, role_id, is_active, CHAR_LENGTH(password_hash) AS hash_len, deleted_at, created_at FROM users ORDER BY id DESC LIMIT 20";
-$result = $mysqli->query($sql);
-if ($result === false) {
-    fwrite(STDERR, 'Query error: ' . $mysqli->error . PHP_EOL);
-    exit(1);
-}
-while ($row = $result->fetch_assoc()) {
-    echo implode(' | ', [
-        $row['id'],
-        $row['email'],
-        $row['role_id'],
-        $row['is_active'],
-        $row['hash_len'],
-        (string) ($row['deleted_at'] ?? ''),
-        $row['created_at'],
-    ]) . PHP_EOL;
-}
+$db->close();

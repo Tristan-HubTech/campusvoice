@@ -27,12 +27,19 @@ $isAuthScreen = (bool) ($isAuthScreen ?? ($currentTitle === 'Student Portal Acce
         </a>
 
         <?php if ($studentIsAuthed): ?>
+            <?php
+            $navItems = [
+                ['label' => 'Home', 'url' => site_url('users'), 'title' => 'My Portal'],
+                ['label' => 'My Feedback', 'url' => site_url('users/feedback'), 'title' => 'My Submissions'],
+                ['label' => 'Submit', 'url' => site_url('users/feedback/submit'), 'title' => 'Submit Feedback'],
+                ['label' => 'Announcements', 'url' => site_url('users/announcements'), 'title' => 'Announcements'],
+                ['label' => 'Settings', 'url' => site_url('settings'), 'title' => 'Settings'],
+            ];
+            ?>
             <nav class="portal-nav">
-                <a href="<?= site_url('users') ?>" class="<?= $currentTitle === 'My Portal' ? 'active' : '' ?>">Home</a>
-                <a href="<?= site_url('users/feedback') ?>" class="<?= $currentTitle === 'My Submissions' ? 'active' : '' ?>">My Feedback</a>
-                <a href="<?= site_url('users/feedback/submit') ?>" class="<?= $currentTitle === 'Submit Feedback' ? 'active' : '' ?>">Submit</a>
-                <a href="<?= site_url('users/announcements') ?>" class="<?= $currentTitle === 'Announcements' ? 'active' : '' ?>">Announcements</a>
-                <a href="<?= site_url('settings') ?>" class="<?= $currentTitle === 'Settings' ? 'active' : '' ?>">Settings</a>
+                <?php foreach ($navItems as $item): ?>
+                    <a href="<?= $item['url'] ?>" class="<?= $currentTitle === $item['title'] ? 'active' : '' ?>"><?= esc($item['label']) ?></a>
+                <?php endforeach; ?>
             </nav>
             <div class="portal-user-info">
                 <span><?= esc((string) (! empty($isAnonymous) ? ($anonAlias ?? 'Anonymous') : ($studentUser['name'] ?? 'Student'))) ?></span>

@@ -36,34 +36,6 @@ class SocialController extends BaseController
         ]);
     }
 
-    public function show(int $postId): string
-    {
-        $viewer = $this->viewer();
-        $viewerId = (int) ($viewer['id'] ?? 0);
-        $posts = $this->buildPosts($viewerId, null, $postId);
-
-        if ($posts === []) {
-            throw PageNotFoundException::forPageNotFound('Post not found.');
-        }
-
-        $isAnon = false;
-        if ($viewerId > 0) {
-            $p = $this->ensureProfile($viewerId);
-            $isAnon = (int) ($p['is_anonymous'] ?? 0) === 1;
-        }
-
-        return view('social/feed', [
-            'title'              => 'Post',
-            'pageKey'            => 'feed',
-            'studentUser'        => $viewer,
-            'currentUser'        => $viewer,
-            'posts'              => $posts,
-            'focusMode'          => true,
-            'isAnonymous'        => $isAnon,
-            'anonAlias'          => $isAnon ? $this->anonymousAlias($viewerId) : '',
-        ]);
-    }
-
     public function profile(int $userId): string
     {
         $viewer = $this->viewer();
@@ -470,7 +442,7 @@ class SocialController extends BaseController
         return (array) $profileModel->where('user_id', $userId)->first();
     }
 
-    private function buildPosts(int $viewerId = 0, ?int $userId = null, ?int $postId = null): array
+    private function buildPosts(int $viewerId = 0, ?int $userId = null): array
     {
         $query = (new SocialPostModel())
             ->select('social_posts.*, users.first_name, users.last_name, users.email, social_profiles.avatar_color, social_profiles.bio, social_profiles.is_anonymous as profile_is_anonymous')
@@ -484,11 +456,7 @@ class SocialController extends BaseController
             $query->where('social_posts.user_id', $userId);
         }
 
-        if ($postId !== null) {
-            $query->where('social_posts.id', $postId);
-        }
-
-        $posts = $query->findAll($postId !== null ? 1 : 20);
+        $posts = $query->findAll(20);
         if ($posts === []) {
             return [];
         }
@@ -579,7 +547,6 @@ class SocialController extends BaseController
             $post['share_total'] = (int) ($shareTotals[(int) $post['id']] ?? 0);
             $post['comments'] = $commentsByPost[(int) $post['id']] ?? [];
             $post['comment_total'] = count($commentsByPost[(int) $post['id']] ?? []);
-            $post['permalink'] = site_url('posts/' . (int) $post['id']);
             $post['profile_url'] = $postIsAnonymous ? '' : site_url('profile/' . $postUserId);
             $post['is_anonymous'] = $postIsAnonymous ? 1 : 0;
         }

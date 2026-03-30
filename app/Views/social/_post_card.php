@@ -9,8 +9,6 @@
             <?php endif; ?>
             <div class="feed-meta">
                 <span><?= esc(date('M d, Y h:i A', strtotime((string) $post['created_at']))) ?></span>
-                <span>&middot;</span>
-                <a href="<?= esc((string) $post['permalink']) ?>">View post</a>
             </div>
         </div>
     </div>
@@ -50,8 +48,8 @@
     </div>
 
     <div class="comment-stack">
-        <div class="comment-list">
-            <?php if (! empty($post['comments'])): ?>
+        <?php if (! empty($post['comments'])): ?>
+            <div class="comment-list">
                 <?php foreach ($post['comments'] as $comment): ?>
                     <div class="comment-item">
                         <div class="avatar avatar-small avatar-<?= esc((string) ($comment['avatar_color'] ?? 'blue')) ?>"><?= esc(strtoupper(substr((string) $comment['author_name'], 0, 1))) ?></div>
@@ -61,8 +59,8 @@
                         </div>
                     </div>
                 <?php endforeach; ?>
-            <?php endif; ?>
-        </div>
+            </div>
+        <?php endif; ?>
 
         <?php if (! empty($currentUser['id'])): ?>
             <form method="post" action="<?= site_url('posts/' . (int) $post['id'] . '/comment') ?>" class="comment-form">

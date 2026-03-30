@@ -11,33 +11,6 @@ $settingsProfile = (array) ($currentUserProfile ?? []);
     </div>
 
     <form method="post" action="<?= site_url('settings') ?>" class="settings-form">
-        <div class="field-row">
-            <div>
-                <label for="first_name">First Name</label>
-                <input id="first_name" name="first_name" type="text" maxlength="100" value="<?= esc((string) old('first_name', (string) ($settingsUser['first_name'] ?? ''))) ?>">
-            </div>
-            <div>
-                <label for="last_name">Last Name</label>
-                <input id="last_name" name="last_name" type="text" maxlength="100" value="<?= esc((string) old('last_name', (string) ($settingsUser['last_name'] ?? ''))) ?>">
-            </div>
-        </div>
-
-        <div class="field-row">
-            <div>
-                <label for="email">Email</label>
-                <input id="email" name="email" type="email" value="<?= esc((string) ($settingsUser['email'] ?? '')) ?>" readonly>
-            </div>
-            <div>
-                <label for="avatar_color">Avatar Color</label>
-                <select id="avatar_color" name="avatar_color">
-                    <?php $selectedColor = (string) old('avatar_color', (string) ($settingsProfile['avatar_color'] ?? 'blue')); ?>
-                    <?php foreach ($avatarPalette as $color): ?>
-                        <option value="<?= esc($color) ?>" <?= $selectedColor === $color ? 'selected' : '' ?>><?= esc(ucfirst($color)) ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-        </div>
-
         <div class="field-row anon-toggle-row">
             <div>
                 <div>
@@ -80,6 +53,33 @@ $settingsProfile = (array) ($currentUserProfile ?? []);
             };
         })();
         </script>
+
+        <div class="field-row">
+            <div>
+                <label for="first_name">First Name</label>
+                <input id="first_name" name="first_name" type="text" maxlength="100" value="<?= esc((string) old('first_name', (string) ($settingsUser['first_name'] ?? ''))) ?>">
+            </div>
+            <div>
+                <label for="last_name">Last Name</label>
+                <input id="last_name" name="last_name" type="text" maxlength="100" value="<?= esc((string) old('last_name', (string) ($settingsUser['last_name'] ?? ''))) ?>">
+            </div>
+        </div>
+
+        <div class="field-row">
+            <div>
+                <label for="email">Email</label>
+                <input id="email" name="email" type="email" value="<?= esc((string) ($settingsUser['email'] ?? '')) ?>" readonly>
+            </div>
+            <div>
+                <label for="avatar_color">Avatar Color</label>
+                <select id="avatar_color" name="avatar_color">
+                    <?php $selectedColor = (string) old('avatar_color', (string) ($settingsProfile['avatar_color'] ?? 'blue')); ?>
+                    <?php foreach ($avatarPalette as $color): ?>
+                        <option value="<?= esc($color) ?>" <?= $selectedColor === $color ? 'selected' : '' ?>><?= esc(ucfirst($color)) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        </div>
 
         <div class="field-row">
             <div>

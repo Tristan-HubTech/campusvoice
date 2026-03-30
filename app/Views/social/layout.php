@@ -98,7 +98,13 @@ $socialCssVersion = is_file($socialCss) ? (string) filemtime($socialCss) : '1';
                         '<div><strong>' + c.author_name + '</strong>' +
                         '<p>' + c.body.replace(/\n/g, '<br>') + '</p></div>';
 
-                    const commentList = form.closest('.comment-stack').querySelector('.comment-list');
+                    const stack = form.closest('.comment-stack');
+                    let commentList = stack.querySelector('.comment-list');
+                    if (!commentList) {
+                        commentList = document.createElement('div');
+                        commentList.className = 'comment-list';
+                        stack.insertBefore(commentList, form);
+                    }
                     commentList.appendChild(item);
                     commentList.scrollTop = commentList.scrollHeight;
 

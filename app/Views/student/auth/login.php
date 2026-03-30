@@ -62,11 +62,11 @@
                     <div class="form-row-half">
                         <div>
                             <label for="reg-first">First Name</label>
-                            <input id="reg-first" name="first_name" type="text" required maxlength="100" placeholder="First name" value="<?= esc((string) (old('first_name') ?? '')) ?>">
+                            <input id="reg-first" name="first_name" type="text" required maxlength="100" placeholder="First name">
                         </div>
                         <div>
                             <label for="reg-last">Last Name</label>
-                            <input id="reg-last" name="last_name" type="text" required maxlength="100" placeholder="Last name" value="<?= esc((string) (old('last_name') ?? '')) ?>">
+                            <input id="reg-last" name="last_name" type="text" required maxlength="100" placeholder="Last name">
                         </div>
                     </div>
 
@@ -76,7 +76,7 @@
                     <label for="reg-otp">OTP Code</label>
                     <button type="button" class="auth-otp-btn" id="send-register-otp-btn">Send OTP to Email</button>
                     <small id="register-otp-status" class="otp-status-text" aria-live="polite"></small>
-                    <input id="reg-otp" name="otp" type="text" inputmode="numeric" pattern="[0-9]*" required maxlength="6" placeholder="Send OTP first" value="<?= esc((string) (old('otp') ?? '')) ?>" disabled>
+                    <input id="reg-otp" name="otp" type="text" inputmode="numeric" pattern="[0-9]*" required maxlength="6" placeholder="Send OTP first" disabled>
 
                     <label for="reg-password">Password <small>(min 8 characters)</small></label>
                     <input id="reg-password" name="password" type="password" required minlength="8" maxlength="255" autocomplete="new-password" placeholder="Create a password">

@@ -9,7 +9,6 @@ $routes->get('/', 'SocialController::index');
 
 $routes->get('feed', 'SocialController::index');
 $routes->post('feed/post', 'SocialController::createPost');
-$routes->get('posts/(:num)', 'SocialController::show/$1');
 $routes->post('posts/(:num)/react', 'SocialController::react/$1');
 $routes->post('posts/(:num)/comment', 'SocialController::comment/$1');
 $routes->post('posts/(:num)/share', 'SocialController::share/$1');
