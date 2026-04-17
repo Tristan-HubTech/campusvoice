@@ -102,7 +102,6 @@ class PortalController extends Controller
             $rules = [
                 'category_id'  => 'required|is_natural_no_zero',
                 'type'         => 'required|in_list[complaint,suggestion,praise]',
-                'subject'      => 'required|min_length[5]|max_length[180]',
                 'message'      => 'required|min_length[10]',
                 'is_anonymous' => 'permit_empty|in_list[0,1]',
             ];
@@ -113,11 +112,13 @@ class PortalController extends Controller
 
             $isAnonymous = (int) ($post['is_anonymous'] ?? 0);
 
+            $autoSubject = ucfirst(trim((string) $post['type'])) . ': ' . mb_substr(trim((string) $post['message']), 0, 80);
+
             (new FeedbackModel())->insert([
                 'user_id'      => $userId,
                 'category_id'  => (int) $post['category_id'],
                 'type'         => $post['type'],
-                'subject'      => trim((string) $post['subject']),
+                'subject'      => $autoSubject,
                 'message'      => trim((string) $post['message']),
                 'is_anonymous' => $isAnonymous,
                 'status'       => 'new',
@@ -126,10 +127,8 @@ class PortalController extends Controller
 
             // Also create a Community Feed post so feedback appears in the feed
             $feedbackType = ucfirst(trim((string) $post['type']));
-            $feedbackSubject = trim((string) $post['subject']);
             $feedbackMessage = trim((string) $post['message']);
-            // Remove emoji for maximum compatibility
-            $feedBody = "{$feedbackType}: {$feedbackSubject}\n\n{$feedbackMessage}";
+            $feedBody = "{$feedbackType}\n\n{$feedbackMessage}";
 
             (new SocialPostModel())->insert([
                 'user_id'      => $userId,
@@ -195,6 +194,19 @@ class PortalController extends Controller
         }
 
         $feedbackModel->delete((int) $feedback['id']);
+
+        // Also delete the corresponding social post created from this feedback
+        $feedbackType = ucfirst(trim((string) ($feedback['type'] ?? '')));
+        $feedbackMessage = trim((string) ($feedback['message'] ?? ''));
+        $feedBody = "{$feedbackType}\n\n{$feedbackMessage}";
+
+        $socialPost = (new SocialPostModel())
+            ->where('user_id', $userId)
+            ->where('body', $feedBody)
+            ->first();
+        if ($socialPost !== null) {
+            (new SocialPostModel())->delete((int) $socialPost['id']);
+        }
 
         return redirect()->to(site_url('users/feedback'))->with('success', 'Feedback deleted successfully.');
     }
@@ -292,7 +304,7 @@ class PortalController extends Controller
             ->join('social_profiles', 'social_profiles.user_id = users.id', 'left')
             ->whereIn('social_post_comments.post_id', $postIds)
             ->where('social_post_comments.deleted_at', null)
-            ->orderBy('social_post_comments.created_at', 'ASC')
+            ->orderBy('social_post_comments.created_at', 'DESC')
             ->get()
             ->getResultArray();
 
@@ -307,6 +319,49 @@ class PortalController extends Controller
                 : (string) ($row['avatar_color'] ?? 'blue');
             $commentsByPost[(int) $row['post_id']][] = $row;
         }
+
+        // Fetch comment reaction counts and viewer reactions
+        $allCommentIds = [];
+        foreach ($commentsByPost as $comments) {
+            foreach ($comments as $c) {
+                $allCommentIds[] = (int) $c['id'];
+            }
+        }
+
+        $commentReactionBreakdown = [];
+        $commentViewerReactions = [];
+        if ($allCommentIds !== []) {
+            $crRows = $db->table('comment_reactions')
+                ->select('comment_id, reaction_type, COUNT(*) as total')
+                ->whereIn('comment_id', $allCommentIds)
+                ->groupBy('comment_id, reaction_type')
+                ->get()->getResultArray();
+            foreach ($crRows as $cr) {
+                $commentReactionBreakdown[(int) $cr['comment_id']][(string) $cr['reaction_type']] = (int) $cr['total'];
+            }
+
+            if ($viewerId > 0) {
+                $crViewerRows = $db->table('comment_reactions')
+                    ->select('comment_id, reaction_type')
+                    ->where('user_id', $viewerId)
+                    ->whereIn('comment_id', $allCommentIds)
+                    ->get()->getResultArray();
+                foreach ($crViewerRows as $cr) {
+                    $commentViewerReactions[(int) $cr['comment_id']] = (string) $cr['reaction_type'];
+                }
+            }
+        }
+
+        foreach ($commentsByPost as &$comments) {
+            foreach ($comments as &$c) {
+                $cid = (int) $c['id'];
+                $c['reaction_breakdown'] = $commentReactionBreakdown[$cid] ?? [];
+                $c['reaction_total'] = array_sum($commentReactionBreakdown[$cid] ?? []);
+                $c['viewer_reaction'] = $commentViewerReactions[$cid] ?? null;
+            }
+            unset($c);
+        }
+        unset($comments);
 
         foreach ($posts as &$post) {
             $postUserId = (int) $post['user_id'];

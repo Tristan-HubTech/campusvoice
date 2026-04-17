@@ -11,10 +11,13 @@ $routes->get('feed', 'SocialController::index');
 $routes->post('feed/post', 'SocialController::createPost');
 $routes->post('posts/(:num)/react', 'SocialController::react/$1');
 $routes->post('posts/(:num)/comment', 'SocialController::comment/$1');
+$routes->post('comments/(:num)/react', 'SocialController::commentReact/$1');
+$routes->post('posts/(:num)/delete', 'SocialController::deletePost/$1');
 $routes->post('posts/(:num)/share', 'SocialController::share/$1');
 $routes->get('profile/(:num)', 'SocialController::profile/$1');
 $routes->match(['get', 'post'], 'settings', 'SocialController::settings');
 $routes->post('settings/anonymous', 'SocialController::toggleAnonymous');
+$routes->post('settings/send-password-otp', 'SocialController::sendPasswordOtp');
 
 $routes->match(['get', 'post'], 'admin/login', 'Admin\\AuthController::login');
 $routes->get('admin/logout', 'Admin\\AuthController::logout', ['filter' => 'adminauth']);

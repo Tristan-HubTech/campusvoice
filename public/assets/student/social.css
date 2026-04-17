@@ -58,7 +58,7 @@ select {
 }
 
 .social-main {
-    padding: 16px 22px 30px;
+    padding: 0 0 30px;
     width: 100%;
     max-width: none;
 }
@@ -68,23 +68,28 @@ select {
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    margin-bottom: 14px;
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 12px 14px;
-    background: rgba(255, 253, 247, 0.88);
-    box-shadow: 0 12px 26px rgba(22, 20, 17, 0.08);
-    backdrop-filter: blur(4px);
+    margin-bottom: 0;
+    border: none;
+    border-bottom: 1px solid rgba(133, 172, 255, 0.32);
+    border-radius: 0;
+    padding: 14px 28px;
+    background: linear-gradient(175deg, #0a1535 0%, #0d214e 58%, #102a62 100%);
+    backdrop-filter: blur(10px);
+    box-shadow: none;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 .social-topbar h1 {
-    font-size: clamp(1.25rem, 2.6vw, 1.9rem);
+    font-size: clamp(1.1rem, 2.2vw, 1.5rem);
+    color: #ffffff;
 }
 
 .social-topbar p {
-    margin: 4px 0 0;
-    color: var(--muted);
-    font-size: 0.9rem;
+    margin: 2px 0 0;
+    color: rgba(219, 231, 255, 0.7);
+    font-size: 0.82rem;
 }
 
 .topbar-actions {
@@ -99,10 +104,11 @@ select {
 
 .admin-user strong {
     display: block;
+    color: #ffffff;
 }
 
 .admin-user small {
-    color: var(--muted);
+    color: rgba(219, 231, 255, 0.7);
 }
 
 .ghost-btn,
@@ -117,9 +123,9 @@ select {
 
 .ghost-btn,
 .action-btn {
-    border: 1px solid #c5d7ff;
-    background: #f6f9ff;
-    color: var(--ink);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.07);
+    color: rgba(255, 255, 255, 0.85);
 }
 
 .solid-btn {
@@ -130,8 +136,13 @@ select {
 }
 
 .ghost-btn:hover,
-.solid-btn:hover,
 .action-btn:hover {
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.16);
+    color: #fff;
+}
+
+.solid-btn:hover {
     text-decoration: none;
 }
 
@@ -154,16 +165,76 @@ select {
     border: 1px solid #efc5bf;
 }
 
+/* ── Toast Notifications ── */
+.toast-alert {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 20px;
+    border-radius: 14px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+    animation: toastSlideIn 0.4s ease;
+    transition: opacity 0.4s, transform 0.4s;
+    max-width: 420px;
+}
+
+.toast-success {
+    background: #0b6a62;
+    color: #ffffff;
+}
+
+.toast-error {
+    background: #d55b54;
+    color: #ffffff;
+}
+
+.toast-icon {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0 0 0 8px;
+    flex-shrink: 0;
+}
+
+.toast-close:hover {
+    color: #ffffff;
+}
+
+@keyframes toastSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
 .social-content {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 16px;
+    gap: 14px;
+    padding: 14px 22px;
 }
 
 .feed-column,
 .profile-shell {
     display: grid;
-    gap: 16px;
+    gap: 14px;
 }
 
 .social-grid {
@@ -171,6 +242,86 @@ select {
     grid-template-columns: minmax(0, 1fr);
     gap: 16px;
     width: 100%;
+}
+
+/* ── Announcements Banner ── */
+.announcements-banner {
+    background: linear-gradient(135deg, #fff8e1 0%, #fff3cd 100%);
+    border: 1px solid #ffe082;
+    border-radius: 18px;
+    padding: 16px 18px;
+    margin-bottom: 0;
+}
+
+.announcements-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.announcements-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #5d4e00;
+}
+
+.announcements-icon {
+    font-size: 1.2rem;
+}
+
+.announcements-scroll {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+    scrollbar-color: #ffe082 transparent;
+}
+
+.announcements-scroll::-webkit-scrollbar {
+    height: 5px;
+}
+
+.announcements-scroll::-webkit-scrollbar-thumb {
+    background: #ffe082;
+    border-radius: 99px;
+}
+
+.announcement-card {
+    flex: 0 0 260px;
+    scroll-snap-align: start;
+    background: #fff;
+    border-radius: 14px;
+    padding: 14px 16px;
+    border: 1px solid #ffe082;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+.announcement-card h4 {
+    margin: 0 0 6px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #3e3200;
+}
+
+.announcement-card p {
+    margin: 0 0 8px;
+    font-size: 0.82rem;
+    color: #5d4e00;
+    line-height: 1.45;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.announcement-date {
+    font-size: 0.72rem;
+    color: #9e8600;
+    font-weight: 500;
 }
 
 .panel-card,
@@ -210,6 +361,18 @@ select {
     width: 100%;
 }
 
+.comment-form label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.comment-form label input[type="checkbox"] {
+    width: auto;
+    flex-shrink: 0;
+}
+
 textarea,
 input,
 select {
@@ -237,6 +400,213 @@ select:focus {
     justify-content: space-between;
     gap: 12px;
     flex-wrap: wrap;
+}
+
+/* ── Settings Security Sections ── */
+.settings-section-toggle {
+    margin-top: 4px;
+}
+
+.settings-section-toggle .ghost-btn {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink);
+    padding: 10px 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.settings-section-toggle .ghost-btn:hover {
+    color: var(--blue);
+}
+
+.password-section {
+    background: rgba(133, 172, 255, 0.06);
+    border: 1px solid rgba(133, 172, 255, 0.18);
+    border-radius: 14px;
+    padding: 18px;
+}
+
+.verify-section {
+    background: linear-gradient(135deg, #0a1535 0%, #102a62 100%);
+    border-radius: 14px;
+    padding: 18px 20px;
+    margin-top: 8px;
+}
+
+.verify-section label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 800;
+    color: #ffffff;
+    font-size: 0.9rem;
+}
+
+.verify-section input {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    border-radius: 12px;
+    padding: 12px 14px;
+}
+
+.verify-section input::placeholder {
+    color: rgba(219, 231, 255, 0.5);
+}
+
+.verify-section input:focus {
+    outline: 3px solid rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* ── Confirmation Modal ── */
+.confirm-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 21, 53, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.confirm-modal {
+    background: #fff;
+    border-radius: 20px;
+    padding: 32px;
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+.confirm-modal-icon {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+}
+
+.confirm-modal h3 {
+    margin: 0 0 8px;
+    font-size: 1.2rem;
+    color: var(--ink);
+}
+
+.confirm-modal p {
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.confirm-modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.confirm-modal-actions .ghost-btn {
+    padding: 10px 24px;
+    border-radius: 12px;
+    border: 1px solid #c7d7ff;
+    background: #f8faff;
+    color: var(--ink);
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.confirm-modal-actions .ghost-btn:hover {
+    background: #eef3ff;
+}
+
+.confirm-modal-actions .solid-btn {
+    padding: 10px 24px;
+}
+
+/* ── OTP Verification Row ── */
+.otp-verify-row {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(133, 172, 255, 0.15);
+}
+
+.otp-verify-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.otp-lock-icon {
+    font-size: 1.6rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.otp-verify-info strong {
+    display: block;
+    color: var(--ink);
+    font-size: 0.9rem;
+    margin-bottom: 2px;
+}
+
+.otp-verify-info p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+
+.otp-input-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.otp-input {
+    flex: 1;
+    max-width: 220px;
+    font-size: 1.1rem;
+    letter-spacing: 0.2em;
+    text-align: center;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+}
+
+.otp-send-btn {
+    padding: 10px 20px;
+    border-radius: 12px;
+    border: 1px solid var(--blue);
+    color: var(--blue);
+    background: transparent;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.otp-send-btn:hover:not(:disabled) {
+    background: rgba(43, 91, 215, 0.06);
+}
+
+.otp-send-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.otp-status {
+    margin-top: 8px;
+    font-size: 0.82rem;
+    min-height: 1.2em;
+}
+
+.otp-status.otp-success {
+    color: #0b6a62;
+}
+
+.otp-status.otp-error {
+    color: #d55b54;
 }
 
 .summary-muted {
@@ -444,14 +814,16 @@ select:focus {
 
 /* ── Scrollable comment list with border ── */
 .comment-list {
-    max-height: 320px;
+    max-height: 400px;
     overflow-y: auto;
-    display: grid;
-    gap: 10px;
-    border: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 12px;
+    border: none;
     border-radius: 16px;
-    padding: 12px;
-    background: linear-gradient(180deg, #f8faff 0%, #f2f6ff 100%);
+    background: #ffffff;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
     scrollbar-width: thin;
     scrollbar-color: #c5d7ff transparent;
 }
@@ -480,7 +852,7 @@ select:focus {
     border-radius: 20px;
     padding: 14px 18px;
     box-shadow: inset 0 2px 6px rgba(13, 27, 61, 0.08), 0 1px 2px rgba(13, 27, 61, 0.04);
-    resize: vertical;
+    resize: none;
     min-height: 52px;
     transition: box-shadow 0.25s ease, background 0.25s ease;
     font-size: 0.95rem;
@@ -502,18 +874,137 @@ select:focus {
 
 .comment-item {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     align-items: flex-start;
-    background: rgba(238, 243, 255, 0.5);
+    background: none;
     border: none;
-    border-radius: 14px;
-    padding: 12px 14px;
+    border-radius: 0;
+    padding: 4px 0;
+}
+
+.comment-body-wrap {
+    min-width: 0;
+    flex: 1;
+}
+
+.comment-bubble {
+    background: #f0f2f5;
+    border-radius: 18px;
+    padding: 8px 12px;
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
 }
 
 .comment-item p {
-    margin: 4px 0 0;
+    margin: 2px 0 0;
     color: #30405f;
-    line-height: 1.5;
+    line-height: 1.4;
+    font-size: 0.93rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Reaction badge on bubble */
+.comment-reaction-badge {
+    position: absolute;
+    bottom: -10px;
+    right: 8px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    padding: 1px 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 0.72rem;
+    line-height: 1;
+    z-index: 1;
+}
+
+.badge-emoji {
+    font-size: 0.8rem;
+}
+
+.badge-count {
+    color: #65676b;
+    font-size: 0.72rem;
+    margin-left: 1px;
+}
+
+/* Actions row below bubble */
+.comment-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 4px;
+    padding-left: 12px;
+    font-size: 0.75rem;
+}
+
+.comment-date {
+    color: #8a9abb;
+}
+
+/* Like button + hover picker */
+.comment-like-wrap {
+    position: relative;
+    display: inline-block;
+}
+
+.comment-like-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.75rem;
+    color: #65676b;
+    padding: 0;
+    transition: color 0.15s;
+}
+
+.comment-like-btn:hover {
+    text-decoration: underline;
+}
+
+.comment-like-btn.reacted {
+    /* color set via inline style */
+}
+
+/* Reaction picker flyout */
+.comment-reaction-picker {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+    padding: 4px 6px;
+    display: none;
+    gap: 2px;
+    z-index: 100;
+    white-space: nowrap;
+}
+
+.comment-like-wrap:hover .comment-reaction-picker {
+    display: flex;
+}
+
+.picker-emoji {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.25rem;
+    padding: 4px 5px;
+    border-radius: 50%;
+    transition: transform 0.15s;
+    line-height: 1;
+}
+
+.picker-emoji:hover {
+    transform: scale(1.35);
+    background: #f0f2f5;
 }
 
 .stats-grid.compact {
@@ -539,11 +1030,69 @@ select:focus {
     font-size: 1.35rem;
 }
 
-.profile-hero {
-    display: grid;
-    grid-template-columns: auto 1fr 420px;
-    gap: 18px;
+/* ── Profile Page ── */
+.profile-cover {
+    background: linear-gradient(175deg, #0a1535 0%, #0d214e 58%, #102a62 100%);
+    border-radius: 0 0 24px 24px;
+    padding: 40px 28px 32px;
+    margin-bottom: 8px;
+}
+
+.profile-cover-inner {
+    display: flex;
+    flex-direction: column;
     align-items: center;
+    text-align: center;
+    gap: 16px;
+}
+
+.avatar-profile {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    font-size: 2.2rem;
+    border: 4px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.profile-info h2 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 1.5rem;
+}
+
+.profile-bio {
+    margin: 6px 0 0;
+    color: rgba(219, 231, 255, 0.7);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.profile-stats-row {
+    display: flex;
+    gap: 32px;
+    margin-top: 8px;
+}
+
+.profile-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.profile-stat strong {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.profile-stat span {
+    font-size: 0.75rem;
+    color: rgba(219, 231, 255, 0.6);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .profile-copy p {
@@ -639,8 +1188,7 @@ select:focus {
 }
 
 @media (max-width: 1120px) {
-    .social-grid,
-    .profile-hero {
+    .social-grid {
         grid-template-columns: 1fr;
     }
 }
@@ -653,10 +1201,11 @@ select:focus {
 
 @media (max-width: 720px) {
     .social-main {
-        padding: 12px;
+        padding: 0 0 30px;
     }
 
     .social-topbar {
+        padding: 12px 16px;
         display: grid;
         grid-template-columns: 1fr;
         align-items: start;

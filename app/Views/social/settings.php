@@ -10,7 +10,7 @@ $settingsProfile = (array) ($currentUserProfile ?? []);
         <span class="summary-muted">Update your profile for the main website</span>
     </div>
 
-    <form method="post" action="<?= site_url('settings') ?>" class="settings-form">
+    <form method="post" action="<?= site_url('settings') ?>" class="settings-form" id="settingsForm">
         <div class="field-row anon-toggle-row">
             <div>
                 <div>
@@ -81,24 +81,161 @@ $settingsProfile = (array) ($currentUserProfile ?? []);
             </div>
         </div>
 
-        <div class="field-row">
-            <div>
-                <label for="current_password">Current Password</label>
-                <input id="current_password" name="current_password" type="password" maxlength="255" placeholder="Required only when changing password">
+        <!-- Change Password (collapsible) -->
+        <div class="settings-section-toggle" id="changePwToggle">
+            <button type="button" class="ghost-btn" onclick="togglePasswordSection()">
+                🔒 Change Password <span id="pwArrow">▸</span>
+            </button>
+        </div>
+        <div class="password-section" id="passwordSection" style="display:none;">
+            <div class="field-row">
+                <div>
+                    <label for="password">New Password</label>
+                    <input id="password" name="password" type="password" maxlength="255" placeholder="Minimum 8 characters">
+                </div>
+                <div>
+                    <label for="password_confirm">Confirm Password</label>
+                    <input id="password_confirm" name="password_confirm" type="password" maxlength="255" placeholder="Repeat the new password">
+                </div>
             </div>
-            <div>
-                <label for="password">New Password</label>
-                <input id="password" name="password" type="password" maxlength="255" placeholder="Leave blank to keep current password">
-            </div>
-            <div>
-                <label for="password_confirm">Confirm Password</label>
-                <input id="password_confirm" name="password_confirm" type="password" maxlength="255" placeholder="Repeat the new password">
+            <div class="otp-verify-row">
+                <div class="otp-verify-info">
+                    <span class="otp-lock-icon">📧</span>
+                    <div>
+                        <strong>Email Verification Required</strong>
+                        <p>We'll send a 6-digit code to your email to verify this password change.</p>
+                    </div>
+                </div>
+                <div class="otp-input-row">
+                    <input id="email_otp" name="email_otp" type="text" maxlength="6" inputmode="numeric" pattern="[0-9]{6}" placeholder="Enter 6-digit code" autocomplete="off" class="otp-input">
+                    <button type="button" class="ghost-btn otp-send-btn" id="sendOtpBtn" onclick="requestOtp()">Send Code</button>
+                </div>
+                <p class="otp-status" id="otpStatus"></p>
             </div>
         </div>
 
         <div class="settings-actions">
-            <button type="submit" class="solid-btn">Save Changes</button>
+            <button type="button" class="solid-btn" onclick="confirmSave()">Save Changes</button>
         </div>
     </form>
 </section>
+
+<!-- Confirmation Modal -->
+<div class="confirm-modal-overlay" id="confirmModal" style="display:none;">
+    <div class="confirm-modal">
+        <div class="confirm-modal-icon">⚠️</div>
+        <h3>Confirm Changes</h3>
+        <p id="confirmMsg">Are you sure you want to update your account settings?</p>
+        <div class="confirm-modal-actions">
+            <button type="button" class="ghost-btn" onclick="closeConfirmModal()">Cancel</button>
+            <button type="button" class="solid-btn" onclick="submitSettings()">Yes, Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function togglePasswordSection() {
+    var section = document.getElementById('passwordSection');
+    var arrow = document.getElementById('pwArrow');
+    if (section.style.display === 'none') {
+        section.style.display = 'block';
+        arrow.textContent = '▾';
+    } else {
+        section.style.display = 'none';
+        arrow.textContent = '▸';
+        document.getElementById('password').value = '';
+        document.getElementById('password_confirm').value = '';
+        document.getElementById('email_otp').value = '';
+        document.getElementById('otpStatus').textContent = '';
+    }
+}
+
+var otpCooldown = 0;
+var otpTimer = null;
+
+function requestOtp() {
+    if (otpCooldown > 0) return;
+    var btn = document.getElementById('sendOtpBtn');
+    var status = document.getElementById('otpStatus');
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+    status.textContent = '';
+    status.className = 'otp-status';
+
+    fetch('<?= site_url('settings/send-password-otp') ?>', {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+    .then(function(res) {
+        if (res.data.ok) {
+            status.textContent = res.data.message;
+            status.className = 'otp-status otp-success';
+            startCooldown(60);
+        } else {
+            status.textContent = res.data.message || 'Failed to send code.';
+            status.className = 'otp-status otp-error';
+            btn.disabled = false;
+            btn.textContent = 'Send Code';
+        }
+    })
+    .catch(function() {
+        status.textContent = 'Network error. Please try again.';
+        status.className = 'otp-status otp-error';
+        btn.disabled = false;
+        btn.textContent = 'Send Code';
+    });
+}
+
+function startCooldown(seconds) {
+    otpCooldown = seconds;
+    var btn = document.getElementById('sendOtpBtn');
+    btn.disabled = true;
+    btn.textContent = 'Resend (' + otpCooldown + 's)';
+    otpTimer = setInterval(function() {
+        otpCooldown--;
+        if (otpCooldown <= 0) {
+            clearInterval(otpTimer);
+            btn.disabled = false;
+            btn.textContent = 'Resend Code';
+        } else {
+            btn.textContent = 'Resend (' + otpCooldown + 's)';
+        }
+    }, 1000);
+}
+
+function confirmSave() {
+    var newPw = document.getElementById('password').value;
+    if (newPw) {
+        var otp = document.getElementById('email_otp').value.trim();
+        if (!otp || otp.length !== 6) {
+            document.getElementById('email_otp').focus();
+            document.getElementById('email_otp').style.borderColor = '#d55b54';
+            document.getElementById('otpStatus').textContent = 'Please enter the 6-digit code sent to your email.';
+            document.getElementById('otpStatus').className = 'otp-status otp-error';
+            return;
+        }
+        var confirm = document.getElementById('password_confirm').value;
+        if (newPw !== confirm) {
+            document.getElementById('password_confirm').focus();
+            return;
+        }
+    }
+    var msg = 'Are you sure you want to update your account settings?';
+    if (newPw) msg += '<br><strong style="color:#d55b54;">Your password will also be changed.</strong>';
+    document.getElementById('confirmMsg').innerHTML = msg;
+    document.getElementById('confirmModal').style.display = 'flex';
+}
+function closeConfirmModal() {
+    document.getElementById('confirmModal').style.display = 'none';
+}
+function submitSettings() {
+    document.getElementById('confirmModal').style.display = 'none';
+    document.getElementById('settingsForm').submit();
+}
+document.getElementById('email_otp').addEventListener('input', function() {
+    this.style.borderColor = '';
+    this.value = this.value.replace(/[^0-9]/g, '');
+});
+</script>
 <?= $this->endSection() ?>

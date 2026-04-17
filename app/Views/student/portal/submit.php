@@ -32,10 +32,6 @@
                 <?php endforeach; ?>
             </select>
 
-            <label for="subject">Subject</label>
-            <input id="subject" name="subject" type="text" required maxlength="180" placeholder="Brief subject"
-                value="<?= esc((string) (old('subject') ?? '')) ?>">
-
             <label for="message">Message</label>
             <textarea id="message" name="message" rows="8" required placeholder="Describe your feedback clearly."><?= esc((string) (old('message') ?? '')) ?></textarea>
 

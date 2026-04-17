@@ -19,23 +19,19 @@
                         <th>#</th>
                         <th>Category</th>
                         <th>Type</th>
-                        <th>Subject</th>
                         <th>Status</th>
                         <th>Submitted</th>
                         <th>Action</th>
                     </tr>
                     </thead>
                     <tbody>
+                    <?php $rowNum = 0; ?>
                     <?php foreach ($feedbackList as $item): ?>
+                        <?php $rowNum++; ?>
                         <tr>
-                            <td>#<?= (int) $item['id'] ?></td>
+                            <td>#<?= $rowNum ?></td>
                             <td><?= esc((string) ($item['category_name'] ?? 'N/A')) ?></td>
                             <td><span class="pill type-<?= esc((string) ($item['type'] ?? 'suggestion')) ?>"><?= esc(ucfirst((string) ($item['type'] ?? 'suggestion'))) ?></span></td>
-                            <td>
-                                <a href="<?= site_url('users/feedback/' . (int) $item['id']) ?>">
-                                    <?= esc((string) ($item['subject'] ?? 'Feedback #' . (int) $item['id'])) ?>
-                                </a>
-                            </td>
                             <td><span class="pill status-<?= esc((string) ($item['status'] ?? 'new')) ?>"><?= esc(ucfirst((string) ($item['status'] ?? 'new'))) ?></span></td>
                             <td><?= esc(date('M d, Y H:i', strtotime((string) ($item['created_at'] ?? 'now')))) ?></td>
                             <td>

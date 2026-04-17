@@ -3,6 +3,24 @@
 <?= $this->section('content') ?>
 <div class="social-grid">
     <section class="feed-column">
+        <?php if (! empty($announcements)): ?>
+            <section class="announcements-banner">
+                <div class="announcements-header">
+                    <span class="announcements-icon">📢</span>
+                    <h3>Announcements</h3>
+                </div>
+                <div class="announcements-scroll">
+                    <?php foreach ($announcements as $ann): ?>
+                        <div class="announcement-card">
+                            <h4><?= esc((string) $ann['title']) ?></h4>
+                            <p><?= nl2br(esc((string) $ann['body'])) ?></p>
+                            <span class="announcement-date"><?= esc(date('M d, Y', strtotime((string) $ann['created_at']))) ?></span>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </section>
+        <?php endif; ?>
+
         <?php if (! empty($currentUser['id'])): ?>
             <section class="panel-card composer-card">
                 <div class="panel-head">
@@ -16,18 +34,6 @@
                         <button type="submit" class="solid-btn">Post Update</button>
                     </div>
                 </form>
-            </section>
-        <?php else: ?>
-            <section class="panel-card composer-card guest-card">
-                <div class="panel-head">
-                    <h2>Campus feed is live</h2>
-                    <span class="summary-muted">Public view</span>
-                </div>
-                <p>Browse what people are posting. Log in or create an account to publish, react, comment, and share.</p>
-                <div class="inline-actions">
-                    <a href="<?= site_url('users/login') ?>" class="solid-btn">Log in</a>
-                    <a href="<?= site_url('users/login?mode=register') ?>" class="ghost-btn">Register</a>
-                </div>
             </section>
         <?php endif; ?>
 

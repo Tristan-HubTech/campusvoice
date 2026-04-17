@@ -37,11 +37,19 @@ $socialCssVersion = is_file($socialCss) ? (string) filemtime($socialCss) : '1';
         </header>
 
         <?php if (session()->getFlashdata('success')): ?>
-            <div class="alert success"><?= esc((string) session()->getFlashdata('success')) ?></div>
+            <div class="toast-alert toast-success" id="toastAlert">
+                <span class="toast-icon">✅</span>
+                <span><?= esc((string) session()->getFlashdata('success')) ?></span>
+                <button class="toast-close" onclick="this.parentElement.remove()">✕</button>
+            </div>
         <?php endif; ?>
 
         <?php if (session()->getFlashdata('error')): ?>
-            <div class="alert error"><?= esc((string) session()->getFlashdata('error')) ?></div>
+            <div class="toast-alert toast-error" id="toastAlert">
+                <span class="toast-icon">❌</span>
+                <span><?= esc((string) session()->getFlashdata('error')) ?></span>
+                <button class="toast-close" onclick="this.parentElement.remove()">✕</button>
+            </div>
         <?php endif; ?>
 
         <main class="social-content">
@@ -51,19 +59,11 @@ $socialCssVersion = is_file($socialCss) ? (string) filemtime($socialCss) : '1';
 </div>
 
 <script>
-    /* ── Copy Link buttons ── */
-    document.querySelectorAll('[data-share-url]').forEach(function (button) {
-        button.addEventListener('click', async function () {
-            const url = button.getAttribute('data-share-url');
-            try {
-                await navigator.clipboard.writeText(url);
-                button.textContent = 'Link Copied';
-                setTimeout(function () {
-                    button.textContent = 'Copy Link';
-                }, 1600);
-            } catch (error) {
-                window.prompt('Copy this link:', url);
-            }
+    /* ── Persist anonymous checkbox state ── */
+    document.querySelectorAll('.anon-check').forEach(function (cb) {
+        cb.checked = localStorage.getItem('comment_anon') === '1';
+        cb.addEventListener('change', function () {
+            localStorage.setItem('comment_anon', cb.checked ? '1' : '0');
         });
     });
 
@@ -93,10 +93,29 @@ $socialCssVersion = is_file($socialCss) ? (string) filemtime($socialCss) : '1';
                     const c = data.comment;
                     const item = document.createElement('div');
                     item.className = 'comment-item';
+                    item.setAttribute('data-comment-id', c.id);
                     item.innerHTML =
                         '<div class="avatar avatar-small avatar-' + c.avatar_color + '">' + c.initial + '</div>' +
-                        '<div><strong>' + c.author_name + '</strong>' +
-                        '<p>' + c.body.replace(/\n/g, '<br>') + '</p></div>';
+                        '<div class="comment-body-wrap">' +
+                            '<div class="comment-bubble">' +
+                                '<strong>' + c.author_name + '</strong>' +
+                                '<p>' + c.body.replace(/\n/g, '<br>') + '</p>' +
+                            '</div>' +
+                            '<div class="comment-actions">' +
+                                '<span class="comment-date">' + (c.created_at || 'Just now') + '</span>' +
+                                '<span class="comment-like-wrap">' +
+                                    '<button type="button" class="comment-like-btn" data-comment-id="' + c.id + '" data-current="">Like</button>' +
+                                    '<div class="comment-reaction-picker">' +
+                                        '<button type="button" class="picker-emoji" data-reaction="like" title="Like">👍</button>' +
+                                        '<button type="button" class="picker-emoji" data-reaction="love" title="Love">❤️</button>' +
+                                        '<button type="button" class="picker-emoji" data-reaction="haha" title="Haha">😆</button>' +
+                                        '<button type="button" class="picker-emoji" data-reaction="wow" title="Wow">😮</button>' +
+                                        '<button type="button" class="picker-emoji" data-reaction="sad" title="Sad">😢</button>' +
+                                        '<button type="button" class="picker-emoji" data-reaction="angry" title="Angry">😠</button>' +
+                                    '</div>' +
+                                '</span>' +
+                            '</div>' +
+                        '</div>';
 
                     const stack = form.closest('.comment-stack');
                     let commentList = stack.querySelector('.comment-list');
@@ -105,13 +124,12 @@ $socialCssVersion = is_file($socialCss) ? (string) filemtime($socialCss) : '1';
                         commentList.className = 'comment-list';
                         stack.insertBefore(commentList, form);
                     }
-                    commentList.appendChild(item);
-                    commentList.scrollTop = commentList.scrollHeight;
+                    commentList.prepend(item);
 
                     // Update comment count in the summary row
                     const card = findCard(form);
                     if (card && data.comment_total !== undefined) {
-                        const summaryEls = card.querySelectorAll('.summary-muted');
+                        const summaryEls = card.querySelectorAll('.post-summary-row .summary-muted');
                         summaryEls.forEach(function (el) {
                             el.textContent = el.textContent.replace(
                                 /\d+ comments/,
@@ -121,8 +139,6 @@ $socialCssVersion = is_file($socialCss) ? (string) filemtime($socialCss) : '1';
                     }
 
                     form.querySelector('textarea').value = '';
-                    const anonCheck = form.querySelector('input[name="is_anonymous"]');
-                    if (anonCheck) anonCheck.checked = false;
                 }
             } catch (err) {
                 console.error('Comment failed:', err);
@@ -135,12 +151,114 @@ $socialCssVersion = is_file($socialCss) ? (string) filemtime($socialCss) : '1';
     });
 
     /* ── Emoji map for reaction pills ── */
-    var emojiMap = { like: '👍', love: '❤️', support: '🤝', fire: '🔥' };
+    var emojiMap = { like: '👍', love: '❤️', deslike: '👎', shock: '😮' };
+
+    /* ── AJAX Comment Reactions (Facebook-style) ── */
+    var crEmojiMap = { like:'👍', love:'❤️', haha:'😆', wow:'😮', sad:'😢', angry:'😠' };
+    var crColorMap = { like:'#2078f4', love:'#ed4956', haha:'#f7b928', wow:'#f7b928', sad:'#f7b928', angry:'#e9710f' };
+
+    function sendCommentReaction(commentId, reaction) {
+        var formData = new FormData();
+        formData.append('reaction_type', reaction);
+        return fetch('<?= site_url('comments/') ?>' + commentId + '/react', {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body: formData,
+        }).then(function (r) { return r.json(); });
+    }
+
+    function updateCommentUI(item, data) {
+        var likeBtn = item.querySelector('.comment-like-btn');
+        if (!likeBtn) return;
+        if (data.viewer_reaction) {
+            likeBtn.textContent = data.viewer_reaction.charAt(0).toUpperCase() + data.viewer_reaction.slice(1);
+            likeBtn.style.color = crColorMap[data.viewer_reaction] || '#65676b';
+            likeBtn.classList.add('reacted');
+            likeBtn.setAttribute('data-current', data.viewer_reaction);
+        } else {
+            likeBtn.textContent = 'Like';
+            likeBtn.style.color = '';
+            likeBtn.classList.remove('reacted');
+            likeBtn.setAttribute('data-current', '');
+        }
+        /* rebuild badge */
+        var bubble = item.querySelector('.comment-bubble');
+        var badge = bubble.querySelector('.comment-reaction-badge');
+        var bd = data.reaction_breakdown || {};
+        var total = 0;
+        var html = '';
+        for (var t in crEmojiMap) {
+            if (bd[t] && bd[t] > 0) {
+                html += '<span class="badge-emoji">' + crEmojiMap[t] + '</span>';
+                total += bd[t];
+            }
+        }
+        if (total > 0) {
+            html += '<span class="badge-count">' + total + '</span>';
+            if (!badge) {
+                badge = document.createElement('span');
+                badge.className = 'comment-reaction-badge';
+                bubble.appendChild(badge);
+            }
+            badge.innerHTML = html;
+        } else if (badge) {
+            badge.remove();
+        }
+    }
+
+    /* Click a picker emoji → react */
+    document.addEventListener('click', async function (e) {
+        var emoji = e.target.closest('.picker-emoji');
+        if (!emoji) return;
+        var item = emoji.closest('.comment-item');
+        var commentId = item.getAttribute('data-comment-id');
+        var reaction = emoji.getAttribute('data-reaction');
+        try {
+            var data = await sendCommentReaction(commentId, reaction);
+            if (data.ok) updateCommentUI(item, data);
+        } catch (err) { console.error('Comment reaction failed:', err); }
+    });
+
+    /* Click the Like/Love text → toggle off (or quick-like) */
+    document.addEventListener('click', async function (e) {
+        var likeBtn = e.target.closest('.comment-like-btn');
+        if (!likeBtn) return;
+        var item = likeBtn.closest('.comment-item');
+        var commentId = item.getAttribute('data-comment-id');
+        var current = likeBtn.getAttribute('data-current');
+        var reaction = current || 'like';
+        try {
+            var data = await sendCommentReaction(commentId, reaction);
+            if (data.ok) updateCommentUI(item, data);
+        } catch (err) { console.error('Comment reaction failed:', err); }
+    });
+
+    /* ── AJAX Delete Post ── */
+    document.querySelectorAll('.delete-post-form').forEach(function (form) {
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            if (!confirm('Delete this post?')) return;
+            try {
+                const resp = await fetch(form.action, {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    body: new FormData(form),
+                });
+                const data = await resp.json();
+                if (data.ok) {
+                    const card = findCard(form);
+                    if (card) card.remove();
+                }
+            } catch (err) {
+                form.submit();
+            }
+        });
+    });
 
     /* ── AJAX Reaction Submission ── */
     document.querySelectorAll('.react-bar form').forEach(function (form) {
         const reactionInput = form.querySelector('input[name="reaction_type"]');
-        if (!reactionInput) return; // skip share forms
+        if (!reactionInput) return;
 
         form.addEventListener('submit', async function (e) {
             e.preventDefault();
@@ -199,53 +317,18 @@ $socialCssVersion = is_file($socialCss) ? (string) filemtime($socialCss) : '1';
             }
         });
     });
+    /* ── Toast auto-dismiss ── */
+    (function() {
+        var toast = document.getElementById('toastAlert');
+        if (toast) {
+            setTimeout(function() {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(function() { toast.remove(); }, 400);
+            }, 5000);
+        }
+    })();
 
-    /* ── AJAX Share Submission ── */
-    document.querySelectorAll('.react-bar form').forEach(function (form) {
-        const reactionInput = form.querySelector('input[name="reaction_type"]');
-        if (reactionInput) return; // skip reaction forms
-        const shareBtn = form.querySelector('button[type="submit"]');
-        if (!shareBtn || shareBtn.hasAttribute('data-share-url')) return;
-        // Only target the Share button form (action contains /share)
-        if (!form.action || !form.action.includes('/share')) return;
-
-        form.addEventListener('submit', async function (e) {
-            e.preventDefault();
-            shareBtn.disabled = true;
-            const origText = shareBtn.textContent;
-            shareBtn.textContent = 'Shared!';
-
-            try {
-                const resp = await fetch(form.action, {
-                    method: 'POST',
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                    body: new FormData(form),
-                });
-                const data = await resp.json();
-
-                if (data.ok) {
-                    const card = findCard(form);
-                    if (card && data.share_total !== undefined) {
-                        const summaryEls = card.querySelectorAll('.summary-muted');
-                        summaryEls.forEach(function (el) {
-                            el.textContent = el.textContent.replace(
-                                /\d+ shares/,
-                                data.share_total + ' shares'
-                            );
-                        });
-                    }
-                }
-            } catch (err) {
-                console.error('Share failed:', err);
-                form.submit();
-            } finally {
-                setTimeout(function () {
-                    shareBtn.disabled = false;
-                    shareBtn.textContent = origText;
-                }, 1200);
-            }
-        });
-    });
 </script>
 </body>
 </html>
