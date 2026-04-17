@@ -13,6 +13,7 @@ class SocialPostModel extends Model
     protected $protectFields    = true;
     protected $allowedFields    = [
         'user_id',
+        'feedback_id',
         'body',
         'is_public',
         'is_anonymous',

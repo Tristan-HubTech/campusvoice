@@ -114,7 +114,8 @@ class PortalController extends Controller
 
             $autoSubject = ucfirst(trim((string) $post['type'])) . ': ' . mb_substr(trim((string) $post['message']), 0, 80);
 
-            (new FeedbackModel())->insert([
+            $feedbackModel = new FeedbackModel();
+            $feedbackModel->insert([
                 'user_id'      => $userId,
                 'category_id'  => (int) $post['category_id'],
                 'type'         => $post['type'],
@@ -130,8 +131,11 @@ class PortalController extends Controller
             $feedbackMessage = trim((string) $post['message']);
             $feedBody = "{$feedbackType}\n\n{$feedbackMessage}";
 
+            $feedbackId = $feedbackModel->getInsertID();
+
             (new SocialPostModel())->insert([
                 'user_id'      => $userId,
+                'feedback_id'  => $feedbackId,
                 'body'         => $feedBody,
                 'is_public'    => 1,
                 'is_anonymous' => $isAnonymous,
@@ -195,14 +199,9 @@ class PortalController extends Controller
 
         $feedbackModel->delete((int) $feedback['id']);
 
-        // Also delete the corresponding social post created from this feedback
-        $feedbackType = ucfirst(trim((string) ($feedback['type'] ?? '')));
-        $feedbackMessage = trim((string) ($feedback['message'] ?? ''));
-        $feedBody = "{$feedbackType}\n\n{$feedbackMessage}";
-
+        // Also delete the corresponding social post linked by feedback_id
         $socialPost = (new SocialPostModel())
-            ->where('user_id', $userId)
-            ->where('body', $feedBody)
+            ->where('feedback_id', (int) $feedback['id'])
             ->first();
         if ($socialPost !== null) {
             (new SocialPostModel())->delete((int) $socialPost['id']);
