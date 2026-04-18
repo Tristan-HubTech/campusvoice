@@ -58,12 +58,13 @@ class PortalController extends Controller
         $isAnon = (int) ($profile['is_anonymous'] ?? 0) === 1;
 
         return view('student/portal/home', array_merge([
-            'title'         => 'My Portal',
-            'studentUser'   => $studentUser,
-            'currentUser'   => $studentUser,
-            'posts'         => $this->buildCommunityPosts($userId),
-            'myFeedback'    => $myFeedback,
-            'announcements' => $announcements,
+            'title'              => 'My Portal',
+            'studentUser'        => $studentUser,
+            'currentUser'        => $studentUser,
+            'posts'              => $this->buildCommunityPosts($userId),
+            'myFeedback'         => $myFeedback,
+            'announcements'      => $announcements,
+            'showAnnouncements'  => true,
         ], $this->anonViewData($userId)));
     }
 
@@ -308,6 +309,7 @@ class PortalController extends Controller
             ->getResultArray();
 
         $commentsByPost = [];
+        $repliesByComment = [];
         foreach ($commentRows as $row) {
             $commentIsAnonymous = (int) ($row['is_anonymous'] ?? 0) === 1 || (int) ($row['profile_is_anonymous'] ?? 0) === 1;
             $row['author_name'] = $commentIsAnonymous
@@ -316,14 +318,33 @@ class PortalController extends Controller
             $row['avatar_color'] = $commentIsAnonymous
                 ? 'violet'
                 : (string) ($row['avatar_color'] ?? 'blue');
-            $commentsByPost[(int) $row['post_id']][] = $row;
+
+            $parentId = !empty($row['parent_id']) ? (int) $row['parent_id'] : 0;
+            if ($parentId > 0) {
+                $repliesByComment[$parentId][] = $row;
+            } else {
+                $commentsByPost[(int) $row['post_id']][] = $row;
+            }
         }
+
+        // Attach replies to their parent comments
+        foreach ($commentsByPost as &$comments) {
+            foreach ($comments as &$c) {
+                $cid = (int) $c['id'];
+                $c['replies'] = array_reverse($repliesByComment[$cid] ?? []);
+            }
+            unset($c);
+        }
+        unset($comments);
 
         // Fetch comment reaction counts and viewer reactions
         $allCommentIds = [];
         foreach ($commentsByPost as $comments) {
             foreach ($comments as $c) {
                 $allCommentIds[] = (int) $c['id'];
+                foreach ($c['replies'] as $reply) {
+                    $allCommentIds[] = (int) $reply['id'];
+                }
             }
         }
 
@@ -357,6 +378,13 @@ class PortalController extends Controller
                 $c['reaction_breakdown'] = $commentReactionBreakdown[$cid] ?? [];
                 $c['reaction_total'] = array_sum($commentReactionBreakdown[$cid] ?? []);
                 $c['viewer_reaction'] = $commentViewerReactions[$cid] ?? null;
+                foreach ($c['replies'] as &$reply) {
+                    $rid = (int) $reply['id'];
+                    $reply['reaction_breakdown'] = $commentReactionBreakdown[$rid] ?? [];
+                    $reply['reaction_total'] = array_sum($commentReactionBreakdown[$rid] ?? []);
+                    $reply['viewer_reaction'] = $commentViewerReactions[$rid] ?? null;
+                }
+                unset($reply);
             }
             unset($c);
         }
@@ -379,7 +407,10 @@ class PortalController extends Controller
             $post['viewer_reaction'] = $viewerReactions[(int) $post['id']] ?? null;
             $post['share_total'] = (int) ($shareTotals[(int) $post['id']] ?? 0);
             $post['comments'] = $commentsByPost[(int) $post['id']] ?? [];
-            $post['comment_total'] = count($commentsByPost[(int) $post['id']] ?? []);
+            $postComments = $commentsByPost[(int) $post['id']] ?? [];
+            $replyCount = 0;
+            foreach ($postComments as $pc) { $replyCount += count($pc['replies'] ?? []); }
+            $post['comment_total'] = count($postComments) + $replyCount;
             $post['profile_url'] = $postIsAnonymous ? '' : site_url('profile/' . $postUserId);
             $post['is_anonymous'] = $postIsAnonymous ? 1 : 0;
         }

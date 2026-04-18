@@ -6,25 +6,31 @@ $settingsProfile = (array) ($currentUserProfile ?? []);
 ?>
 <section class="panel-card settings-card">
     <div class="panel-head">
-        <h2>Account Settings</h2>
-        <span class="summary-muted">Update your profile for the main website</span>
+        <div>
+            <h2>Account Settings</h2>
+            <span class="summary-muted">Manage your profile and security</span>
+        </div>
     </div>
 
     <form method="post" action="<?= site_url('settings') ?>" class="settings-form" id="settingsForm">
-        <div class="field-row anon-toggle-row">
-            <div>
+
+        <!-- Privacy Section -->
+        <div class="settings-section">
+            <div class="settings-section-title"><span class="section-icon">🛡️</span> Privacy</div>
+            <div class="field-row anon-toggle-row">
                 <div>
-                    <label class="toggle-label-text">Anonymous Mode</label>
-                    <p class="toggle-desc">Your posts and comments will appear as "Anonymous"</p>
-                </div>
-                <?php $anonVal = old('is_anonymous', (string) ($settingsProfile['is_anonymous'] ?? '0')) === '1' ? '1' : '0'; ?>
-                <div class="anon-seg" id="anonSeg" data-checked="<?= $anonVal ?>">
-                    <input id="is_anonymous" name="is_anonymous" type="checkbox" value="1" <?= $anonVal === '1' ? 'checked' : '' ?>>
-                    <button type="button" class="seg-btn seg-off" onclick="setAnon(false)">OFF</button>
-                    <button type="button" class="seg-btn seg-on" onclick="setAnon(true)">ON</button>
+                    <div>
+                        <label class="toggle-label-text">Anonymous Mode</label>
+                        <p class="toggle-desc">Your posts and comments will appear as "Anonymous"</p>
+                    </div>
+                    <?php $anonVal = old('is_anonymous', (string) ($settingsProfile['is_anonymous'] ?? '0')) === '1' ? '1' : '0'; ?>
+                    <div class="anon-seg" id="anonSeg" data-checked="<?= $anonVal ?>">
+                        <input id="is_anonymous" name="is_anonymous" type="checkbox" value="1" <?= $anonVal === '1' ? 'checked' : '' ?>>
+                        <button type="button" class="seg-btn seg-off" onclick="setAnon(false)">OFF</button>
+                        <button type="button" class="seg-btn seg-on" onclick="setAnon(true)">ON</button>
+                    </div>
                 </div>
             </div>
-            <div></div>
         </div>
         <script>
         (function(){
@@ -54,35 +60,41 @@ $settingsProfile = (array) ($currentUserProfile ?? []);
         })();
         </script>
 
-        <div class="field-row">
-            <div>
-                <label for="first_name">First Name</label>
-                <input id="first_name" name="first_name" type="text" maxlength="100" value="<?= esc((string) old('first_name', (string) ($settingsUser['first_name'] ?? ''))) ?>">
+        <!-- Profile Section -->
+        <div class="settings-section">
+            <div class="settings-section-title"><span class="section-icon">👤</span> Profile Information</div>
+            <div class="field-row">
+                <div>
+                    <label for="first_name">First Name</label>
+                    <input id="first_name" name="first_name" type="text" maxlength="100" value="<?= esc((string) old('first_name', (string) ($settingsUser['first_name'] ?? ''))) ?>">
+                </div>
+                <div>
+                    <label for="last_name">Last Name</label>
+                    <input id="last_name" name="last_name" type="text" maxlength="100" value="<?= esc((string) old('last_name', (string) ($settingsUser['last_name'] ?? ''))) ?>">
+                </div>
             </div>
-            <div>
-                <label for="last_name">Last Name</label>
-                <input id="last_name" name="last_name" type="text" maxlength="100" value="<?= esc((string) old('last_name', (string) ($settingsUser['last_name'] ?? ''))) ?>">
+
+            <div class="field-row" style="margin-top:16px;">
+                <div>
+                    <label for="email">Email</label>
+                    <input id="email" name="email" type="email" value="<?= esc((string) ($settingsUser['email'] ?? '')) ?>" readonly>
+                </div>
+                <div>
+                    <label for="avatar_color">Avatar Color</label>
+                    <select id="avatar_color" name="avatar_color">
+                        <?php $selectedColor = (string) old('avatar_color', (string) ($settingsProfile['avatar_color'] ?? 'blue')); ?>
+                        <?php foreach ($avatarPalette as $color): ?>
+                            <option value="<?= esc($color) ?>" <?= $selectedColor === $color ? 'selected' : '' ?>><?= esc(ucfirst($color)) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
             </div>
         </div>
 
-        <div class="field-row">
-            <div>
-                <label for="email">Email</label>
-                <input id="email" name="email" type="email" value="<?= esc((string) ($settingsUser['email'] ?? '')) ?>" readonly>
-            </div>
-            <div>
-                <label for="avatar_color">Avatar Color</label>
-                <select id="avatar_color" name="avatar_color">
-                    <?php $selectedColor = (string) old('avatar_color', (string) ($settingsProfile['avatar_color'] ?? 'blue')); ?>
-                    <?php foreach ($avatarPalette as $color): ?>
-                        <option value="<?= esc($color) ?>" <?= $selectedColor === $color ? 'selected' : '' ?>><?= esc(ucfirst($color)) ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-        </div>
-
-        <!-- Change Password (collapsible) -->
-        <div class="settings-section-toggle" id="changePwToggle">
+        <!-- Security Section -->
+        <div class="settings-section">
+            <div class="settings-section-title"><span class="section-icon">🔐</span> Security</div>
+            <div class="settings-section-toggle" id="changePwToggle">
             <button type="button" class="ghost-btn" onclick="togglePasswordSection()">
                 🔒 Change Password <span id="pwArrow">▸</span>
             </button>
@@ -113,9 +125,10 @@ $settingsProfile = (array) ($currentUserProfile ?? []);
                 <p class="otp-status" id="otpStatus"></p>
             </div>
         </div>
+        </div><!-- end settings-section security -->
 
         <div class="settings-actions">
-            <button type="button" class="solid-btn" onclick="confirmSave()">Save Changes</button>
+            <button type="button" class="solid-btn" id="saveBtn" onclick="confirmSave()" disabled style="opacity:.5;cursor:not-allowed;">Save Changes</button>
         </div>
     </form>
 </section>
@@ -237,5 +250,34 @@ document.getElementById('email_otp').addEventListener('input', function() {
     this.style.borderColor = '';
     this.value = this.value.replace(/[^0-9]/g, '');
 });
+
+(function() {
+    var form = document.getElementById('settingsForm');
+    var saveBtn = document.getElementById('saveBtn');
+    var initial = {
+        first_name: document.getElementById('first_name').value,
+        last_name: document.getElementById('last_name').value,
+        avatar_color: document.getElementById('avatar_color').value
+    };
+
+    function checkChanges() {
+        var changed = false;
+        if (document.getElementById('first_name').value !== initial.first_name) changed = true;
+        if (document.getElementById('last_name').value !== initial.last_name) changed = true;
+        if (document.getElementById('avatar_color').value !== initial.avatar_color) changed = true;
+        if (document.getElementById('password').value.length > 0) changed = true;
+
+        saveBtn.disabled = !changed;
+        saveBtn.style.opacity = changed ? '1' : '.5';
+        saveBtn.style.cursor = changed ? 'pointer' : 'not-allowed';
+    }
+
+    ['first_name', 'last_name', 'password'].forEach(function(id) {
+        document.getElementById(id).addEventListener('input', checkChanges);
+    });
+    document.getElementById('avatar_color').addEventListener('change', checkChanges);
+
+    window._settingsCheckChanges = checkChanges;
+})();
 </script>
 <?= $this->endSection() ?>

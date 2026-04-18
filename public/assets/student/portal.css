@@ -30,7 +30,9 @@ body {
         radial-gradient(circle at 80% 0, rgba(47, 107, 255, 0.14), transparent 28%),
         radial-gradient(circle at 8% 18%, rgba(11, 31, 77, 0.12), transparent 34%),
         linear-gradient(165deg, #f4f8ff 0%, #eaf0ff 100%);
-    min-height: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 body.is-auth-screen {
@@ -266,6 +268,7 @@ a:hover {
     font-size: 0.9rem;
     border-top: 1px solid rgba(194, 212, 255, 0.6);
     background: rgba(255, 255, 255, 0.3);
+    margin-top: auto;
 }
 
 .portal-alert {
@@ -612,6 +615,10 @@ a:hover {
 .auth-form {
     display: grid;
     gap: 10px;
+}
+
+.auth-form .g-recaptcha {
+    justify-self: center;
 }
 
 .otp-status-text {
@@ -1060,6 +1067,7 @@ a:hover {
     position: relative;
     display: inline-block;
     max-width: 100%;
+    margin-bottom: 10px;
 }
 
 .comment-item p {
@@ -1135,6 +1143,64 @@ a:hover {
 
 .comment-like-btn.reacted {
     /* color set via inline style */
+}
+
+/* Reply button */
+.comment-reply-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.75rem;
+    color: #65676b;
+    padding: 0;
+    transition: color 0.15s;
+}
+.comment-reply-btn:hover {
+    text-decoration: underline;
+    color: #2078f4;
+}
+
+/* Reply list (nested under parent comment) */
+.reply-list {
+    margin-top: 8px;
+    padding-left: 8px;
+    border-left: 2px solid #e4e6eb;
+}
+.reply-item {
+    margin-bottom: 6px;
+}
+.reply-item .comment-bubble {
+    background: #f5f6f8;
+}
+
+/* Reply indicator on the comment form */
+.reply-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: #e8f0fe;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    color: #2078f4;
+    margin-bottom: 6px;
+}
+.reply-to-text {
+    flex: 1;
+    font-weight: 600;
+}
+.cancel-reply-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    color: #65676b;
+    padding: 0 4px;
+    line-height: 1;
+}
+.cancel-reply-btn:hover {
+    color: #d55b54;
 }
 
 /* Reaction picker flyout */

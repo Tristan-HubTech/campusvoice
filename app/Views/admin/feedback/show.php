@@ -4,7 +4,7 @@
 <div class="panel-grid single-column-mobile">
     <section class="panel">
         <div class="panel-head">
-            <h2>Feedback #<?= (int) $feedback['id'] ?></h2>
+            <h2>Feedback #<?= isset($feedback['row_num']) ? (int)$feedback['row_num'] : (int)$feedback['id'] ?></h2>
             <a href="<?= site_url('admin/feedback') ?>">Back to queue</a>
         </div>
 

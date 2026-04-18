@@ -47,6 +47,8 @@
                         placeholder="Your password"
                     >
 
+                    <div class="g-recaptcha" data-sitekey="<?= esc(RECAPTCHA_SITE_KEY) ?>"></div>
+
                     <button type="submit" class="btn-primary">Log In</button>
                     <div class="auth-form-footer">
                         <a href="<?= site_url('users/forgot-password') ?>" class="auth-link-subtle">Forgot password?</a>

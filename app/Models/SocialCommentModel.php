@@ -13,6 +13,7 @@ class SocialCommentModel extends Model
     protected $protectFields    = true;
     protected $allowedFields    = [
         'post_id',
+        'parent_id',
         'user_id',
         'body',
         'is_anonymous',

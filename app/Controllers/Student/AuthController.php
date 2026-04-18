@@ -159,6 +159,13 @@ class AuthController extends Controller
     private function handleLogin()
     {
         $post = $this->request->getPost();
+
+        // Verify reCAPTCHA
+        $recaptchaResponse = (string) ($post['g-recaptcha-response'] ?? '');
+        if (!$this->verifyRecaptcha($recaptchaResponse)) {
+            return redirect()->to(site_url('users/login?mode=login'))->with('error', 'Please complete the CAPTCHA verification.')->withInput();
+        }
+
         $rules = [
             'email'    => 'required|valid_email',
             'password' => 'required',
@@ -641,5 +648,34 @@ HTML;
         }
 
         return $sent;
+    }
+
+    private function verifyRecaptcha(string $response): bool
+    {
+        if ($response === '') {
+            return false;
+        }
+
+        $ch = curl_init('https://www.google.com/recaptcha/api/siteverify');
+        curl_setopt_array($ch, [
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => http_build_query([
+                'secret'   => RECAPTCHA_SECRET_KEY,
+                'response' => $response,
+                'remoteip' => $this->request->getIPAddress(),
+            ]),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 10,
+            CURLOPT_SSL_VERIFYPEER => false,
+        ]);
+        $result = curl_exec($ch);
+        curl_close($ch);
+
+        if ($result === false) {
+            return false;
+        }
+
+        $data = json_decode($result, true);
+        return is_array($data) && !empty($data['success']);
     }
 }

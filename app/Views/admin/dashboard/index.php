@@ -3,7 +3,7 @@
 <?= $this->section('content') ?>
 <?php
 $canViewActivity = ! empty($canViewActivity);
-$allowedTabs = ['overview', 'feedback', 'announcements', 'otp', 'users', 'categories'];
+$allowedTabs = ['overview', 'feedback', 'announcements', 'users', 'categories'];
 if ($canViewActivity) {
     $allowedTabs[] = 'activity';
 }
@@ -17,7 +17,6 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
     <button class="tab-btn active" type="button" data-tab-trigger="overview">Overview</button>
     <button class="tab-btn" type="button" data-tab-trigger="feedback">Feedback</button>
     <button class="tab-btn" type="button" data-tab-trigger="announcements">Announcements</button>
-    <button class="tab-btn" type="button" data-tab-trigger="otp">OTP</button>
     <button class="tab-btn" type="button" data-tab-trigger="users">Students</button>
     <button class="tab-btn" type="button" data-tab-trigger="categories">Categories</button>
     <?php if ($canViewActivity): ?>
@@ -70,7 +69,7 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                 <table class="data-table">
                     <thead>
                     <tr>
-                        <th>#</th>
+                        <th style="cursor:pointer" onclick="sortTableById()">#</th>
                         <th>Category</th>
                         <th>Type</th>
                         <th>Author</th>
@@ -80,9 +79,9 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                     </thead>
                     <tbody>
                     <?php if (! empty($latestFeedback)): ?>
-                        <?php foreach ($latestFeedback as $item): ?>
+                        <?php $rowNum = 1; foreach ($latestFeedback as $item): ?>
                             <tr>
-                                <td><a href="<?= site_url('admin/feedback/' . (int) $item['id']) ?>">#<?= (int) $item['id'] ?></a></td>
+                                <td><a href="<?= site_url('admin/feedback/' . (int) $item['id']) ?>">#<?= $rowNum++ ?></a></td>
                                 <td><?= esc((string) ($item['category_name'] ?? 'N/A')) ?></td>
                                 <td><span class="pill type-<?= esc((string) $item['type']) ?>"><?= esc(ucfirst((string) $item['type'])) ?></span></td>
                                 <td>
@@ -340,52 +339,6 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
     </div>
 </section>
 
-<section class="tab-panel" data-tab-panel="otp">
-    <section class="panel">
-        <div class="panel-head">
-            <h2>OTP Password Reset Tool</h2>
-        </div>
-
-        <div class="panel-grid otp-grid">
-            <article class="mini-panel">
-                <h3>1) Request OTP</h3>
-                <p class="muted">Send a 6-digit OTP to email.</p>
-                <form id="otp-request-form" class="form-grid compact-form">
-                    <input name="email" type="email" required placeholder="student@example.com">
-                    <button type="submit">Send OTP</button>
-                </form>
-                <div id="otp-request-status" class="status-text"></div>
-                <pre id="otp-request-result" class="code-box">Waiting for request...</pre>
-            </article>
-
-            <article class="mini-panel">
-                <h3>2) Verify OTP</h3>
-                <p class="muted">Check whether the OTP is valid and active.</p>
-                <form id="otp-verify-form" class="form-grid compact-form">
-                    <input name="email" type="email" required placeholder="student@example.com">
-                    <input name="otp" type="text" maxlength="6" required placeholder="123456">
-                    <button type="submit">Verify OTP</button>
-                </form>
-                <div id="otp-verify-status" class="status-text"></div>
-                <pre id="otp-verify-result" class="code-box">Waiting for verify...</pre>
-            </article>
-
-            <article class="mini-panel">
-                <h3>3) Reset Password</h3>
-                <p class="muted">Reset account password using verified OTP.</p>
-                <form id="otp-reset-form" class="form-grid compact-form">
-                    <input name="email" type="email" required placeholder="student@example.com">
-                    <input name="otp" type="text" maxlength="6" required placeholder="123456">
-                    <input name="new_password" type="password" required placeholder="Minimum 8 chars">
-                    <input name="confirm_password" type="password" required placeholder="Repeat password">
-                    <button type="submit">Reset Password</button>
-                </form>
-                <div id="otp-reset-status" class="status-text"></div>
-                <pre id="otp-reset-result" class="code-box">Waiting for reset...</pre>
-            </article>
-        </div>
-    </section>
-</section>
 
 <?php
 $usersList = $usersList ?? [];

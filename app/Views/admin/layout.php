@@ -14,7 +14,7 @@
     <aside class="admin-sidebar" id="adminSidebar">
         <?php $panelUrl = site_url('admin'); ?>
         <div class="brand">
-            <img src="<?= base_url('assets/admin/logo.svg') ?>" alt="CampusVoice logo" class="brand-mark">
+            <img src="<?= base_url('assets/admin/logo-mark.svg') ?>" alt="CampusVoice logo" class="brand-mark">
             <div>
                 <strong>CampusVoice</strong>
                 <small>Control Panel</small>
@@ -25,7 +25,6 @@
             <a href="<?= $panelUrl . '#overview' ?>" data-nav-tab="overview">Overview</a>
             <a href="<?= $panelUrl . '#feedback' ?>" data-nav-tab="feedback">Feedback</a>
             <a href="<?= $panelUrl . '#announcements' ?>" data-nav-tab="announcements">Announcements</a>
-            <a href="<?= $panelUrl . '#otp' ?>" data-nav-tab="otp">OTP</a>
             <a href="<?= $panelUrl . '#users' ?>" data-nav-tab="users">Students</a>
             <a href="<?= $panelUrl . '#categories' ?>" data-nav-tab="categories">Categories</a>
             <?php if (! empty($canViewActivity)): ?>

@@ -10,31 +10,53 @@
 <?php
 $socialCss = FCPATH . 'assets/student/social.css';
 $socialCssVersion = is_file($socialCss) ? (string) filemtime($socialCss) : '1';
+$portalCss = FCPATH . 'assets/student/portal.css';
+$portalCssVersion = is_file($portalCss) ? (string) filemtime($portalCss) : '1';
 ?>
+    <link rel="stylesheet" href="<?= base_url('assets/student/portal.css') . '?v=' . $portalCssVersion ?>">
     <link rel="stylesheet" href="<?= base_url('assets/student/social.css') . '?v=' . $socialCssVersion ?>">
 </head>
 <body>
 <?php $currentUser = (array) ($currentUser ?? []); ?>
+<?php $currentTitle = (string) ($title ?? ''); ?>
+
+<header class="portal-header">
+    <div class="portal-header-inner">
+        <a href="<?= site_url('users') ?>" class="portal-brand">
+            <img src="<?= base_url('assets/admin/logo-mark.svg') ?>" alt="CampusVoice" class="portal-logo">
+            <span>CampusVoice</span>
+        </a>
+
+        <?php if (! empty($currentUser['id'])): ?>
+            <?php
+            $navItems = [
+                ['label' => 'Home', 'url' => site_url('users'), 'title' => 'My Portal'],
+                ['label' => 'My Feedback', 'url' => site_url('users/feedback'), 'title' => 'My Submissions'],
+                ['label' => 'Submit', 'url' => site_url('users/feedback/submit'), 'title' => 'Submit Feedback'],
+                ['label' => 'Announcements', 'url' => site_url('users/announcements'), 'title' => 'Announcements'],
+                ['label' => 'Settings', 'url' => site_url('settings'), 'title' => 'Settings'],
+            ];
+            ?>
+            <nav class="portal-nav">
+                <?php foreach ($navItems as $item): ?>
+                    <a href="<?= $item['url'] ?>" class="<?= $currentTitle === $item['title'] ? 'active' : '' ?>"><?= esc($item['label']) ?></a>
+                <?php endforeach; ?>
+            </nav>
+            <div class="portal-user-info">
+                <span><?= esc((string) (! empty($isAnonymous) ? ($anonAlias ?? 'Anonymous') : ($currentUser['name'] ?? 'User'))) ?></span>
+                <a href="<?= site_url('users/logout') ?>" class="logout-link">Logout</a>
+            </div>
+        <?php else: ?>
+            <div class="topbar-actions">
+                <a href="<?= site_url('users/login?mode=register') ?>" class="ghost-btn">Join now</a>
+                <a href="<?= site_url('users/login') ?>" class="solid-btn">Log in</a>
+            </div>
+        <?php endif; ?>
+    </div>
+</header>
+
 <div class="social-shell">
     <div class="social-main">
-        <header class="social-topbar">
-            <div>
-                <h1><?= esc($title ?? 'CampusVoice') ?></h1>
-                <p>Post updates, react, comment, and share what matters on campus.</p>
-            </div>
-            <div class="topbar-actions">
-                <?php if (! empty($currentUser['id'])): ?>
-                    <a href="<?= site_url('users') ?>" class="ghost-btn">Back</a>
-                    <div class="admin-user">
-                        <strong><?= esc((string) (! empty($isAnonymous) ? ($anonAlias ?? 'Anonymous') : ($currentUser['name'] ?? 'User'))) ?></strong>
-                        <small><?= esc((string) ($currentUser['email'] ?? '')) ?></small>
-                    </div>
-                <?php else: ?>
-                    <a href="<?= site_url('users/login?mode=register') ?>" class="ghost-btn">Join now</a>
-                    <a href="<?= site_url('users/login') ?>" class="solid-btn">Log in</a>
-                <?php endif; ?>
-            </div>
-        </header>
 
         <?php if (session()->getFlashdata('success')): ?>
             <div class="toast-alert toast-success" id="toastAlert">
@@ -55,6 +77,10 @@ $socialCssVersion = is_file($socialCss) ? (string) filemtime($socialCss) : '1';
         <main class="social-content">
             <?= $this->renderSection('content') ?>
         </main>
+
+        <footer class="social-footer">
+            <p>&copy; <?= date('Y') ?> CampusVoice — Student Portal</p>
+        </footer>
     </div>
 </div>
 
@@ -70,6 +96,36 @@ $socialCssVersion = is_file($socialCss) ? (string) filemtime($socialCss) : '1';
     /* ── Helper: find the parent .feed-card for any element ── */
     function findCard(el) {
         return el.closest('.feed-card');
+    }
+
+    function buildCommentHTML(c, isReply) {
+        var cls = 'comment-item' + (isReply ? ' reply-item' : '');
+        var replyBtn = isReply ? '' :
+            '<button type="button" class="comment-reply-btn" data-comment-id="' + c.id + '" data-author="' + c.author_name + '">Reply</button>';
+        return '<div class="' + cls + '" data-comment-id="' + c.id + '">' +
+            '<div class="avatar avatar-small avatar-' + c.avatar_color + '">' + c.initial + '</div>' +
+            '<div class="comment-body-wrap">' +
+                '<div class="comment-bubble">' +
+                    '<strong>' + c.author_name + '</strong>' +
+                    '<p>' + c.body.replace(/\n/g, '<br>') + '</p>' +
+                '</div>' +
+                '<div class="comment-actions">' +
+                    '<span class="comment-date">' + (c.created_at || 'Just now') + '</span>' +
+                    '<span class="comment-like-wrap">' +
+                        '<button type="button" class="comment-like-btn" data-comment-id="' + c.id + '" data-current="">Like</button>' +
+                        '<div class="comment-reaction-picker">' +
+                            '<button type="button" class="picker-emoji" data-reaction="like" title="Like">👍</button>' +
+                            '<button type="button" class="picker-emoji" data-reaction="love" title="Love">❤️</button>' +
+                            '<button type="button" class="picker-emoji" data-reaction="haha" title="Haha">😆</button>' +
+                            '<button type="button" class="picker-emoji" data-reaction="wow" title="Wow">😮</button>' +
+                            '<button type="button" class="picker-emoji" data-reaction="sad" title="Sad">😢</button>' +
+                            '<button type="button" class="picker-emoji" data-reaction="angry" title="Angry">😠</button>' +
+                        '</div>' +
+                    '</span>' +
+                    replyBtn +
+                '</div>' +
+            '</div>' +
+        '</div>';
     }
 
     /* ── AJAX Comment Submission ── */
@@ -91,40 +147,37 @@ $socialCssVersion = is_file($socialCss) ? (string) filemtime($socialCss) : '1';
 
                 if (data.ok && data.comment) {
                     const c = data.comment;
-                    const item = document.createElement('div');
-                    item.className = 'comment-item';
-                    item.setAttribute('data-comment-id', c.id);
-                    item.innerHTML =
-                        '<div class="avatar avatar-small avatar-' + c.avatar_color + '">' + c.initial + '</div>' +
-                        '<div class="comment-body-wrap">' +
-                            '<div class="comment-bubble">' +
-                                '<strong>' + c.author_name + '</strong>' +
-                                '<p>' + c.body.replace(/\n/g, '<br>') + '</p>' +
-                            '</div>' +
-                            '<div class="comment-actions">' +
-                                '<span class="comment-date">' + (c.created_at || 'Just now') + '</span>' +
-                                '<span class="comment-like-wrap">' +
-                                    '<button type="button" class="comment-like-btn" data-comment-id="' + c.id + '" data-current="">Like</button>' +
-                                    '<div class="comment-reaction-picker">' +
-                                        '<button type="button" class="picker-emoji" data-reaction="like" title="Like">👍</button>' +
-                                        '<button type="button" class="picker-emoji" data-reaction="love" title="Love">❤️</button>' +
-                                        '<button type="button" class="picker-emoji" data-reaction="haha" title="Haha">😆</button>' +
-                                        '<button type="button" class="picker-emoji" data-reaction="wow" title="Wow">😮</button>' +
-                                        '<button type="button" class="picker-emoji" data-reaction="sad" title="Sad">😢</button>' +
-                                        '<button type="button" class="picker-emoji" data-reaction="angry" title="Angry">😠</button>' +
-                                    '</div>' +
-                                '</span>' +
-                            '</div>' +
-                        '</div>';
-
+                    const parentId = c.parent_id ? parseInt(c.parent_id) : 0;
                     const stack = form.closest('.comment-stack');
-                    let commentList = stack.querySelector('.comment-list');
-                    if (!commentList) {
-                        commentList = document.createElement('div');
-                        commentList.className = 'comment-list';
-                        stack.insertBefore(commentList, form);
+
+                    if (parentId > 0) {
+                        // It's a reply — append under the parent comment
+                        const parentItem = stack.querySelector('.comment-item[data-comment-id="' + parentId + '"]');
+                        if (parentItem) {
+                            var replyList = parentItem.querySelector('.reply-list');
+                            if (!replyList) {
+                                replyList = document.createElement('div');
+                                replyList.className = 'reply-list';
+                                parentItem.querySelector('.comment-body-wrap').appendChild(replyList);
+                            }
+                            replyList.insertAdjacentHTML('beforeend', buildCommentHTML(c, true));
+                        }
+                        // Reset reply state
+                        var parentInput = form.querySelector('.comment-parent-id');
+                        if (parentInput) parentInput.value = '0';
+                        var indicator = form.querySelector('.reply-indicator');
+                        if (indicator) indicator.style.display = 'none';
+                        form.querySelector('textarea').placeholder = 'Write a comment...';
+                    } else {
+                        // Top-level comment
+                        let commentList = stack.querySelector('.comment-list');
+                        if (!commentList) {
+                            commentList = document.createElement('div');
+                            commentList.className = 'comment-list';
+                            stack.insertBefore(commentList, form);
+                        }
+                        commentList.insertAdjacentHTML('afterbegin', buildCommentHTML(c, false));
                     }
-                    commentList.prepend(item);
 
                     // Update comment count in the summary row
                     const card = findCard(form);
@@ -148,6 +201,43 @@ $socialCssVersion = is_file($socialCss) ? (string) filemtime($socialCss) : '1';
                 btn.textContent = origText;
             }
         });
+    });
+
+    /* ── Reply Button Handler ── */
+    document.addEventListener('click', function (e) {
+        var replyBtn = e.target.closest('.comment-reply-btn');
+        if (!replyBtn) return;
+        var commentId = replyBtn.getAttribute('data-comment-id');
+        var author = replyBtn.getAttribute('data-author');
+        var card = findCard(replyBtn);
+        if (!card) return;
+        var form = card.querySelector('.comment-form');
+        if (!form) return;
+        var parentInput = form.querySelector('.comment-parent-id');
+        var indicator = form.querySelector('.reply-indicator');
+        var toText = indicator ? indicator.querySelector('.reply-to-text') : null;
+        var textarea = form.querySelector('textarea');
+        if (parentInput) parentInput.value = commentId;
+        if (toText) toText.textContent = 'Replying to ' + author;
+        if (indicator) indicator.style.display = 'flex';
+        if (textarea) {
+            textarea.placeholder = 'Write a reply...';
+            textarea.focus();
+        }
+    });
+
+    /* ── Cancel Reply Handler ── */
+    document.addEventListener('click', function (e) {
+        var cancelBtn = e.target.closest('.cancel-reply-btn');
+        if (!cancelBtn) return;
+        var form = cancelBtn.closest('.comment-form');
+        if (!form) return;
+        var parentInput = form.querySelector('.comment-parent-id');
+        var indicator = form.querySelector('.reply-indicator');
+        var textarea = form.querySelector('textarea');
+        if (parentInput) parentInput.value = '0';
+        if (indicator) indicator.style.display = 'none';
+        if (textarea) textarea.placeholder = 'Write a comment...';
     });
 
     /* ── Emoji map for reaction pills ── */

@@ -53,14 +53,17 @@ select {
 
 .social-shell {
     min-height: 100vh;
-    display: grid;
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
 }
 
 .social-main {
     padding: 0 0 30px;
     width: 100%;
     max-width: none;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .social-topbar {
@@ -231,6 +234,14 @@ select {
     padding: 14px 22px;
 }
 
+.social-footer {
+    text-align: center;
+    color: var(--muted);
+    padding: 24px 16px;
+    font-size: 0.85rem;
+    margin-top: auto;
+}
+
 .feed-column,
 .profile-shell {
     display: grid;
@@ -344,7 +355,7 @@ select {
 .composer-form,
 .settings-form {
     display: grid;
-    gap: 12px;
+    gap: 0;
 }
 
 .comment-form {
@@ -894,6 +905,7 @@ select:focus {
     position: relative;
     display: inline-block;
     max-width: 100%;
+    margin-bottom: 10px;
 }
 
 .comment-item p {
@@ -969,6 +981,64 @@ select:focus {
 
 .comment-like-btn.reacted {
     /* color set via inline style */
+}
+
+/* Reply button */
+.comment-reply-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.75rem;
+    color: #65676b;
+    padding: 0;
+    transition: color 0.15s;
+}
+.comment-reply-btn:hover {
+    text-decoration: underline;
+    color: #2078f4;
+}
+
+/* Reply list (nested under parent comment) */
+.reply-list {
+    margin-top: 8px;
+    padding-left: 8px;
+    border-left: 2px solid #e4e6eb;
+}
+.reply-item {
+    margin-bottom: 6px;
+}
+.reply-item .comment-bubble {
+    background: #f5f6f8;
+}
+
+/* Reply indicator on the comment form */
+.reply-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: #e8f0fe;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    color: #2078f4;
+    margin-bottom: 6px;
+}
+.reply-to-text {
+    flex: 1;
+    font-weight: 600;
+}
+.cancel-reply-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    color: #65676b;
+    padding: 0 4px;
+    line-height: 1;
+}
+.cancel-reply-btn:hover {
+    color: #d55b54;
 }
 
 /* Reaction picker flyout */
@@ -1101,24 +1171,122 @@ select:focus {
     line-height: 1.6;
 }
 
+.settings-card {
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.settings-card .panel-head {
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--line);
+}
+
+.settings-card .panel-head h2 {
+    font-size: 1.4rem;
+}
+
+.settings-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--blue);
+    text-decoration: none;
+    margin-bottom: 8px;
+    padding: 5px 12px 5px 8px;
+    border-radius: 8px;
+    transition: background 0.15s, color 0.15s;
+}
+
+.settings-back-link:hover {
+    background: rgba(37, 99, 235, 0.08);
+    text-decoration: none;
+}
+
 .settings-card label {
     display: block;
     margin-bottom: 6px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.settings-section {
+    margin-bottom: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--line);
+}
+
+.settings-section:last-of-type {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.settings-section-title {
+    font-size: 0.82rem;
     font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.settings-section-title .section-icon {
+    font-size: 1rem;
 }
 
 .field-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 14px;
+    gap: 16px;
+}
+
+.settings-form input[type="text"],
+.settings-form input[type="email"],
+.settings-form input[type="password"],
+.settings-form select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    font-size: 0.92rem;
+    background: var(--surface);
+    color: var(--ink);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    font-family: inherit;
+}
+
+.settings-form input:focus,
+.settings-form select:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    outline: none;
+}
+
+.settings-form input[readonly] {
+    background: rgba(133, 172, 255, 0.06);
+    color: var(--muted);
+    cursor: not-allowed;
 }
 
 /* Anonymous mode segmented control */
+.anon-toggle-row {
+    grid-template-columns: 1fr !important;
+}
+
 .anon-toggle-row > div:first-child {
-    background: #0d1b3d;
+    background: linear-gradient(135deg, #0d1b3d 0%, #132e5e 100%);
     border: 1px solid #1e3055;
     border-radius: 16px;
-    padding: 16px 18px;
+    padding: 18px 22px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -1176,6 +1344,29 @@ select:focus {
     box-shadow: inset 0 0 0 1px #1a4fb8;
 }
 
+/* Settings actions */
+.settings-actions {
+    padding-top: 8px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.settings-actions .solid-btn {
+    padding: 12px 32px;
+    font-size: 0.92rem;
+    border-radius: 12px;
+    font-weight: 700;
+    transition: opacity 0.2s, transform 0.15s;
+}
+
+.settings-actions .solid-btn:not(:disabled):hover {
+    transform: translateY(-1px);
+}
+
+.settings-actions .solid-btn:not(:disabled):active {
+    transform: translateY(0);
+}
+
 .empty-card,
 .guest-card {
     text-align: center;
@@ -1195,7 +1386,7 @@ select:focus {
 
 @media (max-width: 900px) {
     .social-shell {
-        grid-template-columns: 1fr;
+        flex-direction: column;
     }
 }
 

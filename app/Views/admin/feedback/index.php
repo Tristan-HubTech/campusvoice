@@ -38,7 +38,7 @@
         <table class="data-table">
             <thead>
             <tr>
-                <th>ID</th>
+                <th>#</th>
                 <th>Type</th>
                 <th>Category</th>
                 <th>Subject</th>
@@ -50,9 +50,9 @@
             </thead>
             <tbody>
             <?php if (! empty($feedbackList)): ?>
-                <?php foreach ($feedbackList as $item): ?>
+                <?php $rowNum = 1; foreach ($feedbackList as $item): ?>
                     <tr>
-                        <td>#<?= (int) $item['id'] ?></td>
+                        <td>#<?= $rowNum++ ?></td>
                         <td><span class="pill type-<?= esc((string) $item['type']) ?>"><?= esc(ucfirst((string) $item['type'])) ?></span></td>
                         <td><?= esc((string) ($item['category_name'] ?? 'N/A')) ?></td>
                         <td><?= esc((string) ($item['subject'] ?: mb_strimwidth((string) $item['message'], 0, 50, '...'))) ?></td>

@@ -142,6 +142,11 @@ class SocialController extends BaseController
 
                 // Mark OTP as used
                 $otpModel->update((int) $otpRecord['id'], ['used_at' => $now]);
+
+                // Reject if new password is the same as current password
+                if (password_verify($password, (string) ($user['password_hash'] ?? ''))) {
+                    return redirect()->back()->with('error', 'New password cannot be the same as your current password.')->withInput();
+                }
             }
 
             $updateUser = [
@@ -489,6 +494,7 @@ HTML;
         $rules = [
             'body' => 'required|min_length[1]|max_length[1000]',
             'is_anonymous' => 'permit_empty|in_list[0,1]',
+            'parent_id' => 'permit_empty|integer',
         ];
 
         if (! $this->validate($rules)) {
@@ -506,11 +512,20 @@ HTML;
             $isAnonymous = (int) ($profile['is_anonymous'] ?? 0);
         }
 
+        $parentId = (int) ($this->request->getPost('parent_id') ?? 0);
+
         $commentPayload = [
             'post_id' => $postId,
             'user_id' => (int) $this->viewer()['id'],
             'body'    => trim(strip_tags((string) $this->request->getPost('body'))),
         ];
+
+        if ($parentId > 0) {
+            $parentComment = (new SocialCommentModel())->where('post_id', $postId)->find($parentId);
+            if ($parentComment !== null) {
+                $commentPayload['parent_id'] = $parentId;
+            }
+        }
 
         if (db_connect()->fieldExists('is_anonymous', 'social_post_comments')) {
             $commentPayload['is_anonymous'] = $isAnonymous === 1 ? 1 : 0;
@@ -535,6 +550,7 @@ HTML;
                 'ok' => true,
                 'comment' => [
                     'id' => $newCommentId,
+                    'parent_id' => $commentPayload['parent_id'] ?? null,
                     'author_name' => $authorName,
                     'avatar_color' => $avatarColor,
                     'initial' => $initial,
@@ -778,6 +794,7 @@ HTML;
             ->getResultArray();
 
         $commentsByPost = [];
+        $repliesByComment = [];
         foreach ($commentRows as $row) {
             $commentIsAnonymous = (int) ($row['is_anonymous'] ?? 0) === 1 || (int) ($row['profile_is_anonymous'] ?? 0) === 1;
             $row['author_name'] = $commentIsAnonymous
@@ -786,14 +803,33 @@ HTML;
             $row['avatar_color'] = $commentIsAnonymous
                 ? 'violet'
                 : (string) ($row['avatar_color'] ?? 'blue');
-            $commentsByPost[(int) $row['post_id']][] = $row;
+
+            $parentId = !empty($row['parent_id']) ? (int) $row['parent_id'] : 0;
+            if ($parentId > 0) {
+                $repliesByComment[$parentId][] = $row;
+            } else {
+                $commentsByPost[(int) $row['post_id']][] = $row;
+            }
         }
+
+        // Attach replies to their parent comments
+        foreach ($commentsByPost as &$comments) {
+            foreach ($comments as &$c) {
+                $cid = (int) $c['id'];
+                $c['replies'] = array_reverse($repliesByComment[$cid] ?? []);
+            }
+            unset($c);
+        }
+        unset($comments);
 
         // Fetch comment reaction counts and viewer reactions
         $allCommentIds = [];
         foreach ($commentsByPost as $comments) {
             foreach ($comments as $c) {
                 $allCommentIds[] = (int) $c['id'];
+                foreach ($c['replies'] as $reply) {
+                    $allCommentIds[] = (int) $reply['id'];
+                }
             }
         }
 
@@ -828,6 +864,13 @@ HTML;
                 $c['reaction_breakdown'] = $commentReactionBreakdown[$cid] ?? [];
                 $c['reaction_total'] = array_sum($commentReactionBreakdown[$cid] ?? []);
                 $c['viewer_reaction'] = $commentViewerReactions[$cid] ?? null;
+                foreach ($c['replies'] as &$reply) {
+                    $rid = (int) $reply['id'];
+                    $reply['reaction_breakdown'] = $commentReactionBreakdown[$rid] ?? [];
+                    $reply['reaction_total'] = array_sum($commentReactionBreakdown[$rid] ?? []);
+                    $reply['viewer_reaction'] = $commentViewerReactions[$rid] ?? null;
+                }
+                unset($reply);
             }
             unset($c);
         }
@@ -850,7 +893,10 @@ HTML;
             $post['viewer_reaction'] = $viewerReactions[(int) $post['id']] ?? null;
             $post['share_total'] = (int) ($shareTotals[(int) $post['id']] ?? 0);
             $post['comments'] = $commentsByPost[(int) $post['id']] ?? [];
-            $post['comment_total'] = count($commentsByPost[(int) $post['id']] ?? []);
+            $postComments = $commentsByPost[(int) $post['id']] ?? [];
+            $replyCount = 0;
+            foreach ($postComments as $pc) { $replyCount += count($pc['replies'] ?? []); }
+            $post['comment_total'] = count($postComments) + $replyCount;
             $post['profile_url'] = $postIsAnonymous ? '' : site_url('profile/' . $postUserId);
             $post['is_anonymous'] = $postIsAnonymous ? 1 : 0;
         }

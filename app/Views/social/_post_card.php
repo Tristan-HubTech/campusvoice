@@ -90,8 +90,60 @@
                                             <?php endforeach; ?>
                                         </div>
                                     </span>
+                                    <button type="button" class="comment-reply-btn" data-comment-id="<?= (int) $comment['id'] ?>" data-author="<?= esc((string) $comment['author_name']) ?>">Reply</button>
                                 <?php endif; ?>
                             </div>
+
+                            <?php if (! empty($comment['replies'])): ?>
+                                <div class="reply-list">
+                                    <?php foreach ($comment['replies'] as $reply): ?>
+                                        <?php
+                                        $rrBreakdown = $reply['reaction_breakdown'] ?? [];
+                                        $rrTotal = array_sum($rrBreakdown);
+                                        $rrViewerRx = $reply['viewer_reaction'] ?? null;
+                                        ?>
+                                        <div class="comment-item reply-item" data-comment-id="<?= (int) $reply['id'] ?>">
+                                            <div class="avatar avatar-small avatar-<?= esc((string) ($reply['avatar_color'] ?? 'blue')) ?>"><?= esc(strtoupper(substr((string) $reply['author_name'], 0, 1))) ?></div>
+                                            <div class="comment-body-wrap">
+                                                <div class="comment-bubble">
+                                                    <strong><?= esc((string) $reply['author_name']) ?></strong>
+                                                    <p><?= nl2br(esc((string) $reply['body'])) ?></p>
+                                                    <?php if ($rrTotal > 0): ?>
+                                                        <span class="comment-reaction-badge">
+                                                            <?php foreach ($rrBreakdown as $bType => $bCount):
+                                                                if ($bCount > 0 && isset($crEmojiMap[$bType])): ?>
+                                                                    <span class="badge-emoji"><?= $crEmojiMap[$bType] ?></span>
+                                                                <?php endif;
+                                                            endforeach; ?>
+                                                            <span class="badge-count"><?= $rrTotal ?></span>
+                                                        </span>
+                                                    <?php endif; ?>
+                                                </div>
+                                                <div class="comment-actions">
+                                                    <span class="comment-date"><?= esc(date('M d, Y h:i A', strtotime((string) $reply['created_at']))) ?></span>
+                                                    <?php if (! empty($currentUser['id'])): ?>
+                                                        <span class="comment-like-wrap">
+                                                            <button type="button"
+                                                                class="comment-like-btn<?= $rrViewerRx ? ' reacted' : '' ?>"
+                                                                data-comment-id="<?= (int) $reply['id'] ?>"
+                                                                data-current="<?= esc((string) $rrViewerRx) ?>"
+                                                                <?php if ($rrViewerRx && isset($crColors[$rrViewerRx])): ?>
+                                                                    style="color: <?= $crColors[$rrViewerRx] ?>"
+                                                                <?php endif; ?>
+                                                            ><?= $rrViewerRx ? esc(ucfirst($rrViewerRx)) : 'Like' ?></button>
+                                                            <div class="comment-reaction-picker">
+                                                                <?php foreach ($crEmojiMap as $rType => $rEmoji): ?>
+                                                                    <button type="button" class="picker-emoji" data-reaction="<?= esc($rType) ?>" title="<?= esc(ucfirst($rType)) ?>"><?= $rEmoji ?></button>
+                                                                <?php endforeach; ?>
+                                                            </div>
+                                                        </span>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -100,6 +152,11 @@
 
         <?php if (! empty($currentUser['id'])): ?>
             <form method="post" action="<?= site_url('posts/' . (int) $post['id'] . '/comment') ?>" class="comment-form">
+                <input type="hidden" name="parent_id" value="0" class="comment-parent-id">
+                <div class="reply-indicator" style="display:none;">
+                    <span class="reply-to-text"></span>
+                    <button type="button" class="cancel-reply-btn" title="Cancel reply">&times;</button>
+                </div>
                 <textarea name="body" rows="2" placeholder="Write a comment..."></textarea>
                 <label class="summary-muted"><input type="checkbox" name="is_anonymous" value="1" class="anon-check"> Comment anonymously</label>
                 <button type="submit" class="solid-btn">Comment</button>

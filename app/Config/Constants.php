@@ -78,6 +78,17 @@ defined('EXIT_DATABASE')       || define('EXIT_DATABASE', 8);       // database 
 defined('EXIT__AUTO_MIN')      || define('EXIT__AUTO_MIN', 9);      // lowest automatically-assigned error code
 defined('EXIT__AUTO_MAX')      || define('EXIT__AUTO_MAX', 125);    // highest automatically-assigned error code
 
+/*
+ |--------------------------------------------------------------------------
+ | Google reCAPTCHA v2
+ |--------------------------------------------------------------------------
+ |
+ | Register at https://www.google.com/recaptcha/admin to get your keys.
+ | Replace the placeholder values below with your actual site key and secret.
+ */
+defined('RECAPTCHA_SITE_KEY')   || define('RECAPTCHA_SITE_KEY', '6LeOwLssAAAAAK2T2vwabeGLtC6vHzBEJv3ff4oY');
+defined('RECAPTCHA_SECRET_KEY') || define('RECAPTCHA_SECRET_KEY', '6LeOwLssAAAAAL7xPjtG0wBAzcxee4J8dSX-c2QI');
+
 /**
  * @deprecated Use \CodeIgniter\Events\Events::PRIORITY_LOW instead.
  */

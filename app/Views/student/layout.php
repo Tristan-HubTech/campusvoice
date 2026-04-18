@@ -15,6 +15,9 @@ $currentTitle = (string) ($title ?? '');
 $isAuthScreen = (bool) ($isAuthScreen ?? ($currentTitle === 'Student Portal Access'));
 ?>
     <link rel="stylesheet" href="<?= base_url('assets/student/portal.css') . '?v=' . $studentPortalCssVersion ?>">
+<?php if ($isAuthScreen): ?>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<?php endif; ?>
 </head>
 <body<?= $isAuthScreen ? ' class="is-auth-screen"' : '' ?>>
 
@@ -58,34 +61,7 @@ $isAuthScreen = (bool) ($isAuthScreen ?? ($currentTitle === 'Student Portal Acce
         <div class="portal-alert error"><?= esc((string) session()->getFlashdata('error')) ?></div>
     <?php endif; ?>
 
-    <?php
-    if (! $isAuthScreen) {
-        $__announcements = (new \App\Models\AnnouncementModel())
-            ->where('is_published', 1)
-            ->groupStart()
-                ->where('expires_at IS NULL')
-                ->orWhere('expires_at >=', date('Y-m-d H:i:s'))
-            ->groupEnd()
-            ->orderBy('created_at', 'DESC')
-            ->findAll(5);
-        if (! empty($__announcements)):
-    ?>
-        <section class="announcements-banner">
-            <div class="announcements-header">
-                <span class="announcements-icon">📢</span>
-                <h3>Announcements</h3>
-            </div>
-            <div class="announcements-scroll">
-                <?php foreach ($__announcements as $ann): ?>
-                    <div class="announcement-card">
-                        <h4><?= esc((string) $ann['title']) ?></h4>
-                        <p><?= nl2br(esc((string) $ann['body'])) ?></p>
-                        <span class="announcement-date"><?= esc(date('M d, Y', strtotime((string) $ann['created_at']))) ?></span>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        </section>
-    <?php endif; } ?>
+
 
     <?= $this->renderSection('content') ?>
 </main>

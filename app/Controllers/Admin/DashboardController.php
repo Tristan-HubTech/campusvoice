@@ -21,7 +21,7 @@ class DashboardController extends AdminBaseController
         $canViewActivity = ($adminUser['role'] ?? '') === 'system_admin';
 
         $requestedTab = (string) ($this->request->getGet('tab') ?? 'overview');
-        $allowedTabs = ['overview', 'feedback', 'announcements', 'otp', 'users', 'categories'];
+        $allowedTabs = ['overview', 'feedback', 'announcements', 'users', 'categories'];
         if ($canViewActivity) {
             $allowedTabs[] = 'activity';
         }
