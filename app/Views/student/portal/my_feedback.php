@@ -21,6 +21,7 @@
                         <th>Type</th>
                         <th>Status</th>
                         <th>Submitted</th>
+                        <th>Replies</th>
                         <th>Action</th>
                     </tr>
                     </thead>
@@ -35,6 +36,17 @@
                             <td><span class="pill status-<?= esc((string) ($item['status'] ?? 'new')) ?>"><?= esc(ucfirst((string) ($item['status'] ?? 'new'))) ?></span></td>
                             <td><?= esc(date('M d, Y H:i', strtotime((string) ($item['created_at'] ?? 'now')))) ?></td>
                             <td>
+                                <?php $rc = (int) ($item['reply_count'] ?? 0); ?>
+                                <?php if ($rc > 0): ?>
+                                    <a href="<?= site_url('users/feedback/' . (int) $item['id']) ?>" class="pill status-reviewed" style="font-size:0.72rem; text-decoration:none;">
+                                        <?= $rc ?> <?= $rc === 1 ? 'reply' : 'replies' ?>
+                                    </a>
+                                <?php else: ?>
+                                    <span class="muted" style="font-size:0.8rem;">—</span>
+                                <?php endif; ?>
+                            </td>
+                            <td style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+                                <a href="<?= site_url('users/feedback/' . (int) $item['id']) ?>" class="btn-view-sm">View</a>
                                 <button type="button" class="btn-delete-sm" data-delete-url="<?= site_url('users/feedback/' . (int) $item['id'] . '/delete') ?>">Delete</button>
                             </td>
                         </tr>

@@ -296,11 +296,13 @@ $portalCssVersion = is_file($portalCss) ? (string) filemtime($portalCss) : '1';
         }
     }
 
-    /* Click a picker emoji → react */
+    /* Click a picker emoji → react (comment-level only; post-level uses form submit) */
     document.addEventListener('click', async function (e) {
         var emoji = e.target.closest('.picker-emoji');
         if (!emoji) return;
         var item = emoji.closest('.comment-item');
+        if (!item) return; // post-level picker — let the <form> submit naturally
+        e.preventDefault();
         var commentId = item.getAttribute('data-comment-id');
         var reaction = emoji.getAttribute('data-reaction');
         try {
@@ -309,11 +311,18 @@ $portalCssVersion = is_file($portalCss) ? (string) filemtime($portalCss) : '1';
         } catch (err) { console.error('Comment reaction failed:', err); }
     });
 
-    /* Click the Like/Love text → toggle off (or quick-like) */
+    /* Click the Like/Love text → toggle reaction (or toggle picker for post trigger) */
     document.addEventListener('click', async function (e) {
         var likeBtn = e.target.closest('.comment-like-btn');
         if (!likeBtn) return;
+        // Post-level react trigger — toggle picker open/closed
+        if (likeBtn.classList.contains('post-react-trigger')) {
+            var wrap = likeBtn.closest('.comment-like-wrap');
+            if (wrap) wrap.classList.toggle('picker-open');
+            return;
+        }
         var item = likeBtn.closest('.comment-item');
+        if (!item) return;
         var commentId = item.getAttribute('data-comment-id');
         var current = likeBtn.getAttribute('data-current');
         var reaction = current || 'like';
@@ -321,6 +330,15 @@ $portalCssVersion = is_file($portalCss) ? (string) filemtime($portalCss) : '1';
             var data = await sendCommentReaction(commentId, reaction);
             if (data.ok) updateCommentUI(item, data);
         } catch (err) { console.error('Comment reaction failed:', err); }
+    });
+
+    /* Close post reaction picker when clicking outside */
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('.comment-like-wrap')) {
+            document.querySelectorAll('.comment-like-wrap.picker-open').forEach(function (w) {
+                w.classList.remove('picker-open');
+            });
+        }
     });
 
     /* ── AJAX Delete Post ── */

@@ -92,9 +92,9 @@ class SocialController extends BaseController
 
         if (strtolower($this->request->getMethod()) === 'post') {
             $rules = [
-                'first_name' => 'required|min_length[2]|max_length[100]',
-                'last_name'  => 'required|min_length[2]|max_length[100]',
-                'bio'        => 'permit_empty|max_length[500]',
+                'first_name'  => 'required|min_length[2]|max_length[100]',
+                'last_name'   => 'required|min_length[2]|max_length[100]',
+                'bio'         => 'permit_empty|max_length[500]',
                 'avatar_color' => 'required|in_list[' . implode(',', $this->avatarPalette) . ']',
                 'is_anonymous' => 'permit_empty|in_list[0,1]',
             ];
@@ -721,11 +721,16 @@ HTML;
     private function buildPosts(int $viewerId = 0, ?int $userId = null): array
     {
         $query = (new SocialPostModel())
-            ->select('social_posts.*, users.first_name, users.last_name, users.email, social_profiles.avatar_color, social_profiles.bio, social_profiles.is_anonymous as profile_is_anonymous')
+            ->select('social_posts.*, users.first_name, users.last_name, users.email, social_profiles.avatar_color, social_profiles.bio, social_profiles.is_anonymous as profile_is_anonymous, feedbacks.status as feedback_status, feedbacks.type as feedback_type')
             ->join('users', 'users.id = social_posts.user_id', 'inner')
             ->join('social_profiles', 'social_profiles.user_id = users.id', 'left')
+            ->join('feedbacks', 'feedbacks.id = social_posts.feedback_id', 'left')
             ->where('users.is_active', 1)
             ->where('social_posts.is_public', 1)
+            ->groupStart()
+                ->where('social_posts.feedback_id IS NULL')
+                ->orWhere('feedbacks.status !=', 'resolved')
+            ->groupEnd()
             ->orderBy('social_posts.created_at', 'DESC');
 
         if ($userId !== null) {

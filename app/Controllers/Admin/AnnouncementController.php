@@ -22,7 +22,6 @@ class AnnouncementController extends AdminBaseController
         $rules = [
             'title'        => 'required|max_length[180]',
             'body'         => 'required|min_length[3]',
-            'audience'     => 'required|in_list[all,students,admins]',
             'is_published' => 'permit_empty|in_list[0,1]',
         ];
 
@@ -35,7 +34,7 @@ class AnnouncementController extends AdminBaseController
             'title'        => trim((string) $payload['title']),
             'body'         => trim((string) $payload['body']),
             'posted_by'    => (int) ($this->adminUser()['id'] ?? 0),
-            'audience'     => $payload['audience'],
+            'audience'     => 'all',
             'publish_at'   => $this->normalizeDateTime($payload['publish_at'] ?? null),
             'expires_at'   => $this->normalizeDateTime($payload['expires_at'] ?? null),
             'is_published' => isset($payload['is_published']) ? (int) $payload['is_published'] : 1,
@@ -48,7 +47,6 @@ class AnnouncementController extends AdminBaseController
                 'target_type' => 'announcement',
                 'target_id'   => (int) $announcementId,
                 'title'       => trim((string) $payload['title']),
-                'audience'    => (string) $payload['audience'],
                 'published'   => isset($payload['is_published']) ? (int) $payload['is_published'] : 1,
             ]
         );
@@ -74,7 +72,6 @@ class AnnouncementController extends AdminBaseController
         $rules = [
             'title'        => 'required|max_length[180]',
             'body'         => 'required|min_length[3]',
-            'audience'     => 'required|in_list[all,students,admins]',
             'is_published' => 'permit_empty|in_list[0,1]',
         ];
 
@@ -87,7 +84,7 @@ class AnnouncementController extends AdminBaseController
         $announcementModel->update($id, [
             'title'        => trim((string) $payload['title']),
             'body'         => trim((string) $payload['body']),
-            'audience'     => $payload['audience'],
+            'audience'     => 'all',
             'publish_at'   => $this->normalizeDateTime($payload['publish_at'] ?? null),
             'expires_at'   => $this->normalizeDateTime($payload['expires_at'] ?? null),
             'is_published' => isset($payload['is_published']) ? (int) $payload['is_published'] : 1,
@@ -101,7 +98,6 @@ class AnnouncementController extends AdminBaseController
                 'target_id'   => $id,
                 'old_title'   => $oldTitle,
                 'new_title'   => trim((string) $payload['title']),
-                'audience'    => (string) $payload['audience'],
                 'published'   => isset($payload['is_published']) ? (int) $payload['is_published'] : 1,
             ]
         );

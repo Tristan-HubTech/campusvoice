@@ -213,7 +213,6 @@ class AuthController extends Controller
             'first_name'       => 'required|min_length[2]|max_length[100]',
             'last_name'        => 'required|min_length[2]|max_length[100]',
             'email'            => 'required|valid_email|max_length[150]',
-            'student_no'       => 'permit_empty|max_length[50]|is_unique[users.student_no]',
             'otp'              => 'required|numeric|exact_length[6]',
             'password'         => 'required|min_length[8]|max_length[255]',
             'password_confirm' => 'required|matches[password]',
@@ -257,7 +256,6 @@ class AuthController extends Controller
             'first_name'    => trim((string) $post['first_name']),
             'last_name'     => trim((string) $post['last_name']),
             'email'         => $email,
-            'student_no'    => trim((string) ($post['student_no'] ?? '')) ?: null,
             'password_hash' => password_hash((string) $post['password'], PASSWORD_DEFAULT),
             'is_active'     => 1,
         ]);

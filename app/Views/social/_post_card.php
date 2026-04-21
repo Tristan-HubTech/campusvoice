@@ -1,46 +1,82 @@
+<?php
+$emojiMap   = ['like' => '👍', 'love' => '❤️', 'haha' => '😆', 'wow' => '😮', 'sad' => '😢', 'angry' => '😠'];
+$emojiLabel = ['like' => 'Like', 'love' => 'Love', 'haha' => 'Haha', 'wow' => 'Wow', 'sad' => 'Sad', 'angry' => 'Angry'];
+$rxColors   = ['like' => '#2078f4', 'love' => '#ed4956', 'haha' => '#f7b928', 'wow' => '#f7b928', 'sad' => '#f7b928', 'angry' => '#e9710f'];
+$viewerRx   = $post['viewer_reaction'] ?? null;
+$fbStatus   = (string) ($post['feedback_status'] ?? '');
+$fbType     = (string) ($post['feedback_type'] ?? '');
+$postIsAnon = (int) ($post['is_anonymous'] ?? 0) === 1;
+// Strip "TypeName\n\n" prefix added by submitFeedback when type badge is shown
+$displayBody = (string) $post['body'];
+if ($fbType !== '') {
+    $prefix = ucfirst($fbType) . "\n\n";
+    if (str_starts_with($displayBody, $prefix)) {
+        $displayBody = substr($displayBody, strlen($prefix));
+    }
+}
+?>
 <article class="feed-card" id="post-<?= (int) $post['id'] ?>">
+
     <div class="feed-head">
         <div class="avatar avatar-<?= esc((string) $post['avatar_color']) ?>"><?= esc((string) $post['initials']) ?></div>
-        <div>
-            <?php if ((int) ($post['is_anonymous'] ?? 0) === 1 || empty($post['profile_url']) || empty($currentUser['id'])): ?>
+        <div style="flex:1; min-width:0;">
+            <?php if ($postIsAnon || empty($post['profile_url']) || empty($currentUser['id'])): ?>
                 <span class="feed-author"><?= esc((string) $post['author_name']) ?></span>
             <?php else: ?>
                 <a href="<?= esc((string) $post['profile_url']) ?>" class="feed-author"><?= esc((string) $post['author_name']) ?></a>
             <?php endif; ?>
             <div class="feed-meta">
                 <span><?= esc(date('M d, Y h:i A', strtotime((string) $post['created_at']))) ?></span>
+                <?php if ($fbType !== ''): ?>
+                    <span class="pill type-<?= esc($fbType) ?>" style="font-size:0.7rem; padding:2px 9px; margin-left:2px;"><?= esc(ucfirst($fbType)) ?></span>
+                <?php endif; ?>
+                <?php if ($fbStatus === 'reviewed'): ?>
+                    <span style="display:inline-flex;align-items:center;gap:4px;font-size:0.7rem;font-weight:700;color:#0a57a1;background:#e8f2ff;border:1px solid #b8d0ff;border-radius:20px;padding:2px 8px;margin-left:2px;">&#9679; Under Review</span>
+                <?php endif; ?>
             </div>
         </div>
     </div>
 
-    <div class="feed-body-text"><?= nl2br(esc((string) $post['body'])) ?></div>
+    <div class="feed-body-text"><?= nl2br(esc($displayBody)) ?></div>
 
     <div class="post-summary-row">
         <div class="reaction-line">
-            <?php
-            $emojiMap = ['like' => '👍', 'love' => '❤️', 'deslike' => '👎', 'shock' => '😮'];
-            foreach ($post['reaction_breakdown'] as $reactionType => $total): ?>
-                <span class="mini-pill"><?= $emojiMap[$reactionType] ?? '' ?> <?= (int) $total ?></span>
+            <?php foreach ($post['reaction_breakdown'] as $rType => $total): ?>
+                <span class="mini-pill"><?= $emojiMap[$rType] ?? '' ?> <?= (int) $total ?></span>
             <?php endforeach; ?>
             <?php if ((int) $post['reaction_total'] === 0): ?>
                 <span class="summary-muted">No reactions yet</span>
             <?php endif; ?>
         </div>
-        <div class="summary-muted"><?= (int) $post['comment_total'] ?> comments</div>
+        <span class="summary-muted"><?= (int) $post['comment_total'] ?> comment<?= (int) $post['comment_total'] !== 1 ? 's' : '' ?></span>
     </div>
 
-    <div class="react-bar">
+    <div class="post-action-bar">
         <?php if (! empty($currentUser['id'])): ?>
-            <?php
-            $emojis = ['like' => '👍', 'love' => '❤️', 'deslike' => '👎', 'shock' => '😮'];
-            foreach ($emojis as $reactionType => $emoji): ?>
-                <form method="post" action="<?= site_url('posts/' . (int) $post['id'] . '/react') ?>">
-                    <input type="hidden" name="reaction_type" value="<?= esc($reactionType) ?>">
-                    <button type="submit" class="react-btn <?= ($post['viewer_reaction'] ?? null) === $reactionType ? 'active' : '' ?>" title="<?= esc(ucfirst($reactionType)) ?>"><?= $emoji ?></button>
-                </form>
-            <?php endforeach; ?>
+            <span class="comment-like-wrap">
+                <button type="button"
+                    class="comment-like-btn post-react-trigger<?= $viewerRx ? ' reacted' : '' ?>"
+                    data-post-id="<?= (int) $post['id'] ?>"
+                    data-current="<?= esc((string) $viewerRx) ?>"
+                    <?= ($viewerRx && isset($rxColors[$viewerRx])) ? 'style="color:' . $rxColors[$viewerRx] . '"' : '' ?>
+                >
+                    <?= $viewerRx
+                        ? (($emojiMap[$viewerRx] ?? '👍') . ' ' . ($emojiLabel[$viewerRx] ?? ucfirst($viewerRx)))
+                        : '👍 React' ?>
+                </button>
+                <div class="comment-reaction-picker">
+                    <?php foreach (['like' => '👍', 'love' => '❤️', 'deslike' => '👎', 'shock' => '😮'] as $rType => $rEmoji): ?>
+                        <form method="post" action="<?= site_url('posts/' . (int) $post['id'] . '/react') ?>" style="margin:0;">
+                            <input type="hidden" name="reaction_type" value="<?= esc($rType) ?>">
+                            <button type="submit" class="picker-emoji" title="<?= esc(ucfirst($rType)) ?>"><?= $rEmoji ?></button>
+                        </form>
+                    <?php endforeach; ?>
+                </div>
+            </span>
+            <span class="post-action-divider"></span>
+            <span class="summary-muted post-comment-count"><?= (int) $post['comment_total'] ?> comment<?= (int) $post['comment_total'] !== 1 ? 's' : '' ?></span>
         <?php else: ?>
-            <a href="<?= site_url('users/login') ?>" class="react-btn react-login">Log in to react</a>
+            <a href="<?= site_url('users/login') ?>" class="comment-like-btn">👍 Log in to react</a>
         <?php endif; ?>
     </div>
 
@@ -50,10 +86,10 @@
                 <?php foreach ($post['comments'] as $comment): ?>
                     <?php
                     $crBreakdown = $comment['reaction_breakdown'] ?? [];
-                    $crTotal = array_sum($crBreakdown);
-                    $viewerRx = $comment['viewer_reaction'] ?? null;
-                    $crEmojiMap = ['like'=>'👍','love'=>'❤️','haha'=>'😆','wow'=>'😮','sad'=>'😢','angry'=>'😠'];
-                    $crColors  = ['like'=>'#2078f4','love'=>'#ed4956','haha'=>'#f7b928','wow'=>'#f7b928','sad'=>'#f7b928','angry'=>'#e9710f'];
+                    $crTotal     = array_sum($crBreakdown);
+                    $viewerCRx   = $comment['viewer_reaction'] ?? null;
+                    $crEmojiMap  = ['like' => '👍', 'love' => '❤️', 'haha' => '😆', 'wow' => '😮', 'sad' => '😢', 'angry' => '😠'];
+                    $crColors    = ['like' => '#2078f4', 'love' => '#ed4956', 'haha' => '#f7b928', 'wow' => '#f7b928', 'sad' => '#f7b928', 'angry' => '#e9710f'];
                     ?>
                     <div class="comment-item" data-comment-id="<?= (int) $comment['id'] ?>">
                         <div class="avatar avatar-small avatar-<?= esc((string) ($comment['avatar_color'] ?? 'blue')) ?>"><?= esc(strtoupper(substr((string) $comment['author_name'], 0, 1))) ?></div>
@@ -77,13 +113,13 @@
                                 <?php if (! empty($currentUser['id'])): ?>
                                     <span class="comment-like-wrap">
                                         <button type="button"
-                                            class="comment-like-btn<?= $viewerRx ? ' reacted' : '' ?>"
+                                            class="comment-like-btn<?= $viewerCRx ? ' reacted' : '' ?>"
                                             data-comment-id="<?= (int) $comment['id'] ?>"
-                                            data-current="<?= esc((string) $viewerRx) ?>"
-                                            <?php if ($viewerRx && isset($crColors[$viewerRx])): ?>
-                                                style="color: <?= $crColors[$viewerRx] ?>"
+                                            data-current="<?= esc((string) $viewerCRx) ?>"
+                                            <?php if ($viewerCRx && isset($crColors[$viewerCRx])): ?>
+                                                style="color: <?= $crColors[$viewerCRx] ?>"
                                             <?php endif; ?>
-                                        ><?= $viewerRx ? esc(ucfirst($viewerRx)) : 'Like' ?></button>
+                                        ><?= $viewerCRx ? esc(ucfirst($viewerCRx)) : 'Like' ?></button>
                                         <div class="comment-reaction-picker">
                                             <?php foreach ($crEmojiMap as $rType => $rEmoji): ?>
                                                 <button type="button" class="picker-emoji" data-reaction="<?= esc($rType) ?>" title="<?= esc(ucfirst($rType)) ?>"><?= $rEmoji ?></button>
@@ -99,8 +135,8 @@
                                     <?php foreach ($comment['replies'] as $reply): ?>
                                         <?php
                                         $rrBreakdown = $reply['reaction_breakdown'] ?? [];
-                                        $rrTotal = array_sum($rrBreakdown);
-                                        $rrViewerRx = $reply['viewer_reaction'] ?? null;
+                                        $rrTotal     = array_sum($rrBreakdown);
+                                        $rrViewerRx  = $reply['viewer_reaction'] ?? null;
                                         ?>
                                         <div class="comment-item reply-item" data-comment-id="<?= (int) $reply['id'] ?>">
                                             <div class="avatar avatar-small avatar-<?= esc((string) ($reply['avatar_color'] ?? 'blue')) ?>"><?= esc(strtoupper(substr((string) $reply['author_name'], 0, 1))) ?></div>

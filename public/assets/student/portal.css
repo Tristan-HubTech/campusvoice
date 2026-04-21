@@ -1566,6 +1566,29 @@ a:hover {
     box-shadow: 0 10px 24px rgba(192, 57, 43, 0.36);
 }
 
+.btn-view-sm {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #b8d0ff;
+    border-radius: 10px;
+    padding: 5px 12px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #0a57a1;
+    background: #e8f2ff;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-view-sm:hover {
+    background: #0a57a1;
+    color: #fff;
+    border-color: #0a57a1;
+    text-decoration: none;
+}
+
 .btn-delete-sm {
     display: inline-flex;
     align-items: center;

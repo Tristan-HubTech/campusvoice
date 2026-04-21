@@ -69,11 +69,21 @@ class FeedbackController extends AdminBaseController
         $status = (string) $payload['status'];
         $previousStatus = (string) ($feedback['status'] ?? '');
 
+        $adminNotes = trim((string) ($payload['admin_notes'] ?? ''));
+
         $feedbackModel->update($id, [
             'status'      => $status,
             'resolved_at' => $status === 'resolved' ? date('Y-m-d H:i:s') : null,
-            'admin_notes' => trim((string) ($payload['admin_notes'] ?? '')),
+            'admin_notes' => $adminNotes,
         ]);
+
+        if ($adminNotes !== '') {
+            (new FeedbackReplyModel())->insert([
+                'feedback_id'   => $id,
+                'admin_user_id' => (int) ($this->adminUser()['id'] ?? 0),
+                'message'       => $adminNotes,
+            ]);
+        }
 
         $this->logActivity(
             'feedback.status_updated',
@@ -83,7 +93,7 @@ class FeedbackController extends AdminBaseController
                 'target_id'      => $id,
                 'from_status'    => $previousStatus,
                 'to_status'      => $status,
-                'admin_notes'    => trim((string) ($payload['admin_notes'] ?? '')),
+                'admin_notes'    => $adminNotes,
             ]
         );
 

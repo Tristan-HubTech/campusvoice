@@ -117,8 +117,7 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                         <article class="announce-card">
                             <h3><?= esc((string) $item['title']) ?></h3>
                             <p>
-                                Audience: <strong><?= esc((string) ucfirst((string) $item['audience'])) ?></strong>
-                                | Published: <strong><?= (int) ($item['is_published'] ?? 0) === 1 ? 'Yes' : 'No' ?></strong>
+                                Published: <strong><?= (int) ($item['is_published'] ?? 0) === 1 ? 'Yes' : 'No' ?></strong>
                             </p>
                             <small>
                                 <?= esc((string) date('M d, Y H:i', strtotime((string) ($item['created_at'] ?? 'now')))) ?>
@@ -216,7 +215,7 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                             </td>
                             <td><span class="pill status-<?= esc((string) $item['status']) ?>"><?= esc(ucfirst((string) $item['status'])) ?></span></td>
                             <td>
-                                <form method="post" action="<?= site_url('admin/feedback/' . (int) $item['id'] . '/status') ?>" class="inline-status-form">
+                                <form method="post" action="<?= site_url('admin/feedback/' . (int) $item['id'] . '/status') ?>" class="inline-status-form" data-current-status="<?= esc((string) $item['status']) ?>">
                                     <select name="status">
                                         <?php foreach (['new', 'reviewed', 'resolved'] as $status): ?>
                                             <option value="<?= esc($status) ?>" <?= ((string) $item['status'] === $status) ? 'selected' : '' ?>><?= esc(ucfirst($status)) ?></option>
@@ -239,6 +238,71 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
     </section>
 </section>
 
+<!-- Feedback Status Update Modal -->
+<div class="modal-overlay" id="statusUpdateModal" hidden>
+    <div class="modal-card" style="max-width:460px; padding:24px 28px;">
+        <div class="modal-head">
+            <h3 style="margin:0; font-size:1rem;">Mark as <span id="statusModalLabel" style="text-transform:capitalize;"></span></h3>
+        </div>
+        <p style="margin:0 0 12px; font-size:0.875rem; color:#5f7298;">Optionally add a message for the student explaining this status change. Leave blank to skip.</p>
+        <textarea id="statusModalNotes" rows="4" placeholder="e.g. We have reviewed your concern and will address it shortly…" style="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #c8d8ff; border-radius:8px; font-size:0.875rem; resize:vertical; min-height:90px; font-family:inherit;"></textarea>
+        <div style="display:flex; gap:10px; margin-top:16px; justify-content:flex-end;">
+            <button type="button" id="statusModalCancel" class="mini-btn secondary">Cancel</button>
+            <button type="button" id="statusModalConfirm" class="mini-btn">Save Status</button>
+        </div>
+    </div>
+</div>
+<script>
+(function () {
+    var modal   = document.getElementById('statusUpdateModal');
+    var label   = document.getElementById('statusModalLabel');
+    var notes   = document.getElementById('statusModalNotes');
+    var btnCancel  = document.getElementById('statusModalCancel');
+    var btnConfirm = document.getElementById('statusModalConfirm');
+    var pendingForm = null;
+
+    document.querySelectorAll('.inline-status-form').forEach(function (form) {
+        form.addEventListener('submit', function (e) {
+            var select = form.querySelector('select[name="status"]');
+            if (!select) return;
+            var chosen = select.value;
+            if (chosen === 'reviewed' || chosen === 'resolved') {
+                e.preventDefault();
+                pendingForm = form;
+                label.textContent = chosen.charAt(0).toUpperCase() + chosen.slice(1);
+                notes.value = '';
+                modal.removeAttribute('hidden');
+                setTimeout(function () { notes.focus(); }, 50);
+            }
+        });
+    });
+
+    function closeModal() {
+        modal.setAttribute('hidden', '');
+        pendingForm = null;
+    }
+
+    btnCancel.addEventListener('click', closeModal);
+
+    btnConfirm.addEventListener('click', function () {
+        if (!pendingForm) return;
+        var hiddenNotes = pendingForm.querySelector('input[name="admin_notes"]');
+        if (hiddenNotes) hiddenNotes.value = notes.value.trim();
+        modal.setAttribute('hidden', '');
+        pendingForm.submit();
+        pendingForm = null;
+    });
+
+    modal.addEventListener('click', function (e) {
+        if (e.target === modal) closeModal();
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !modal.hasAttribute('hidden')) closeModal();
+    });
+}());
+</script>
+
 <section class="tab-panel" data-tab-panel="announcements">
     <div class="panel-grid">
         <section class="panel">
@@ -253,18 +317,11 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                 <label for="ann-body">Body</label>
                 <textarea id="ann-body" name="body" rows="8" required placeholder="Announcement content"></textarea>
 
-                <label for="ann-audience">Audience</label>
-                <select id="ann-audience" name="audience" required>
-                    <option value="all">All</option>
-                    <option value="students">Students</option>
-                    <option value="admins">Admins</option>
-                </select>
-
                 <label for="ann-publish">Publish At</label>
-                <input id="ann-publish" name="publish_at" type="datetime-local">
+                <input id="ann-publish" name="publish_at" type="datetime-local" min="<?= date('Y-m-d') ?>T00:00">
 
                 <label for="ann-expires">Expires At</label>
-                <input id="ann-expires" name="expires_at" type="datetime-local">
+                <input id="ann-expires" name="expires_at" type="datetime-local" min="<?= date('Y-m-d') ?>T00:00">
 
                 <label for="ann-is-published">Status</label>
                 <select id="ann-is-published" name="is_published">
@@ -289,7 +346,6 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                     <thead>
                     <tr>
                         <th>Title</th>
-                        <th>Audience</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -311,7 +367,6 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                                     <strong><?= esc((string) $item['title']) ?></strong>
                                     <div class="muted"><?= esc(strlen((string) $item['body']) > 70 ? substr((string) $item['body'], 0, 70) . '...' : (string) $item['body']) ?></div>
                                 </td>
-                                <td><?= esc(ucfirst((string) $item['audience'])) ?></td>
                                 <td>
                                     <?php if ((int) ($item['is_published'] ?? 0) === 1): ?>
                                         <span class="pill status-reviewed">Published</span>
@@ -329,7 +384,7 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="4">No announcements available.</td>
+                            <td colspan="3">No announcements available.</td>
                         </tr>
                     <?php endif; ?>
                     </tbody>
@@ -365,7 +420,6 @@ $allCategories = $allCategories ?? [];
                 <tr>
                     <th>Name</th>
                     <th>Email</th>
-                    <th>Student No.</th>
                     <th>Status</th>
                     <th>Last Login</th>
                     <th>Actions</th>
@@ -377,7 +431,7 @@ $allCategories = $allCategories ?? [];
                         <?php
                         $uName = trim(((string) ($u['first_name'] ?? '')) . ' ' . ((string) ($u['last_name'] ?? '')));
                         $uActive = (int) ($u['is_active'] ?? 1);
-                        $uSearchBlob = strtolower($uName . ' ' . ($u['email'] ?? '') . ' ' . ($u['student_no'] ?? ''));
+                        $uSearchBlob = strtolower($uName . ' ' . ($u['email'] ?? ''));
                         ?>
                         <tr
                             data-user-row="1"
@@ -386,7 +440,6 @@ $allCategories = $allCategories ?? [];
                         >
                             <td><?= esc($uName !== '' ? $uName : 'Unknown') ?></td>
                             <td><?= esc((string) ($u['email'] ?? '')) ?></td>
-                            <td><?= esc((string) ($u['student_no'] ?? '—')) ?></td>
                             <td>
                                 <?php if ($uActive === 1): ?>
                                     <span class="pill status-reviewed">Active</span>
@@ -880,7 +933,6 @@ $allCategories = $allCategories ?? [];
             announcementCancelBtn.style.display = 'none';
             announcementForm.reset();
             announcementForm.elements.is_published.value = '1';
-            announcementForm.elements.audience.value = 'all';
         }
 
         document.querySelectorAll('[data-edit-announcement]').forEach(function (button) {
@@ -902,7 +954,6 @@ $allCategories = $allCategories ?? [];
 
                 announcementForm.elements.title.value = row.getAttribute('data-title') || '';
                 announcementForm.elements.body.value = row.getAttribute('data-body') || '';
-                announcementForm.elements.audience.value = row.getAttribute('data-audience') || 'all';
                 announcementForm.elements.is_published.value = row.getAttribute('data-is-published') || '1';
                 announcementForm.elements.publish_at.value = toDateTimeLocal(row.getAttribute('data-publish-at') || '');
                 announcementForm.elements.expires_at.value = toDateTimeLocal(row.getAttribute('data-expires-at') || '');

@@ -74,7 +74,7 @@ class PortalController extends Controller
         $userId = (int) ($studentUser['id'] ?? 0);
 
         $feedbackList = (new FeedbackModel())
-            ->select('feedbacks.*, feedback_categories.name as category_name')
+            ->select('feedbacks.*, feedback_categories.name as category_name, (SELECT COUNT(*) FROM feedback_replies WHERE feedback_replies.feedback_id = feedbacks.id) as reply_count')
             ->join('feedback_categories', 'feedback_categories.id = feedbacks.category_id', 'left')
             ->where('feedbacks.user_id', $userId)
             ->orderBy('feedbacks.created_at', 'DESC')
@@ -242,11 +242,16 @@ class PortalController extends Controller
     private function buildCommunityPosts(int $viewerId): array
     {
         $posts = (new SocialPostModel())
-            ->select('social_posts.*, users.first_name, users.last_name, social_profiles.avatar_color, social_profiles.is_anonymous as profile_is_anonymous')
+            ->select('social_posts.*, users.first_name, users.last_name, social_profiles.avatar_color, social_profiles.is_anonymous as profile_is_anonymous, feedbacks.status as feedback_status, feedbacks.type as feedback_type')
             ->join('users', 'users.id = social_posts.user_id', 'inner')
             ->join('social_profiles', 'social_profiles.user_id = users.id', 'left')
+            ->join('feedbacks', 'feedbacks.id = social_posts.feedback_id', 'left')
             ->where('users.is_active', 1)
             ->where('social_posts.is_public', 1)
+            ->groupStart()
+                ->where('social_posts.feedback_id IS NULL')
+                ->orWhere('feedbacks.status !=', 'resolved')
+            ->groupEnd()
             ->orderBy('social_posts.created_at', 'DESC')
             ->findAll(12);
 

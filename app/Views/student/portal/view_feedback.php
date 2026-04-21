@@ -22,6 +22,22 @@
         <p class="muted">Submitted: <?= esc(date('M d, Y H:i', strtotime((string) ($feedback['created_at'] ?? 'now')))) ?></p>
     </section>
 
+    <?php $fbStatus = (string) ($feedback['status'] ?? 'new'); ?>
+    <?php if ($fbStatus !== 'new'): ?>
+    <section class="portal-card" style="<?= $fbStatus === 'resolved' ? 'border-left:4px solid #1a8a4a; background:#f4fdf7;' : 'border-left:4px solid #0a57a1; background:#f0f6ff;' ?>">
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+            <span class="pill status-<?= esc($fbStatus) ?>"><?= esc(ucfirst($fbStatus)) ?></span>
+            <p style="margin:0; font-size:0.9rem;">
+                <?php if ($fbStatus === 'resolved'): ?>
+                    Your feedback has been resolved.<?php if (! empty($feedback['resolved_at'])): ?> <span class="muted">Resolved on <?= esc(date('M d, Y', strtotime((string) $feedback['resolved_at']))) ?>.</span><?php endif; ?>
+                <?php else: ?>
+                    Your feedback is currently being reviewed by the administration.
+                <?php endif; ?>
+            </p>
+        </div>
+    </section>
+    <?php endif; ?>
+
     <section class="portal-card">
         <h3>Admin Replies</h3>
         <?php if (! empty($replies)): ?>

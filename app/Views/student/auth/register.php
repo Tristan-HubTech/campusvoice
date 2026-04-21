@@ -29,11 +29,6 @@
             placeholder="you@example.com"
             value="<?= esc((string) (old('email') ?? '')) ?>">
 
-        <label for="reg-student-no">Student Number <small>(optional)</small></label>
-        <input id="reg-student-no" name="student_no" type="text" maxlength="50"
-            placeholder="e.g. 2023-00001"
-            value="<?= esc((string) (old('student_no') ?? '')) ?>">
-
         <label for="reg-phone">Phone <small>(optional)</small></label>
         <input id="reg-phone" name="phone" type="tel" maxlength="30"
             placeholder="e.g. 09xx-xxx-xxxx"
