@@ -169,25 +169,23 @@ $portalCssVersion = is_file($portalCss) ? (string) filemtime($portalCss) : '1';
                         if (indicator) indicator.style.display = 'none';
                         form.querySelector('textarea').placeholder = 'Write a comment...';
                     } else {
-                        // Top-level comment
+                        // Top-level comment — append at bottom so it's visible near the textarea
                         let commentList = stack.querySelector('.comment-list');
                         if (!commentList) {
                             commentList = document.createElement('div');
                             commentList.className = 'comment-list';
                             stack.insertBefore(commentList, form);
                         }
-                        commentList.insertAdjacentHTML('afterbegin', buildCommentHTML(c, false));
+                        commentList.insertAdjacentHTML('beforeend', buildCommentHTML(c, false));
                     }
 
-                    // Update comment count in the summary row
+                    // Update comment counts everywhere on the card
                     const card = findCard(form);
                     if (card && data.comment_total !== undefined) {
-                        const summaryEls = card.querySelectorAll('.post-summary-row .summary-muted');
-                        summaryEls.forEach(function (el) {
-                            el.textContent = el.textContent.replace(
-                                /\d+ comments/,
-                                data.comment_total + ' comments'
-                            );
+                        var total = data.comment_total;
+                        var label = total + ' comment' + (total !== 1 ? 's' : '');
+                        card.querySelectorAll('.post-comment-count, .post-summary-row .summary-muted').forEach(function (el) {
+                            if (/\d+ comments?/.test(el.textContent)) el.textContent = label;
                         });
                     }
 
@@ -195,7 +193,6 @@ $portalCssVersion = is_file($portalCss) ? (string) filemtime($portalCss) : '1';
                 }
             } catch (err) {
                 console.error('Comment failed:', err);
-                form.submit(); // fallback to normal submit
             } finally {
                 btn.disabled = false;
                 btn.textContent = origText;
@@ -240,8 +237,47 @@ $portalCssVersion = is_file($portalCss) ? (string) filemtime($portalCss) : '1';
         if (textarea) textarea.placeholder = 'Write a comment...';
     });
 
-    /* ── Emoji map for reaction pills ── */
-    var emojiMap = { like: '👍', love: '❤️', deslike: '👎', shock: '😮' };
+    /* ── Emoji maps ── */
+    var emojiMap  = { like:'👍', love:'❤️', haha:'😆', wow:'😮', sad:'😢', angry:'😠', deslike:'👎', shock:'😮' };
+    var rxColorMap = { like:'#2078f4', love:'#ed4956', haha:'#f7b928', wow:'#f7b928', sad:'#f7b928', angry:'#e9710f' };
+    var rxLabelMap = { like:'Like', love:'Love', haha:'Haha', wow:'Wow', sad:'Sad', angry:'Angry' };
+
+    function sendPostReaction(postId, reaction) {
+        var fd = new FormData();
+        fd.append('reaction_type', reaction);
+        return fetch('<?= site_url('posts/') ?>' + postId + '/react', {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body: fd,
+        }).then(function (r) { return r.json(); });
+    }
+
+    function updatePostReactUI(card, data) {
+        var trigger = card.querySelector('.post-react-trigger');
+        if (trigger) {
+            if (data.viewer_reaction) {
+                trigger.textContent = (emojiMap[data.viewer_reaction] || '👍') + ' ' + (rxLabelMap[data.viewer_reaction] || data.viewer_reaction);
+                trigger.style.color = rxColorMap[data.viewer_reaction] || '';
+                trigger.classList.add('reacted');
+                trigger.setAttribute('data-current', data.viewer_reaction);
+            } else {
+                trigger.textContent = '👍 React';
+                trigger.style.color = '';
+                trigger.classList.remove('reacted');
+                trigger.setAttribute('data-current', '');
+            }
+        }
+        var reactionLine = card.querySelector('.reaction-line');
+        if (reactionLine) {
+            var pillsHtml = '';
+            var bd = data.reaction_breakdown || {};
+            for (var t in bd) {
+                if (bd[t] > 0) pillsHtml += '<span class="mini-pill">' + (emojiMap[t] || '') + ' ' + bd[t] + '</span>';
+            }
+            if (!pillsHtml) pillsHtml = '<span class="summary-muted">No reactions yet</span>';
+            reactionLine.innerHTML = pillsHtml;
+        }
+    }
 
     /* ── AJAX Comment Reactions (Facebook-style) ── */
     var crEmojiMap = { like:'👍', love:'❤️', haha:'😆', wow:'😮', sad:'😢', angry:'😠' };
@@ -296,19 +332,32 @@ $portalCssVersion = is_file($portalCss) ? (string) filemtime($portalCss) : '1';
         }
     }
 
-    /* Click a picker emoji → react (comment-level only; post-level uses form submit) */
+    /* Click a picker emoji → react */
     document.addEventListener('click', async function (e) {
         var emoji = e.target.closest('.picker-emoji');
         if (!emoji) return;
-        var item = emoji.closest('.comment-item');
-        if (!item) return; // post-level picker — let the <form> submit naturally
         e.preventDefault();
-        var commentId = item.getAttribute('data-comment-id');
+        var item = emoji.closest('.comment-item');
         var reaction = emoji.getAttribute('data-reaction');
-        try {
-            var data = await sendCommentReaction(commentId, reaction);
-            if (data.ok) updateCommentUI(item, data);
-        } catch (err) { console.error('Comment reaction failed:', err); }
+        if (item) {
+            /* comment reaction */
+            var commentId = item.getAttribute('data-comment-id');
+            try {
+                var data = await sendCommentReaction(commentId, reaction);
+                if (data.ok) updateCommentUI(item, data);
+            } catch (err) { console.error('Comment reaction failed:', err); }
+        } else {
+            /* post reaction */
+            var card = emoji.closest('.feed-card');
+            if (!card) return;
+            var postId = card.id.replace('post-', '');
+            var wrap = emoji.closest('.comment-like-wrap');
+            if (wrap) wrap.classList.remove('picker-open');
+            try {
+                var data = await sendPostReaction(postId, reaction);
+                if (data.ok) updatePostReactUI(card, data);
+            } catch (err) { console.error('Post reaction failed:', err); }
+        }
     });
 
     /* Click the Like/Love text → toggle reaction (or toggle picker for post trigger) */

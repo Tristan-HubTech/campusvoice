@@ -1,0 +1,229 @@
+INFO - 2026-04-22 08:56:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-04-22 08:56:35 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-04-22 08:56:57 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-04-22 08:56:59 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-04-22 08:57:06 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-04-22 08:57:41 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-04-22 08:58:02 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-04-22 08:58:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-04-22 08:58:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-04-22 08:58:07 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-04-22 08:58:17 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-04-22 08:58:22 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-04-22 08:58:22 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-04-22 09:00:24 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-04-22 09:03:21 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-04-22 09:03:21 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-04-22 09:04:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2026-04-22 09:04:34 --> mysqli_sql_exception: Table 'campusvoice.social_post_shares' doesn't exist in C:\xamppp\htdocs\campusvoice\system\Database\MySQLi\Connection.php:306
+Stack trace:
+#0 C:\xamppp\htdocs\campusvoice\system\Database\MySQLi\Connection.php(306): mysqli->query('SELECT `post_id...', 0)
+#1 C:\xamppp\htdocs\campusvoice\system\Database\BaseConnection.php(693): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `post_id...')
+#2 C:\xamppp\htdocs\campusvoice\system\Database\BaseConnection.php(607): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `post_id...')
+#3 C:\xamppp\htdocs\campusvoice\system\Database\BaseBuilder.php(1616): CodeIgniter\Database\BaseConnection->query('SELECT `post_id...', Array, false)
+#4 C:\xamppp\htdocs\campusvoice\app\Controllers\Student\PortalController.php(298): CodeIgniter\Database\BaseBuilder->get()
+#5 C:\xamppp\htdocs\campusvoice\app\Controllers\Student\PortalController.php(64): App\Controllers\Student\PortalController->buildCommunityPosts(5)
+#6 C:\xamppp\htdocs\campusvoice\system\CodeIgniter.php(943): App\Controllers\Student\PortalController->index()
+#7 C:\xamppp\htdocs\campusvoice\system\CodeIgniter.php(503): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Student\PortalController))
+#8 C:\xamppp\htdocs\campusvoice\system\CodeIgniter.php(361): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#9 C:\xamppp\htdocs\campusvoice\public\index.php(79): CodeIgniter\CodeIgniter->run()
+#10 {main}
+CRITICAL - 2026-04-22 09:04:34 --> CodeIgniter\Database\Exceptions\DatabaseException: Table 'campusvoice.social_post_shares' doesn't exist
+in SYSTEMPATH\Database\BaseConnection.php on line 647.
+ 1 SYSTEMPATH\Database\BaseBuilder.php(1616): CodeIgniter\Database\BaseConnection->query('SELECT `post_id`, COUNT(*) as total
+FROM `social_post_shares`
+WHERE `post_id` IN :post_id:
+GROUP BY `post_id`', [...], false)
+ 2 APPPATH\Controllers\Student\PortalController.php(298): CodeIgniter\Database\BaseBuilder->get()
+ 3 APPPATH\Controllers\Student\PortalController.php(64): App\Controllers\Student\PortalController->buildCommunityPosts(5)
+ 4 SYSTEMPATH\CodeIgniter.php(943): App\Controllers\Student\PortalController->index()
+ 5 SYSTEMPATH\CodeIgniter.php(503): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Student\PortalController))
+ 6 SYSTEMPATH\CodeIgniter.php(361): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 7 FCPATH\index.php(79): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-04-22 09:04:34 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Table 'campusvoice.social_post_shares' doesn't exist
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 311.
+ 1 SYSTEMPATH\Database\BaseConnection.php(693): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `post_id`, COUNT(*) as total
+FROM `social_post_shares`
+WHERE `post_id` IN (34)
+GROUP BY `post_id`')
+ 2 SYSTEMPATH\Database\BaseConnection.php(607): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `post_id`, COUNT(*) as total
+FROM `social_post_shares`
+WHERE `post_id` IN (34)
+GROUP BY `post_id`')
+ 3 SYSTEMPATH\Database\BaseBuilder.php(1616): CodeIgniter\Database\BaseConnection->query('SELECT `post_id`, COUNT(*) as total
+FROM `social_post_shares`
+WHERE `post_id` IN :post_id:
+GROUP BY `post_id`', [...], false)
+ 4 APPPATH\Controllers\Student\PortalController.php(298): CodeIgniter\Database\BaseBuilder->get()
+ 5 APPPATH\Controllers\Student\PortalController.php(64): App\Controllers\Student\PortalController->buildCommunityPosts(5)
+ 6 SYSTEMPATH\CodeIgniter.php(943): App\Controllers\Student\PortalController->index()
+ 7 SYSTEMPATH\CodeIgniter.php(503): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Student\PortalController))
+ 8 SYSTEMPATH\CodeIgniter.php(361): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 FCPATH\index.php(79): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-04-22 09:04:34 --> [Caused by] mysqli_sql_exception: Table 'campusvoice.social_post_shares' doesn't exist
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 306.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(306): mysqli->query('SELECT `post_id`, COUNT(*) as total
+FROM `social_post_shares`
+WHERE `post_id` IN (34)
+GROUP BY `post_id`', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(693): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `post_id`, COUNT(*) as total
+FROM `social_post_shares`
+WHERE `post_id` IN (34)
+GROUP BY `post_id`')
+ 3 SYSTEMPATH\Database\BaseConnection.php(607): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `post_id`, COUNT(*) as total
+FROM `social_post_shares`
+WHERE `post_id` IN (34)
+GROUP BY `post_id`')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(1616): CodeIgniter\Database\BaseConnection->query('SELECT `post_id`, COUNT(*) as total
+FROM `social_post_shares`
+WHERE `post_id` IN :post_id:
+GROUP BY `post_id`', [...], false)
+ 5 APPPATH\Controllers\Student\PortalController.php(298): CodeIgniter\Database\BaseBuilder->get()
+ 6 APPPATH\Controllers\Student\PortalController.php(64): App\Controllers\Student\PortalController->buildCommunityPosts(5)
+ 7 SYSTEMPATH\CodeIgniter.php(943): App\Controllers\Student\PortalController->index()
+ 8 SYSTEMPATH\CodeIgniter.php(503): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Student\PortalController))
+ 9 SYSTEMPATH\CodeIgniter.php(361): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+10 FCPATH\index.php(79): CodeIgniter\CodeIgniter->run()
+INFO - 2026-04-22 09:04:36 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2026-04-22 09:04:36 --> mysqli_sql_exception: Table 'campusvoice.social_post_shares' doesn't exist in C:\xamppp\htdocs\campusvoice\system\Database\MySQLi\Connection.php:306
+Stack trace:
+#0 C:\xamppp\htdocs\campusvoice\system\Database\MySQLi\Connection.php(306): mysqli->query('SELECT `post_id...', 0)
+#1 C:\xamppp\htdocs\campusvoice\system\Database\BaseConnection.php(693): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `post_id...')
+#2 C:\xamppp\htdocs\campusvoice\system\Database\BaseConnection.php(607): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `post_id...')
+#3 C:\xamppp\htdocs\campusvoice\system\Database\BaseBuilder.php(1616): CodeIgniter\Database\BaseConnection->query('SELECT `post_id...', Array, false)
+#4 C:\xamppp\htdocs\campusvoice\app\Controllers\Student\PortalController.php(298): CodeIgniter\Database\BaseBuilder->get()
+#5 C:\xamppp\htdocs\campusvoice\app\Controllers\Student\PortalController.php(64): App\Controllers\Student\PortalController->buildCommunityPosts(5)
+#6 C:\xamppp\htdocs\campusvoice\system\CodeIgniter.php(943): App\Controllers\Student\PortalController->index()
+#7 C:\xamppp\htdocs\campusvoice\system\CodeIgniter.php(503): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Student\PortalController))
+#8 C:\xamppp\htdocs\campusvoice\system\CodeIgniter.php(361): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#9 C:\xamppp\htdocs\campusvoice\public\index.php(79): CodeIgniter\CodeIgniter->run()
+#10 {main}
+CRITICAL - 2026-04-22 09:04:36 --> CodeIgniter\Database\Exceptions\DatabaseException: Table 'campusvoice.social_post_shares' doesn't exist
+in SYSTEMPATH\Database\BaseConnection.php on line 647.
+ 1 SYSTEMPATH\Database\BaseBuilder.php(1616): CodeIgniter\Database\BaseConnection->query('SELECT `post_id`, COUNT(*) as total
+FROM `social_post_shares`
+WHERE `post_id` IN :post_id:
+GROUP BY `post_id`', [...], false)
+ 2 APPPATH\Controllers\Student\PortalController.php(298): CodeIgniter\Database\BaseBuilder->get()
+ 3 APPPATH\Controllers\Student\PortalController.php(64): App\Controllers\Student\PortalController->buildCommunityPosts(5)
+ 4 SYSTEMPATH\CodeIgniter.php(943): App\Controllers\Student\PortalController->index()
+ 5 SYSTEMPATH\CodeIgniter.php(503): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Student\PortalController))
+ 6 SYSTEMPATH\CodeIgniter.php(361): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 7 FCPATH\index.php(79): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-04-22 09:04:36 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Table 'campusvoice.social_post_shares' doesn't exist
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 311.
+ 1 SYSTEMPATH\Database\BaseConnection.php(693): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `post_id`, COUNT(*) as total
+FROM `social_post_shares`
+WHERE `post_id` IN (34)
+GROUP BY `post_id`')
+ 2 SYSTEMPATH\Database\BaseConnection.php(607): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `post_id`, COUNT(*) as total
+FROM `social_post_shares`
+WHERE `post_id` IN (34)
+GROUP BY `post_id`')
+ 3 SYSTEMPATH\Database\BaseBuilder.php(1616): CodeIgniter\Database\BaseConnection->query('SELECT `post_id`, COUNT(*) as total
+FROM `social_post_shares`
+WHERE `post_id` IN :post_id:
+GROUP BY `post_id`', [...], false)
+ 4 APPPATH\Controllers\Student\PortalController.php(298): CodeIgniter\Database\BaseBuilder->get()
+ 5 APPPATH\Controllers\Student\PortalController.php(64): App\Controllers\Student\PortalController->buildCommunityPosts(5)
+ 6 SYSTEMPATH\CodeIgniter.php(943): App\Controllers\Student\PortalController->index()
+ 7 SYSTEMPATH\CodeIgniter.php(503): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Student\PortalController))
+ 8 SYSTEMPATH\CodeIgniter.php(361): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 FCPATH\index.php(79): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-04-22 09:04:36 --> [Caused by] mysqli_sql_exception: Table 'campusvoice.social_post_shares' doesn't exist
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 306.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(306): mysqli->query('SELECT `post_id`, COUNT(*) as total
+FROM `social_post_shares`
+WHERE `post_id` IN (34)
+GROUP BY `post_id`', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(693): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `post_id`, COUNT(*) as total
+FROM `social_post_shares`
+WHERE `post_id` IN (34)
+GROUP BY `post_id`')
+ 3 SYSTEMPATH\Database\BaseConnection.php(607): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `post_id`, COUNT(*) as total
+FROM `social_post_shares`
+WHERE `post_id` IN (34)
+GROUP BY `post_id`')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(1616): CodeIgniter\Database\BaseConnection->query('SELECT `post_id`, COUNT(*) as total
+FROM `social_post_shares`
+WHERE `post_id` IN :post_id:
+GROUP BY `post_id`', [...], false)
+ 5 APPPATH\Controllers\Student\PortalController.php(298): CodeIgniter\Database\BaseBuilder->get()
+ 6 APPPATH\Controllers\Student\PortalController.php(64): App\Controllers\Student\PortalController->buildCommunityPosts(5)
+ 7 SYSTEMPATH\CodeIgniter.php(943): App\Controllers\Student\PortalController->index()
+ 8 SYSTEMPATH\CodeIgniter.php(503): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Student\PortalController))
+ 9 SYSTEMPATH\CodeIgniter.php(361): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+10 FCPATH\index.php(79): CodeIgniter\CodeIgniter->run()
+INFO - 2026-04-22 09:05:14 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2026-04-22 09:05:14 --> mysqli_sql_exception: Table 'campusvoice.social_post_shares' doesn't exist in C:\xamppp\htdocs\campusvoice\system\Database\MySQLi\Connection.php:306
+Stack trace:
+#0 C:\xamppp\htdocs\campusvoice\system\Database\MySQLi\Connection.php(306): mysqli->query('SELECT `post_id...', 0)
+#1 C:\xamppp\htdocs\campusvoice\system\Database\BaseConnection.php(693): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `post_id...')
+#2 C:\xamppp\htdocs\campusvoice\system\Database\BaseConnection.php(607): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `post_id...')
+#3 C:\xamppp\htdocs\campusvoice\system\Database\BaseBuilder.php(1616): CodeIgniter\Database\BaseConnection->query('SELECT `post_id...', Array, false)
+#4 C:\xamppp\htdocs\campusvoice\app\Controllers\Student\PortalController.php(298): CodeIgniter\Database\BaseBuilder->get()
+#5 C:\xamppp\htdocs\campusvoice\app\Controllers\Student\PortalController.php(64): App\Controllers\Student\PortalController->buildCommunityPosts(5)
+#6 C:\xamppp\htdocs\campusvoice\system\CodeIgniter.php(943): App\Controllers\Student\PortalController->index()
+#7 C:\xamppp\htdocs\campusvoice\system\CodeIgniter.php(503): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Student\PortalController))
+#8 C:\xamppp\htdocs\campusvoice\system\CodeIgniter.php(361): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#9 C:\xamppp\htdocs\campusvoice\public\index.php(79): CodeIgniter\CodeIgniter->run()
+#10 {main}
+CRITICAL - 2026-04-22 09:05:14 --> CodeIgniter\Database\Exceptions\DatabaseException: Table 'campusvoice.social_post_shares' doesn't exist
+in SYSTEMPATH\Database\BaseConnection.php on line 647.
+ 1 SYSTEMPATH\Database\BaseBuilder.php(1616): CodeIgniter\Database\BaseConnection->query('SELECT `post_id`, COUNT(*) as total
+FROM `social_post_shares`
+WHERE `post_id` IN :post_id:
+GROUP BY `post_id`', [...], false)
+ 2 APPPATH\Controllers\Student\PortalController.php(298): CodeIgniter\Database\BaseBuilder->get()
+ 3 APPPATH\Controllers\Student\PortalController.php(64): App\Controllers\Student\PortalController->buildCommunityPosts(5)
+ 4 SYSTEMPATH\CodeIgniter.php(943): App\Controllers\Student\PortalController->index()
+ 5 SYSTEMPATH\CodeIgniter.php(503): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Student\PortalController))
+ 6 SYSTEMPATH\CodeIgniter.php(361): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 7 FCPATH\index.php(79): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-04-22 09:05:14 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Table 'campusvoice.social_post_shares' doesn't exist
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 311.
+ 1 SYSTEMPATH\Database\BaseConnection.php(693): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `post_id`, COUNT(*) as total
+FROM `social_post_shares`
+WHERE `post_id` IN (34)
+GROUP BY `post_id`')
+ 2 SYSTEMPATH\Database\BaseConnection.php(607): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `post_id`, COUNT(*) as total
+FROM `social_post_shares`
+WHERE `post_id` IN (34)
+GROUP BY `post_id`')
+ 3 SYSTEMPATH\Database\BaseBuilder.php(1616): CodeIgniter\Database\BaseConnection->query('SELECT `post_id`, COUNT(*) as total
+FROM `social_post_shares`
+WHERE `post_id` IN :post_id:
+GROUP BY `post_id`', [...], false)
+ 4 APPPATH\Controllers\Student\PortalController.php(298): CodeIgniter\Database\BaseBuilder->get()
+ 5 APPPATH\Controllers\Student\PortalController.php(64): App\Controllers\Student\PortalController->buildCommunityPosts(5)
+ 6 SYSTEMPATH\CodeIgniter.php(943): App\Controllers\Student\PortalController->index()
+ 7 SYSTEMPATH\CodeIgniter.php(503): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Student\PortalController))
+ 8 SYSTEMPATH\CodeIgniter.php(361): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 FCPATH\index.php(79): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-04-22 09:05:14 --> [Caused by] mysqli_sql_exception: Table 'campusvoice.social_post_shares' doesn't exist
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 306.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(306): mysqli->query('SELECT `post_id`, COUNT(*) as total
+FROM `social_post_shares`
+WHERE `post_id` IN (34)
+GROUP BY `post_id`', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(693): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `post_id`, COUNT(*) as total
+FROM `social_post_shares`
+WHERE `post_id` IN (34)
+GROUP BY `post_id`')
+ 3 SYSTEMPATH\Database\BaseConnection.php(607): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `post_id`, COUNT(*) as total
+FROM `social_post_shares`
+WHERE `post_id` IN (34)
+GROUP BY `post_id`')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(1616): CodeIgniter\Database\BaseConnection->query('SELECT `post_id`, COUNT(*) as total
+FROM `social_post_shares`
+WHERE `post_id` IN :post_id:
+GROUP BY `post_id`', [...], false)
+ 5 APPPATH\Controllers\Student\PortalController.php(298): CodeIgniter\Database\BaseBuilder->get()
+ 6 APPPATH\Controllers\Student\PortalController.php(64): App\Controllers\Student\PortalController->buildCommunityPosts(5)
+ 7 SYSTEMPATH\CodeIgniter.php(943): App\Controllers\Student\PortalController->index()
+ 8 SYSTEMPATH\CodeIgniter.php(503): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Student\PortalController))
+ 9 SYSTEMPATH\CodeIgniter.php(361): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+10 FCPATH\index.php(79): CodeIgniter\CodeIgniter->run()
+INFO - 2026-04-22 09:06:41 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-04-22 09:07:25 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-04-22 09:07:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.

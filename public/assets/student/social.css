@@ -365,12 +365,12 @@ select {
 
 .comment-form {
     display: grid;
-    gap: 12px;
+    gap: 10px;
     background: rgba(255, 255, 255, 0.72);
     border: 1px solid rgba(133, 172, 255, 0.28);
     border-radius: 18px;
     box-shadow: 0 6px 24px rgba(7, 20, 53, 0.10);
-    padding: 16px 18px 14px 18px;
+    padding: 10px 18px 14px 18px;
 }
 
 .comment-form .solid-btn {
@@ -688,6 +688,8 @@ select:focus {
     color: #203253;
     font-size: 1rem;
     white-space: normal;
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
 .feed-status-badge {
@@ -866,7 +868,7 @@ select:focus {
 
 .comment-stack {
     display: grid;
-    gap: 10px;
+    gap: 4px;
     margin-top: 14px;
 }
 
@@ -877,7 +879,7 @@ select:focus {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    padding: 10px 12px;
+    padding: 10px 12px 6px;
     border: none;
     border-radius: 16px;
     background: #ffffff;

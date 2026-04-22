@@ -291,18 +291,6 @@ class PortalController extends Controller
             $viewerReactions[(int) $row['post_id']] = (string) $row['reaction_type'];
         }
 
-        $shareRows = $db->table('social_post_shares')
-            ->select('post_id, COUNT(*) as total')
-            ->whereIn('post_id', $postIds)
-            ->groupBy('post_id')
-            ->get()
-            ->getResultArray();
-
-        $shareTotals = [];
-        foreach ($shareRows as $row) {
-            $shareTotals[(int) $row['post_id']] = (int) $row['total'];
-        }
-
         $commentRows = $db->table('social_post_comments')
             ->select('social_post_comments.*, users.first_name, users.last_name, social_profiles.avatar_color, social_profiles.is_anonymous as profile_is_anonymous')
             ->join('users', 'users.id = social_post_comments.user_id', 'inner')
@@ -410,7 +398,6 @@ class PortalController extends Controller
             $post['reaction_total'] = (int) ($reactionTotals[(int) $post['id']] ?? 0);
             $post['reaction_breakdown'] = $reactionBreakdown[(int) $post['id']] ?? [];
             $post['viewer_reaction'] = $viewerReactions[(int) $post['id']] ?? null;
-            $post['share_total'] = (int) ($shareTotals[(int) $post['id']] ?? 0);
             $post['comments'] = $commentsByPost[(int) $post['id']] ?? [];
             $postComments = $commentsByPost[(int) $post['id']] ?? [];
             $replyCount = 0;

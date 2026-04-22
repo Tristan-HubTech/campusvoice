@@ -65,11 +65,8 @@ if ($fbType !== '') {
                         : '👍 React' ?>
                 </button>
                 <div class="comment-reaction-picker">
-                    <?php foreach (['like' => '👍', 'love' => '❤️', 'deslike' => '👎', 'shock' => '😮'] as $rType => $rEmoji): ?>
-                        <form method="post" action="<?= site_url('posts/' . (int) $post['id'] . '/react') ?>" style="margin:0;">
-                            <input type="hidden" name="reaction_type" value="<?= esc($rType) ?>">
-                            <button type="submit" class="picker-emoji" title="<?= esc(ucfirst($rType)) ?>"><?= $rEmoji ?></button>
-                        </form>
+                    <?php foreach ($emojiMap as $rType => $rEmoji): ?>
+                        <button type="button" class="picker-emoji" data-reaction="<?= esc($rType) ?>" title="<?= esc($emojiLabel[$rType]) ?>"><?= $rEmoji ?></button>
                     <?php endforeach; ?>
                 </div>
             </span>
