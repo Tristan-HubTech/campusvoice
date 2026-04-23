@@ -291,58 +291,91 @@ $portalCssVersion = is_file($portalCss) ? (string) filemtime($portalCss) : '1';
     });
 
     /* ── Emoji maps ── */
-    var emojiMap  = { like:'👍', love:'❤️', haha:'😆', wow:'😮', sad:'😢', angry:'😠', deslike:'👎', shock:'😮' };
+    var emojiMap  = { like:'👍', love:'❤️', haha:'😆', wow:'😮', sad:'😢', angry:'😠' };
     var rxColorMap = { like:'#2078f4', love:'#ed4956', haha:'#f7b928', wow:'#f7b928', sad:'#f7b928', angry:'#e9710f' };
     var rxLabelMap = { like:'Like', love:'Love', haha:'Haha', wow:'Wow', sad:'Sad', angry:'Angry' };
 
-    function sendPostReaction(postId, reaction) {
-        var fd = new FormData();
-        fd.append('reaction_type', reaction);
-        return fetch('<?= site_url('posts/') ?>' + postId + '/react', {
-            method: 'POST',
-            headers: { 'X-Requested-With': 'XMLHttpRequest' },
-            body: fd,
-        }).then(function (r) { return r.json(); });
-    }
-
+    /* ── Post Reactions ── */
     function updatePostReactUI(card, data) {
-        var trigger = card.querySelector('.post-react-trigger');
-        if (trigger) {
+        var btn = card.querySelector('.post-react-btn');
+        if (btn) {
             if (data.viewer_reaction) {
-                trigger.textContent = (emojiMap[data.viewer_reaction] || '👍') + ' ' + (rxLabelMap[data.viewer_reaction] || data.viewer_reaction);
-                trigger.style.color = rxColorMap[data.viewer_reaction] || '';
-                trigger.classList.add('reacted');
-                trigger.setAttribute('data-current', data.viewer_reaction);
+                btn.textContent = (emojiMap[data.viewer_reaction] || '👍') + ' ' + (rxLabelMap[data.viewer_reaction] || data.viewer_reaction);
+                btn.style.color = rxColorMap[data.viewer_reaction] || '';
+                btn.classList.add('reacted');
+                btn.setAttribute('data-current', data.viewer_reaction);
             } else {
-                trigger.textContent = '👍 React';
-                trigger.style.color = '';
-                trigger.classList.remove('reacted');
-                trigger.setAttribute('data-current', '');
+                btn.textContent = '👍 React';
+                btn.style.color = '';
+                btn.classList.remove('reacted');
+                btn.setAttribute('data-current', '');
             }
         }
         var reactionLine = card.querySelector('.reaction-line');
         if (reactionLine) {
-            var pillsHtml = '';
+            var pills = '';
             var bd = data.reaction_breakdown || {};
             for (var t in bd) {
-                if (bd[t] > 0) pillsHtml += '<span class="mini-pill">' + (emojiMap[t] || '') + ' ' + bd[t] + '</span>';
+                if (bd[t] > 0) pills += '<span class="mini-pill">' + (emojiMap[t] || '') + ' ' + bd[t] + '</span>';
             }
-            if (!pillsHtml) pillsHtml = '<span class="summary-muted">No reactions yet</span>';
-            reactionLine.innerHTML = pillsHtml;
+            reactionLine.innerHTML = pills || '<span class="summary-muted">No reactions yet</span>';
         }
     }
 
-    /* ── AJAX Comment Reactions (Facebook-style) ── */
+    /* Emoji picker buttons — bound directly, no delegation */
+    document.querySelectorAll('.post-emoji-btn').forEach(function(btn) {
+        btn.addEventListener('click', async function() {
+            var postId = btn.getAttribute('data-post-id');
+            var reaction = btn.getAttribute('data-reaction');
+            var card = document.getElementById('post-' + postId);
+            if (!card) return;
+            var fd = new FormData();
+            fd.append('reaction_type', reaction);
+            try {
+                var resp = await fetch('<?= site_url('posts/') ?>' + postId + '/react', {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    body: fd,
+                });
+                var data = await resp.json();
+                if (data.ok) updatePostReactUI(card, data);
+            } catch (err) { console.error('Post reaction error:', err); }
+        });
+    });
+
+    /* Clicking the React button itself un-reacts (when already reacted) */
+    document.querySelectorAll('.post-react-btn').forEach(function(btn) {
+        btn.addEventListener('click', async function() {
+            var current = btn.getAttribute('data-current');
+            if (!current) return;
+            var postId = btn.getAttribute('data-post-id');
+            var card = document.getElementById('post-' + postId);
+            if (!card) return;
+            var fd = new FormData();
+            fd.append('reaction_type', current);
+            try {
+                var resp = await fetch('<?= site_url('posts/') ?>' + postId + '/react', {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    body: fd,
+                });
+                var data = await resp.json();
+                if (data.ok) updatePostReactUI(card, data);
+            } catch (err) { console.error('Post un-react error:', err); }
+        });
+    });
+
+    /* ── AJAX Comment Reactions ── */
     var crEmojiMap = { like:'👍', love:'❤️', haha:'😆', wow:'😮', sad:'😢', angry:'😠' };
     var crColorMap = { like:'#2078f4', love:'#ed4956', haha:'#f7b928', wow:'#f7b928', sad:'#f7b928', angry:'#e9710f' };
 
     function sendCommentReaction(commentId, reaction) {
-        var formData = new FormData();
-        formData.append('reaction_type', reaction);
+        var fd = new FormData();
+        fd.append('reaction_type', reaction);
         return fetch('<?= site_url('comments/') ?>' + commentId + '/react', {
             method: 'POST',
             headers: { 'X-Requested-With': 'XMLHttpRequest' },
-            body: formData,
+            body: fd,
         }).then(function (r) { return r.json(); });
     }
 
@@ -360,7 +393,6 @@ $portalCssVersion = is_file($portalCss) ? (string) filemtime($portalCss) : '1';
             likeBtn.classList.remove('reacted');
             likeBtn.setAttribute('data-current', '');
         }
-        /* rebuild badge */
         var bubble = item.querySelector('.comment-bubble');
         var badge = bubble.querySelector('.comment-reaction-badge');
         var bd = data.reaction_breakdown || {};
@@ -385,43 +417,25 @@ $portalCssVersion = is_file($portalCss) ? (string) filemtime($portalCss) : '1';
         }
     }
 
-    /* Post picker emoji → direct onclick handler (bypasses delegation entirely) */
-    async function doPostReact(postId, reactionType) {
-        var card = document.getElementById('post-' + postId);
-        if (!card) return;
-        var wrap = card.querySelector('.post-react-wrap');
-        if (wrap) wrap.classList.remove('picker-open');
-        try {
-            var d = await sendPostReaction(postId, reactionType);
-            if (d.ok) updatePostReactUI(card, d);
-        } catch (err) { console.error('Post reaction failed:', err); }
-    }
-
-    /* Click a picker emoji → comment react only (post emojis use doPostReact via onclick) */
+    /* Click a picker emoji → comment react */
     document.addEventListener('click', async function (e) {
         var emoji = e.target.closest('.picker-emoji');
         if (!emoji) return;
         e.preventDefault();
         var item = emoji.closest('.comment-item');
-        if (!item) return;   /* post-level emojis handled by onclick=doPostReact */
+        if (!item) return;
         var commentId = item.getAttribute('data-comment-id');
         var reaction = emoji.getAttribute('data-reaction');
         try {
             var data = await sendCommentReaction(commentId, reaction);
             if (data.ok) updateCommentUI(item, data);
-        } catch (err) { console.error('Comment reaction failed:', err); }
+        } catch (err) { console.error('Comment reaction error:', err); }
     });
 
-    /* Click the Like/Love text → toggle reaction (or toggle picker for post trigger) */
+    /* Click the Like/reaction text on a comment → toggle */
     document.addEventListener('click', async function (e) {
         var likeBtn = e.target.closest('.comment-like-btn');
         if (!likeBtn) return;
-        // Post-level react trigger — toggle picker open/closed
-        if (likeBtn.classList.contains('post-react-trigger')) {
-            var wrap = likeBtn.closest('.comment-like-wrap');
-            if (wrap) wrap.classList.toggle('picker-open');
-            return;
-        }
         var item = likeBtn.closest('.comment-item');
         if (!item) return;
         var commentId = item.getAttribute('data-comment-id');
@@ -430,16 +444,7 @@ $portalCssVersion = is_file($portalCss) ? (string) filemtime($portalCss) : '1';
         try {
             var data = await sendCommentReaction(commentId, reaction);
             if (data.ok) updateCommentUI(item, data);
-        } catch (err) { console.error('Comment reaction failed:', err); }
-    });
-
-    /* Close post reaction picker when clicking outside */
-    document.addEventListener('click', function (e) {
-        if (!e.target.closest('.comment-like-wrap')) {
-            document.querySelectorAll('.comment-like-wrap.picker-open').forEach(function (w) {
-                w.classList.remove('picker-open');
-            });
-        }
+        } catch (err) { console.error('Comment like error:', err); }
     });
 
     /* ── AJAX Delete Post ── */

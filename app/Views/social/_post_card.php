@@ -54,9 +54,9 @@ if ($fbType !== '') {
     <div class="post-action-bar">
         <?php if (! empty($currentUser['id'])): ?>
             <span class="summary-muted post-comment-count"><?= (int) $post['comment_total'] ?> comment<?= (int) $post['comment_total'] !== 1 ? 's' : '' ?></span>
-            <span class="comment-like-wrap post-react-wrap">
+            <div class="post-react-area">
                 <button type="button"
-                    class="comment-like-btn post-react-trigger<?= $viewerRx ? ' reacted' : '' ?>"
+                    class="post-react-btn<?= $viewerRx ? ' reacted' : '' ?>"
                     data-post-id="<?= (int) $post['id'] ?>"
                     data-current="<?= esc((string) $viewerRx) ?>"
                     <?= ($viewerRx && isset($rxColors[$viewerRx])) ? 'style="color:' . $rxColors[$viewerRx] . '"' : '' ?>
@@ -65,12 +65,15 @@ if ($fbType !== '') {
                         ? (($emojiMap[$viewerRx] ?? '👍') . ' ' . ($emojiLabel[$viewerRx] ?? ucfirst($viewerRx)))
                         : '👍 React' ?>
                 </button>
-                <div class="comment-reaction-picker">
+                <div class="post-emoji-picker">
                     <?php foreach ($emojiMap as $rType => $rEmoji): ?>
-                        <button type="button" class="picker-emoji" data-reaction="<?= esc($rType) ?>" title="<?= esc($emojiLabel[$rType]) ?>" onclick="doPostReact(<?= (int) $post['id'] ?>, '<?= esc($rType) ?>')"><?= $rEmoji ?></button>
+                        <button type="button" class="post-emoji-btn"
+                            data-post-id="<?= (int) $post['id'] ?>"
+                            data-reaction="<?= esc($rType) ?>"
+                            title="<?= esc($emojiLabel[$rType]) ?>"><?= $rEmoji ?></button>
                     <?php endforeach; ?>
                 </div>
-            </span>
+            </div>
         <?php else: ?>
             <a href="<?= site_url('users/login') ?>" class="comment-like-btn">👍 Log in to react</a>
         <?php endif; ?>
