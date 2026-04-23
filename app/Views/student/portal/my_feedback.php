@@ -17,6 +17,7 @@
                     <thead>
                     <tr>
                         <th>#</th>
+                        <th>Photo</th>
                         <th>Category</th>
                         <th>Type</th>
                         <th>Status</th>
@@ -31,6 +32,19 @@
                         <?php $rowNum++; ?>
                         <tr>
                             <td>#<?= $rowNum ?></td>
+                            <td>
+                                <?php
+                                $ip = (string) ($item['image_path'] ?? '');
+                                if ($ip !== ''):
+                                    $iurl = \App\Libraries\FeedbackImageStorage::publicUrl($ip);
+                                ?>
+                                    <a href="<?= esc($iurl) ?>" target="_blank" rel="noopener noreferrer" title="View image">
+                                        <img src="<?= esc($iurl) ?>" alt="" class="data-table__thumb" loading="lazy">
+                                    </a>
+                                <?php else: ?>
+                                    <span class="data-table__thumb--empty" title="No image">—</span>
+                                <?php endif; ?>
+                            </td>
                             <td><?= esc((string) ($item['category_name'] ?? 'N/A')) ?></td>
                             <td><span class="pill type-<?= esc((string) ($item['type'] ?? 'suggestion')) ?>"><?= esc(ucfirst((string) ($item['type'] ?? 'suggestion'))) ?></span></td>
                             <td><span class="pill status-<?= esc((string) ($item['status'] ?? 'new')) ?>"><?= esc(ucfirst((string) ($item['status'] ?? 'new'))) ?></span></td>

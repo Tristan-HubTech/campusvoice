@@ -17,6 +17,7 @@ class FeedbackModel extends Model
         'type',
         'subject',
         'message',
+        'image_path',
         'is_anonymous',
         'status',
         'submitted_at',

@@ -2,13 +2,14 @@
 
 namespace App\Controllers;
 
+use App\Libraries\CommentImageStorage;
+use App\Models\PasswordOtpModel;
 use App\Models\SocialCommentModel;
 use App\Models\SocialPostModel;
 use App\Models\SocialProfileModel;
 use App\Models\SocialReactionModel;
 use App\Models\SocialShareModel;
 use App\Models\UserModel;
-use App\Models\PasswordOtpModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
 
 class SocialController extends BaseController
@@ -492,18 +493,61 @@ HTML;
         }
 
         $rules = [
-            'body' => 'required|min_length[1]|max_length[1000]',
+            'body' => 'permit_empty|max_length[1000]',
             'is_anonymous' => 'permit_empty|in_list[0,1]',
             'parent_id' => 'permit_empty|integer',
         ];
 
         if (! $this->validate($rules)) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['ok' => false, 'error' => implode(' ', $this->validator->getErrors())]);
+            }
+
             return $this->redirectToReferrer('posts/' . $postId)->with('error', implode(' ', $this->validator->getErrors()))->withInput();
         }
 
         $post = (new SocialPostModel())->find($postId);
         if ($post === null) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['ok' => false, 'error' => 'Post not found.']);
+            }
+
             return $this->redirectToReferrer('feed')->with('error', 'Post not found.');
+        }
+
+        $uploadedFile   = $this->request->getFile('image');
+        $imagePath      = null;
+        $hasImageColumn = db_connect()->fieldExists('image_path', 'social_post_comments');
+        if ($hasImageColumn) {
+            try {
+                $imagePath = CommentImageStorage::tryStore($uploadedFile);
+            } catch (\RuntimeException $e) {
+                if ($this->request->isAJAX()) {
+                    return $this->response->setJSON(['ok' => false, 'error' => $e->getMessage()]);
+                }
+
+                return $this->redirectToReferrer('posts/' . $postId, 'post-' . $postId)->with('error', $e->getMessage());
+            }
+        } elseif ($uploadedFile !== null && $uploadedFile->isValid() && $uploadedFile->getError() !== UPLOAD_ERR_NO_FILE) {
+            $msg = 'Comment images are not available until the database is updated. Run: php spark migrate';
+
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['ok' => false, 'error' => $msg]);
+            }
+
+            return $this->redirectToReferrer('posts/' . $postId, 'post-' . $postId)->with('error', $msg);
+        }
+
+        $body = trim(strip_tags((string) $this->request->getPost('body')));
+
+        if ($body === '' && $imagePath === null) {
+            $msg = 'Add a message or an image.';
+
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['ok' => false, 'error' => $msg]);
+            }
+
+            return $this->redirectToReferrer('posts/' . $postId, 'post-' . $postId)->with('error', $msg);
         }
 
         $isAnonymous = (int) ($this->request->getPost('is_anonymous') ?? 0);
@@ -517,8 +561,12 @@ HTML;
         $commentPayload = [
             'post_id' => $postId,
             'user_id' => (int) $this->viewer()['id'],
-            'body'    => trim(strip_tags((string) $this->request->getPost('body'))),
+            'body'    => $body,
         ];
+
+        if ($hasImageColumn && $imagePath !== null) {
+            $commentPayload['image_path'] = $imagePath;
+        }
 
         if ($parentId > 0) {
             $parentComment = (new SocialCommentModel())->where('post_id', $postId)->find($parentId);
@@ -532,7 +580,14 @@ HTML;
         }
 
         $commentModel = new SocialCommentModel();
-        $commentModel->insert($commentPayload);
+        if (! $commentModel->insert($commentPayload)) {
+            CommentImageStorage::delete($imagePath);
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['ok' => false, 'error' => 'Could not save comment.']);
+            }
+
+            return $this->redirectToReferrer('posts/' . $postId, 'post-' . $postId)->with('error', 'Could not save comment.');
+        }
 
         if ($this->request->isAJAX()) {
             $viewer = $this->viewer();
@@ -545,18 +600,23 @@ HTML;
             $initial = strtoupper(substr($authorName, 0, 1));
             $newCommentId = $commentModel->getInsertID();
             $commentTotal = $commentModel->where('post_id', $postId)->where('deleted_at', null)->countAllResults();
+            $storedPath   = $imagePath;
+            $imageUrl     = $storedPath ? CommentImageStorage::publicUrl($storedPath) : '';
+
+            $commentOut = [
+                'id' => $newCommentId,
+                'parent_id' => $commentPayload['parent_id'] ?? null,
+                'author_name' => $authorName,
+                'avatar_color' => $avatarColor,
+                'initial' => $initial,
+                'body' => $body,
+                'created_at' => date('M d, Y h:i A'),
+                'image_url' => $imageUrl,
+            ];
 
             return $this->response->setJSON([
                 'ok' => true,
-                'comment' => [
-                    'id' => $newCommentId,
-                    'parent_id' => $commentPayload['parent_id'] ?? null,
-                    'author_name' => $authorName,
-                    'avatar_color' => $avatarColor,
-                    'initial' => $initial,
-                    'body' => trim(strip_tags((string) $this->request->getPost('body'))),
-                    'created_at' => date('M d, Y h:i A'),
-                ],
+                'comment' => $commentOut,
                 'comment_total' => $commentTotal,
             ]);
         }
@@ -721,7 +781,7 @@ HTML;
     private function buildPosts(int $viewerId = 0, ?int $userId = null): array
     {
         $query = (new SocialPostModel())
-            ->select('social_posts.*, users.first_name, users.last_name, users.email, social_profiles.avatar_color, social_profiles.bio, social_profiles.is_anonymous as profile_is_anonymous, feedbacks.status as feedback_status, feedbacks.type as feedback_type')
+            ->select('social_posts.*, users.first_name, users.last_name, users.email, social_profiles.avatar_color, social_profiles.bio, social_profiles.is_anonymous as profile_is_anonymous, feedbacks.status as feedback_status, feedbacks.type as feedback_type, feedbacks.image_path as feedback_image_path')
             ->join('users', 'users.id = social_posts.user_id', 'inner')
             ->join('social_profiles', 'social_profiles.user_id = users.id', 'left')
             ->join('feedbacks', 'feedbacks.id = social_posts.feedback_id', 'left')
@@ -744,6 +804,17 @@ HTML;
 
         $postIds = array_map(static fn (array $post): int => (int) $post['id'], $posts);
         $db = db_connect();
+
+        $feedbackIds = array_values(array_unique(array_filter(array_map(
+            static fn (array $p): int => (int) ($p['feedback_id'] ?? 0),
+            $posts
+        ))));
+        $feedbackImageById = [];
+        if ($feedbackIds !== []) {
+            foreach ($db->table('feedbacks')->select('id, image_path')->whereIn('id', $feedbackIds)->get()->getResultArray() as $fr) {
+                $feedbackImageById[(int) $fr['id']] = $fr['image_path'] ?? null;
+            }
+        }
 
         $reactionRows = $db->table('social_post_reactions')
             ->select('post_id, reaction_type, COUNT(*) as total')
@@ -882,6 +953,12 @@ HTML;
         unset($comments);
 
         foreach ($posts as &$post) {
+            $feedbackId = (int) ($post['feedback_id'] ?? 0);
+            if ($feedbackId > 0) {
+                $post['feedback_image_path'] = $feedbackImageById[$feedbackId]
+                    ?? $post['feedback_image_path']
+                    ?? null;
+            }
             $postUserId = (int) $post['user_id'];
             $postIsAnonymous = (int) ($post['is_anonymous'] ?? 0) === 1 || (int) ($post['profile_is_anonymous'] ?? 0) === 1;
             $post['author_name'] = $postIsAnonymous

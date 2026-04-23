@@ -3,13 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <?= $this->include('partials/theme_fouc') ?>
     <title><?= esc($title ?? 'Admin Login') ?> | CampusVoice</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= base_url('assets/admin/control-panel.css') ?>">
+    <?= $this->include('partials/theme_styles') ?>
 </head>
 <body class="login-page">
+<div class="theme-wrap">
+    <?= $this->include('partials/theme_toggle', ['toggleClass' => 'theme-toggle--on-light']) ?>
+</div>
 <main class="login-wrap">
     <section class="login-panel">
         <div class="login-brand">
@@ -42,5 +47,6 @@
         </div>
     </section>
 </main>
+<?= $this->include('partials/theme_script') ?>
 </body>
 </html>

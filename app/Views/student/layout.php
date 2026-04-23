@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <?= $this->include('partials/theme_fouc') ?>
     <title><?= esc($title ?? 'CampusVoice') ?> | CampusVoice</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,6 +16,7 @@ $currentTitle = (string) ($title ?? '');
 $isAuthScreen = (bool) ($isAuthScreen ?? ($currentTitle === 'Student Portal Access'));
 ?>
     <link rel="stylesheet" href="<?= base_url('assets/student/portal.css') . '?v=' . $studentPortalCssVersion ?>">
+    <?= $this->include('partials/theme_styles') ?>
 <?php if ($isAuthScreen): ?>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <?php endif; ?>
@@ -31,25 +33,21 @@ $isAuthScreen = (bool) ($isAuthScreen ?? ($currentTitle === 'Student Portal Acce
 
         <?php if ($studentIsAuthed): ?>
             <?php
-            $navItems = [
-                ['label' => 'Home', 'url' => site_url('users'), 'title' => 'My Portal'],
-                ['label' => 'My Feedback', 'url' => site_url('users/feedback'), 'title' => 'My Submissions'],
-                ['label' => 'Submit', 'url' => site_url('users/feedback/submit'), 'title' => 'Submit Feedback'],
-                ['label' => 'Announcements', 'url' => site_url('users/announcements'), 'title' => 'Announcements'],
-                ['label' => 'Settings', 'url' => site_url('settings'), 'title' => 'Settings'],
-            ];
+            $headerUserName = (string) (! empty($isAnonymous) ? ($anonAlias ?? 'Anonymous') : ($studentUser['name'] ?? 'Student'));
+            $this->setVar('headerUserName', $headerUserName);
+            $this->setVar('currentTitle', $currentTitle);
             ?>
-            <nav class="portal-nav">
-                <?php foreach ($navItems as $item): ?>
-                    <a href="<?= $item['url'] ?>" class="<?= $currentTitle === $item['title'] ? 'active' : '' ?>"><?= esc($item['label']) ?></a>
-                <?php endforeach; ?>
-            </nav>
-            <div class="portal-user-info">
-                <span><?= esc((string) (! empty($isAnonymous) ? ($anonAlias ?? 'Anonymous') : ($studentUser['name'] ?? 'Student'))) ?></span>
-                <a href="<?= site_url('users/logout') ?>" class="logout-link">Logout</a>
+            <?= $this->include('partials/portal_header_authed') ?>
+        <?php else: ?>
+            <div class="portal-header-spacer" aria-hidden="true"></div>
+            <div class="portal-header-end">
+                <?= $this->include('partials/theme_toggle') ?>
             </div>
         <?php endif; ?>
     </div>
+    <?php if ($studentIsAuthed): ?>
+    <div class="portal-nav-backdrop" id="portal-nav-backdrop" hidden></div>
+    <?php endif; ?>
 </header>
 <?php endif; ?>
 
@@ -95,75 +93,168 @@ $isAuthScreen = (bool) ($isAuthScreen ?? ($currentTitle === 'Student Portal Acce
         });
     });
 
-    /* ── Comment forms ── */
-    document.addEventListener('submit', function (e) {
-        var form = e.target;
-        if (!form.classList.contains('comment-form')) return;
-        e.preventDefault();
-        var btn = form.querySelector('button[type="submit"]');
-        if (btn) btn.disabled = true;
-        var body = new FormData(form);
-        fetch(form.action, {
-            method: 'POST',
-            headers: { 'X-Requested-With': 'XMLHttpRequest' },
-            body: body
-        })
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
-            if (data.ok && data.comment) {
-                var c = data.comment;
-                var card = form.closest('.feed-card') || form.closest('article');
-                if (card) {
-                    var list = card.querySelector('.comment-list');
-                    if (!list) {
-                        var stack = card.querySelector('.comment-stack');
-                        if (stack) {
-                            list = document.createElement('div');
-                            list.className = 'comment-list';
-                            stack.insertBefore(list, stack.querySelector('.comment-form') || stack.querySelector('.summary-muted') || null);
+    /* ── Helper: find the parent .feed-card for any element (matches social/feed) ── */
+    function findCard(el) {
+        return el.closest('.feed-card');
+    }
+
+    function buildCommentHTML(c, isReply) {
+        var cls = 'comment-item' + (isReply ? ' reply-item' : '');
+        var replyBtn = isReply ? '' :
+            '<button type="button" class="comment-reply-btn" data-comment-id="' + c.id + '" data-author="' + (c.author_name || '') + '">Reply</button>';
+        var bodyText = (c.body != null) ? String(c.body) : '';
+        var hasBody = bodyText.replace(/^\s+|\s+$/g, '') !== '';
+        var bodyHtml = hasBody ? ('<p>' + bodyText.replace(/\n/g, '<br>') + '</p>') : '';
+        var imgU = c.image_url ? String(c.image_url) : '';
+        var safeImg = imgU.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+        var imgHtml = imgU
+            ? ('<div class="comment-attachment"><a href="' + safeImg + '" target="_blank" rel="noopener noreferrer" class="comment-attachment__link">' +
+                '<img src="' + safeImg + '" alt="" class="comment-attachment__img" loading="lazy" decoding="async"></a></div>')
+            : '';
+        return '<div class="' + cls + '" data-comment-id="' + c.id + '">' +
+            '<div class="avatar avatar-small avatar-' + (c.avatar_color || 'blue') + '">' + (c.initial || 'U') + '</div>' +
+            '<div class="comment-body-wrap">' +
+                '<div class="comment-bubble">' +
+                    '<strong>' + (c.author_name || 'You') + '</strong>' +
+                    bodyHtml +
+                    imgHtml +
+                '</div>' +
+                '<div class="comment-actions">' +
+                    '<span class="comment-date">' + (c.created_at || 'Just now') + '</span>' +
+                    '<span class="comment-like-wrap">' +
+                        '<button type="button" class="comment-like-btn" data-comment-id="' + c.id + '" data-current="">Like</button>' +
+                        '<div class="comment-reaction-picker">' +
+                            '<button type="button" class="picker-emoji" data-reaction="like" title="Like">👍</button>' +
+                            '<button type="button" class="picker-emoji" data-reaction="love" title="Love">❤️</button>' +
+                            '<button type="button" class="picker-emoji" data-reaction="haha" title="Haha">😆</button>' +
+                            '<button type="button" class="picker-emoji" data-reaction="wow" title="Wow">😮</button>' +
+                            '<button type="button" class="picker-emoji" data-reaction="sad" title="Sad">😢</button>' +
+                            '<button type="button" class="picker-emoji" data-reaction="angry" title="Angry">😠</button>' +
+                        '</div>' +
+                    '</span>' +
+                    replyBtn +
+                '</div>' +
+            '</div>' +
+        '</div>';
+    }
+
+    /* ── AJAX Comment Submission (with nested replies) ── */
+    document.querySelectorAll('.comment-form').forEach(function (form) {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            var btn = form.querySelector('button[type="submit"]');
+            var origText = btn ? btn.textContent : '';
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = 'Posting...';
+            }
+
+            fetch(form.action, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: new FormData(form)
+            })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (data.error && !data.ok) {
+                    if (window.alert) { window.alert(data.error); }
+                }
+                if (data.ok && data.comment) {
+                    var c = data.comment;
+                    var parentId = c.parent_id ? parseInt(c.parent_id, 10) : 0;
+                    var stack = form.closest('.comment-stack');
+                    if (stack) {
+                        if (parentId > 0) {
+                            var parentItem = stack.querySelector('.comment-item[data-comment-id="' + parentId + '"]');
+                            if (parentItem) {
+                                var replyList = parentItem.querySelector('.reply-list');
+                                if (!replyList) {
+                                    replyList = document.createElement('div');
+                                    replyList.className = 'reply-list';
+                                    var bodyWrap = parentItem.querySelector('.comment-body-wrap');
+                                    if (bodyWrap) { bodyWrap.appendChild(replyList); }
+                                }
+                                if (replyList) {
+                                    replyList.insertAdjacentHTML('beforeend', buildCommentHTML(c, true));
+                                }
+                            }
+                            var parentInput = form.querySelector('.comment-parent-id');
+                            if (parentInput) { parentInput.value = '0'; }
+                            var indicator = form.querySelector('.reply-indicator');
+                            if (indicator) { indicator.style.display = 'none'; }
+                            var ta0 = form.querySelector('textarea');
+                            if (ta0) { ta0.placeholder = 'Write a comment...'; }
+                        } else {
+                            var commentList = stack.querySelector('.comment-list');
+                            if (!commentList) {
+                                commentList = document.createElement('div');
+                                commentList.className = 'comment-list';
+                                stack.insertBefore(commentList, form);
+                            }
+                            commentList.insertAdjacentHTML('afterbegin', buildCommentHTML(c, false));
                         }
                     }
-                    if (list) {
-                        var item = document.createElement('div');
-                        item.className = 'comment-item';
-                        item.setAttribute('data-comment-id', c.id);
-                        item.innerHTML =
-                            '<div class="avatar avatar-small avatar-' + (c.avatar_color || 'blue') + '">' + (c.initial || 'U') + '</div>' +
-                            '<div class="comment-body-wrap">' +
-                                '<div class="comment-bubble">' +
-                                    '<strong>' + (c.author_name || 'You') + '</strong>' +
-                                    '<p>' + (c.body || '').replace(/\n/g, '<br>') + '</p>' +
-                                '</div>' +
-                                '<div class="comment-actions">' +
-                                    '<span class="comment-date">' + (c.created_at || 'Just now') + '</span>' +
-                                    '<span class="comment-like-wrap">' +
-                                        '<button type="button" class="comment-like-btn" data-comment-id="' + c.id + '" data-current="">Like</button>' +
-                                        '<div class="comment-reaction-picker">' +
-                                            '<button type="button" class="picker-emoji" data-reaction="like" title="Like">👍</button>' +
-                                            '<button type="button" class="picker-emoji" data-reaction="love" title="Love">❤️</button>' +
-                                            '<button type="button" class="picker-emoji" data-reaction="haha" title="Haha">😆</button>' +
-                                            '<button type="button" class="picker-emoji" data-reaction="wow" title="Wow">😮</button>' +
-                                            '<button type="button" class="picker-emoji" data-reaction="sad" title="Sad">😢</button>' +
-                                            '<button type="button" class="picker-emoji" data-reaction="angry" title="Angry">😠</button>' +
-                                        '</div>' +
-                                    '</span>' +
-                                '</div>' +
-                            '</div>';
-                        list.prepend(item);
-                    }
-                    /* Update comment count */
-                    if (data.comment_total !== undefined) {
+                    var card = findCard(form) || form.closest('article');
+                    if (card && data.comment_total !== undefined) {
                         var summaryEls = card.querySelectorAll('.post-summary-row .summary-muted');
                         summaryEls.forEach(function (el) {
-                            el.textContent = el.textContent.replace(/\d+ comments/, data.comment_total + ' comments');
+                            el.textContent = el.textContent.replace(
+                                /\d+ comments/,
+                                data.comment_total + ' comments'
+                            );
                         });
                     }
+                    var clearTa = form.querySelector('textarea');
+                    if (clearTa) { clearTa.value = ''; }
+                    var fileIn = form.querySelector('.comment-image-input');
+                    if (fileIn) { fileIn.value = ''; }
                 }
-                form.querySelector('textarea[name="body"]').value = '';
-            }
-            if (btn) btn.disabled = false;
-        })
-        .catch(function () { if (btn) btn.disabled = false; });
+            })
+            .catch(function (err) {
+                console.error('Comment failed:', err);
+                form.submit();
+            })
+            .finally(function () {
+                if (btn) { btn.disabled = false; btn.textContent = origText; }
+            });
+        });
+    });
+
+    /* ── Reply: set parent_id and show indicator ── */
+    document.addEventListener('click', function (e) {
+        var replyBtn = e.target.closest('.comment-reply-btn');
+        if (!replyBtn) { return; }
+        var commentId = replyBtn.getAttribute('data-comment-id');
+        var author = replyBtn.getAttribute('data-author') || '';
+        var card = findCard(replyBtn) || replyBtn.closest('article');
+        if (!card) { return; }
+        var cform = card.querySelector('.comment-form');
+        if (!cform) { return; }
+        var parentInput = cform.querySelector('.comment-parent-id');
+        var indicator = cform.querySelector('.reply-indicator');
+        var toText = indicator ? indicator.querySelector('.reply-to-text') : null;
+        var textarea = cform.querySelector('textarea');
+        if (parentInput) { parentInput.value = commentId; }
+        if (toText) { toText.textContent = 'Replying to ' + author; }
+        if (indicator) { indicator.style.display = 'flex'; }
+        if (textarea) {
+            textarea.placeholder = 'Write a reply...';
+            textarea.focus();
+        }
+    });
+
+    /* ── Cancel reply ── */
+    document.addEventListener('click', function (e) {
+        var cancelBtn = e.target.closest('.cancel-reply-btn');
+        if (!cancelBtn) { return; }
+        var cform = cancelBtn.closest('.comment-form');
+        if (!cform) { return; }
+        var parentInput = cform.querySelector('.comment-parent-id');
+        var indicator = cform.querySelector('.reply-indicator');
+        var textarea = cform.querySelector('textarea');
+        if (parentInput) { parentInput.value = '0'; }
+        if (indicator) { indicator.style.display = 'none'; }
+        if (textarea) { textarea.placeholder = 'Write a comment...'; }
     });
 
     /* ── Emoji map for reaction pills ── */
@@ -315,6 +406,14 @@ $isAuthScreen = (bool) ($isAuthScreen ?? ($currentTitle === 'Student Portal Acce
 
 })();
 </script>
+<?php if (! $isAuthScreen): ?>
+<?php
+$portalHeaderJsPath = FCPATH . 'assets/student/portal-header.js';
+$portalHeaderJsVersion = is_file($portalHeaderJsPath) ? (string) filemtime($portalHeaderJsPath) : '1';
+?>
+<script src="<?= base_url('assets/student/portal-header.js') ?>?v=<?= esc($portalHeaderJsVersion, 'attr') ?>"></script>
+<?php endif; ?>
+<?= $this->include('partials/theme_script') ?>
 
 </body>
 </html>
