@@ -53,7 +53,8 @@ if ($fbType !== '') {
 
     <div class="post-action-bar">
         <?php if (! empty($currentUser['id'])): ?>
-            <span class="comment-like-wrap">
+            <span class="summary-muted post-comment-count"><?= (int) $post['comment_total'] ?> comment<?= (int) $post['comment_total'] !== 1 ? 's' : '' ?></span>
+            <span class="comment-like-wrap post-react-wrap">
                 <button type="button"
                     class="comment-like-btn post-react-trigger<?= $viewerRx ? ' reacted' : '' ?>"
                     data-post-id="<?= (int) $post['id'] ?>"
@@ -70,8 +71,6 @@ if ($fbType !== '') {
                     <?php endforeach; ?>
                 </div>
             </span>
-            <span class="post-action-divider"></span>
-            <span class="summary-muted post-comment-count"><?= (int) $post['comment_total'] ?> comment<?= (int) $post['comment_total'] !== 1 ? 's' : '' ?></span>
         <?php else: ?>
             <a href="<?= site_url('users/login') ?>" class="comment-like-btn">👍 Log in to react</a>
         <?php endif; ?>

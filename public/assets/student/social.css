@@ -1175,16 +1175,17 @@ select:focus {
     margin-bottom: 4px;
 }
 
-/* Post-level picker: always drop DOWN, never clip above the card */
-.post-action-bar .comment-like-wrap .comment-reaction-picker {
+/* Post-level picker: right-aligned, drops DOWN below the React button */
+.post-react-wrap .comment-reaction-picker {
     bottom: auto !important;
     top: calc(100% + 4px) !important;
+    left: auto !important;
+    right: 0 !important;
     margin-bottom: 0 !important;
-    margin-top: 0;
 }
 
-/* Comment-level pickers: show on hover */
-.comment-actions .comment-like-wrap:hover .comment-reaction-picker,
+/* Show picker on hover (all levels) or when picker-open set via JS */
+.comment-like-wrap:hover .comment-reaction-picker,
 .comment-like-wrap.picker-open .comment-reaction-picker {
     display: flex;
 }
