@@ -385,32 +385,31 @@ $portalCssVersion = is_file($portalCss) ? (string) filemtime($portalCss) : '1';
         }
     }
 
-    /* Click a picker emoji → react */
+    /* Post picker emoji → direct onclick handler (bypasses delegation entirely) */
+    async function doPostReact(postId, reactionType) {
+        var card = document.getElementById('post-' + postId);
+        if (!card) return;
+        var wrap = card.querySelector('.post-react-wrap');
+        if (wrap) wrap.classList.remove('picker-open');
+        try {
+            var d = await sendPostReaction(postId, reactionType);
+            if (d.ok) updatePostReactUI(card, d);
+        } catch (err) { console.error('Post reaction failed:', err); }
+    }
+
+    /* Click a picker emoji → comment react only (post emojis use doPostReact via onclick) */
     document.addEventListener('click', async function (e) {
         var emoji = e.target.closest('.picker-emoji');
         if (!emoji) return;
         e.preventDefault();
         var item = emoji.closest('.comment-item');
+        if (!item) return;   /* post-level emojis handled by onclick=doPostReact */
+        var commentId = item.getAttribute('data-comment-id');
         var reaction = emoji.getAttribute('data-reaction');
-        if (item) {
-            /* comment reaction */
-            var commentId = item.getAttribute('data-comment-id');
-            try {
-                var data = await sendCommentReaction(commentId, reaction);
-                if (data.ok) updateCommentUI(item, data);
-            } catch (err) { console.error('Comment reaction failed:', err); }
-        } else {
-            /* post reaction */
-            var card = emoji.closest('.feed-card');
-            if (!card) return;
-            var postId = card.id.replace('post-', '');
-            var wrap = emoji.closest('.comment-like-wrap');
-            if (wrap) wrap.classList.remove('picker-open');
-            try {
-                var data = await sendPostReaction(postId, reaction);
-                if (data.ok) updatePostReactUI(card, data);
-            } catch (err) { console.error('Post reaction failed:', err); }
-        }
+        try {
+            var data = await sendCommentReaction(commentId, reaction);
+            if (data.ok) updateCommentUI(item, data);
+        } catch (err) { console.error('Comment reaction failed:', err); }
     });
 
     /* Click the Like/Love text → toggle reaction (or toggle picker for post trigger) */

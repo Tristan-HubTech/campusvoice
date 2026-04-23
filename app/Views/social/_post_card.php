@@ -67,7 +67,7 @@ if ($fbType !== '') {
                 </button>
                 <div class="comment-reaction-picker">
                     <?php foreach ($emojiMap as $rType => $rEmoji): ?>
-                        <button type="button" class="picker-emoji" data-reaction="<?= esc($rType) ?>" title="<?= esc($emojiLabel[$rType]) ?>"><?= $rEmoji ?></button>
+                        <button type="button" class="picker-emoji" data-reaction="<?= esc($rType) ?>" title="<?= esc($emojiLabel[$rType]) ?>" onclick="doPostReact(<?= (int) $post['id'] ?>, '<?= esc($rType) ?>')"><?= $rEmoji ?></button>
                     <?php endforeach; ?>
                 </div>
             </span>
