@@ -123,11 +123,13 @@ if ($fbType !== '') {
                                             <?php endforeach; ?>
                                         </div>
                                     </span>
-                                    <button type="button" class="comment-reply-btn" data-comment-id="<?= (int) $comment['id'] ?>" data-author="<?= esc((string) $comment['author_name']) ?>">Reply</button>
+                                    <button type="button" class="comment-reply-btn" data-comment-id="<?= (int) $comment['id'] ?>" data-author="<?= esc((string) $comment['author_name']) ?>">↩ Reply</button>
                                 <?php endif; ?>
                             </div>
 
                             <?php if (! empty($comment['replies'])): ?>
+                                <?php $rCount = count($comment['replies']); ?>
+                                <button type="button" class="reply-count-btn" data-expanded="1">↩ <?= $rCount ?> <?= $rCount === 1 ? 'reply' : 'replies' ?></button>
                                 <div class="reply-list">
                                     <?php foreach ($comment['replies'] as $reply): ?>
                                         <?php

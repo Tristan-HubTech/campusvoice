@@ -100,8 +100,9 @@ $portalCssVersion = is_file($portalCss) ? (string) filemtime($portalCss) : '1';
 
     function buildCommentHTML(c, isReply) {
         var cls = 'comment-item' + (isReply ? ' reply-item' : '');
+        var safeAuthor = (c.author_name || 'User').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
         var replyBtn = isReply ? '' :
-            '<button type="button" class="comment-reply-btn" data-comment-id="' + c.id + '" data-author="' + c.author_name + '">Reply</button>';
+            '<button type="button" class="comment-reply-btn" data-comment-id="' + c.id + '" data-author="' + safeAuthor + '">↩ Reply</button>';
         return '<div class="' + cls + '" data-comment-id="' + c.id + '">' +
             '<div class="avatar avatar-small avatar-' + c.avatar_color + '">' + c.initial + '</div>' +
             '<div class="comment-body-wrap">' +
@@ -150,24 +151,45 @@ $portalCssVersion = is_file($portalCss) ? (string) filemtime($portalCss) : '1';
                     const parentId = c.parent_id ? parseInt(c.parent_id) : 0;
                     const stack = form.closest('.comment-stack');
 
+                    var newEl = null;
                     if (parentId > 0) {
                         // It's a reply — append under the parent comment
-                        const parentItem = stack.querySelector('.comment-item[data-comment-id="' + parentId + '"]');
+                        var parentItem = stack.querySelector('.comment-item[data-comment-id="' + parentId + '"]');
                         if (parentItem) {
+                            var bodyWrap = parentItem.querySelector('.comment-body-wrap');
                             var replyList = parentItem.querySelector('.reply-list');
                             if (!replyList) {
                                 replyList = document.createElement('div');
                                 replyList.className = 'reply-list';
-                                parentItem.querySelector('.comment-body-wrap').appendChild(replyList);
+                                bodyWrap.appendChild(replyList);
                             }
+                            replyList.style.display = '';
                             replyList.insertAdjacentHTML('beforeend', buildCommentHTML(c, true));
+                            newEl = replyList.lastElementChild;
+                            // Update or create the reply count toggle
+                            var replyCount = replyList.querySelectorAll(':scope > .comment-item').length;
+                            var countLabel = '↩ ' + replyCount + ' ' + (replyCount === 1 ? 'reply' : 'replies');
+                            var existingToggle = parentItem.querySelector('.reply-count-btn');
+                            if (existingToggle) {
+                                existingToggle.textContent = countLabel;
+                                existingToggle.setAttribute('data-expanded', '1');
+                            } else {
+                                var newToggle = document.createElement('button');
+                                newToggle.type = 'button';
+                                newToggle.className = 'reply-count-btn';
+                                newToggle.setAttribute('data-expanded', '1');
+                                newToggle.textContent = countLabel;
+                                bodyWrap.insertBefore(newToggle, replyList);
+                            }
                         }
                         // Reset reply state
                         var parentInput = form.querySelector('.comment-parent-id');
                         if (parentInput) parentInput.value = '0';
                         var indicator = form.querySelector('.reply-indicator');
                         if (indicator) indicator.style.display = 'none';
-                        form.querySelector('textarea').placeholder = 'Write a comment...';
+                        var ta = form.querySelector('textarea');
+                        if (ta) { ta.placeholder = 'Write a comment...'; ta.value = ''; }
+                        form.classList.remove('replying');
                     } else {
                         // Top-level comment — append at bottom so it's visible near the textarea
                         let commentList = stack.querySelector('.comment-list');
@@ -177,6 +199,13 @@ $portalCssVersion = is_file($portalCss) ? (string) filemtime($portalCss) : '1';
                             stack.insertBefore(commentList, form);
                         }
                         commentList.insertAdjacentHTML('beforeend', buildCommentHTML(c, false));
+                        newEl = commentList.lastElementChild;
+                    }
+                    // Animate and scroll newly inserted comment/reply into view
+                    if (newEl) {
+                        newEl.classList.add('newly-added');
+                        newEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        setTimeout(function() { newEl.classList.remove('newly-added'); }, 400);
                     }
 
                     // Update comment counts everywhere on the card
@@ -218,9 +247,16 @@ $portalCssVersion = is_file($portalCss) ? (string) filemtime($portalCss) : '1';
         if (toText) toText.textContent = 'Replying to ' + author;
         if (indicator) indicator.style.display = 'flex';
         if (textarea) {
-            textarea.placeholder = 'Write a reply...';
+            textarea.placeholder = 'Write a reply to ' + author + '...';
+            var mention = '@' + author + ' ';
+            if (!textarea.value || /^@\S.*\s/.test(textarea.value)) {
+                textarea.value = mention;
+            }
             textarea.focus();
+            textarea.setSelectionRange(textarea.value.length, textarea.value.length);
         }
+        form.classList.add('replying');
+        form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
 
     /* ── Cancel Reply Handler ── */
@@ -234,7 +270,24 @@ $portalCssVersion = is_file($portalCss) ? (string) filemtime($portalCss) : '1';
         var textarea = form.querySelector('textarea');
         if (parentInput) parentInput.value = '0';
         if (indicator) indicator.style.display = 'none';
-        if (textarea) textarea.placeholder = 'Write a comment...';
+        if (textarea) {
+            textarea.placeholder = 'Write a comment...';
+            if (/^@.+ $/.test(textarea.value)) textarea.value = '';
+        }
+        form.classList.remove('replying');
+    });
+
+    /* ── Reply Count Toggle ── */
+    document.addEventListener('click', function (e) {
+        var toggleBtn = e.target.closest('.reply-count-btn');
+        if (!toggleBtn) return;
+        var commentItem = toggleBtn.closest('.comment-item');
+        if (!commentItem) return;
+        var replyList = commentItem.querySelector('.reply-list');
+        if (!replyList) return;
+        var expanded = toggleBtn.getAttribute('data-expanded') === '1';
+        replyList.style.display = expanded ? 'none' : '';
+        toggleBtn.setAttribute('data-expanded', expanded ? '0' : '1');
     });
 
     /* ── Emoji maps ── */

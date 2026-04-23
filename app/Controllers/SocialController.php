@@ -457,31 +457,27 @@ HTML;
             $reactionModel->save($payload);
         }
 
-        if ($this->request->isAJAX()) {
-            $reactionRows = db_connect()->table('social_post_reactions')
-                ->select('reaction_type, COUNT(*) as total')
-                ->where('post_id', $postId)
-                ->groupBy('reaction_type')
-                ->get()->getResultArray();
-            $breakdown = [];
-            $reactionTotal = 0;
-            foreach ($reactionRows as $r) {
-                $breakdown[$r['reaction_type']] = (int) $r['total'];
-                $reactionTotal += (int) $r['total'];
-            }
-            $viewerReaction = (new SocialReactionModel())
-                ->where('post_id', $postId)
-                ->where('user_id', $viewerId)
-                ->first();
-            return $this->response->setJSON([
-                'ok' => true,
-                'reaction_total' => $reactionTotal,
-                'reaction_breakdown' => $breakdown,
-                'viewer_reaction' => $viewerReaction ? (string) $viewerReaction['reaction_type'] : null,
-            ]);
+        $reactionRows = db_connect()->table('social_post_reactions')
+            ->select('reaction_type, COUNT(*) as total')
+            ->where('post_id', $postId)
+            ->groupBy('reaction_type')
+            ->get()->getResultArray();
+        $breakdown = [];
+        $reactionTotal = 0;
+        foreach ($reactionRows as $r) {
+            $breakdown[$r['reaction_type']] = (int) $r['total'];
+            $reactionTotal += (int) $r['total'];
         }
-
-        return $this->redirectToReferrer('posts/' . $postId, 'post-' . $postId);
+        $viewerReaction = (new SocialReactionModel())
+            ->where('post_id', $postId)
+            ->where('user_id', $viewerId)
+            ->first();
+        return $this->response->setJSON([
+            'ok' => true,
+            'reaction_total' => $reactionTotal,
+            'reaction_breakdown' => $breakdown,
+            'viewer_reaction' => $viewerReaction ? (string) $viewerReaction['reaction_type'] : null,
+        ]);
     }
 
     public function comment(int $postId)
