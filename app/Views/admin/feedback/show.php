@@ -30,6 +30,19 @@
         <h4>Subject</h4>
         <p><?= esc((string) ($feedback['subject'] ?? 'No subject')) ?></p>
 
+        <?php
+        $aimg = (string) ($feedback['image_path'] ?? '');
+        if ($aimg !== ''):
+            $aurl = \App\Libraries\FeedbackImageStorage::publicUrl($aimg);
+        ?>
+        <h4>Attachment</h4>
+        <div class="admin-feedback-image">
+            <a href="<?= esc($aurl) ?>" target="_blank" rel="noopener noreferrer">
+                <img src="<?= esc($aurl) ?>" alt="Student upload" loading="lazy" decoding="async">
+            </a>
+        </div>
+        <?php endif; ?>
+
         <h4>Message</h4>
         <article class="message-box"><?= nl2br(esc((string) $feedback['message'])) ?></article>
 

@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <?= $this->include('partials/theme_fouc') ?>
     <title><?= esc($title ?? 'CampusVoice') ?> | CampusVoice</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,6 +16,7 @@ $portalCssVersion = is_file($portalCss) ? (string) filemtime($portalCss) : '1';
 ?>
     <link rel="stylesheet" href="<?= base_url('assets/student/portal.css') . '?v=' . $portalCssVersion ?>">
     <link rel="stylesheet" href="<?= base_url('assets/student/social.css') . '?v=' . $socialCssVersion ?>">
+    <?= $this->include('partials/theme_styles') ?>
 </head>
 <body>
 <?php $currentUser = (array) ($currentUser ?? []); ?>
@@ -29,30 +31,23 @@ $portalCssVersion = is_file($portalCss) ? (string) filemtime($portalCss) : '1';
 
         <?php if (! empty($currentUser['id'])): ?>
             <?php
-            $navItems = [
-                ['label' => 'Home', 'url' => site_url('users'), 'title' => 'My Portal'],
-                ['label' => 'My Feedback', 'url' => site_url('users/feedback'), 'title' => 'My Submissions'],
-                ['label' => 'Submit', 'url' => site_url('users/feedback/submit'), 'title' => 'Submit Feedback'],
-                ['label' => 'Announcements', 'url' => site_url('users/announcements'), 'title' => 'Announcements'],
-                ['label' => 'Settings', 'url' => site_url('settings'), 'title' => 'Settings'],
-            ];
+            $headerUserName = (string) (! empty($isAnonymous) ? ($anonAlias ?? 'Anonymous') : ($currentUser['name'] ?? 'User'));
+            $this->setVar('headerUserName', $headerUserName);
+            $this->setVar('currentTitle', $currentTitle);
             ?>
-            <nav class="portal-nav">
-                <?php foreach ($navItems as $item): ?>
-                    <a href="<?= $item['url'] ?>" class="<?= $currentTitle === $item['title'] ? 'active' : '' ?>"><?= esc($item['label']) ?></a>
-                <?php endforeach; ?>
-            </nav>
-            <div class="portal-user-info">
-                <span><?= esc((string) (! empty($isAnonymous) ? ($anonAlias ?? 'Anonymous') : ($currentUser['name'] ?? 'User'))) ?></span>
-                <a href="<?= site_url('users/logout') ?>" class="logout-link">Logout</a>
-            </div>
+            <?= $this->include('partials/portal_header_authed') ?>
         <?php else: ?>
-            <div class="topbar-actions">
+            <div class="portal-header-spacer" aria-hidden="true"></div>
+            <div class="topbar-actions portal-header-end">
+                <?= $this->include('partials/theme_toggle') ?>
                 <a href="<?= site_url('users/login?mode=register') ?>" class="ghost-btn">Join now</a>
                 <a href="<?= site_url('users/login') ?>" class="solid-btn">Log in</a>
             </div>
         <?php endif; ?>
     </div>
+    <?php if (! empty($currentUser['id'])): ?>
+    <div class="portal-nav-backdrop" id="portal-nav-backdrop" hidden></div>
+    <?php endif; ?>
 </header>
 
 <div class="social-shell">
@@ -103,12 +98,22 @@ $portalCssVersion = is_file($portalCss) ? (string) filemtime($portalCss) : '1';
         var safeAuthor = (c.author_name || 'User').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
         var replyBtn = isReply ? '' :
             '<button type="button" class="comment-reply-btn" data-comment-id="' + c.id + '" data-author="' + safeAuthor + '">↩ Reply</button>';
+        var bodyText = (c.body != null) ? String(c.body) : '';
+        var hasBody = bodyText.replace(/^\s+|\s+$/g, '') !== '';
+        var bodyHtml = hasBody ? ('<p>' + bodyText.replace(/\n/g, '<br>') + '</p>') : '';
+        var imgU = c.image_url ? String(c.image_url) : '';
+        var safeImg = imgU.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+        var imgHtml = imgU
+            ? ('<div class="comment-attachment"><a href="' + safeImg + '" target="_blank" rel="noopener noreferrer" class="comment-attachment__link">' +
+                '<img src="' + safeImg + '" alt="" class="comment-attachment__img" loading="lazy" decoding="async"></a></div>')
+            : '';
         return '<div class="' + cls + '" data-comment-id="' + c.id + '">' +
             '<div class="avatar avatar-small avatar-' + c.avatar_color + '">' + c.initial + '</div>' +
             '<div class="comment-body-wrap">' +
                 '<div class="comment-bubble">' +
                     '<strong>' + c.author_name + '</strong>' +
-                    '<p>' + c.body.replace(/\n/g, '<br>') + '</p>' +
+                    bodyHtml +
+                    imgHtml +
                 '</div>' +
                 '<div class="comment-actions">' +
                     '<span class="comment-date">' + (c.created_at || 'Just now') + '</span>' +
@@ -146,6 +151,9 @@ $portalCssVersion = is_file($portalCss) ? (string) filemtime($portalCss) : '1';
                 });
                 const data = await resp.json();
 
+                if (data.error && !data.ok) {
+                    if (window.alert) { window.alert(data.error); }
+                }
                 if (data.ok && data.comment) {
                     const c = data.comment;
                     const parentId = c.parent_id ? parseInt(c.parent_id) : 0;
@@ -219,6 +227,8 @@ $portalCssVersion = is_file($portalCss) ? (string) filemtime($portalCss) : '1';
                     }
 
                     form.querySelector('textarea').value = '';
+                    const fileIn = form.querySelector('.comment-image-input');
+                    if (fileIn) { fileIn.value = ''; }
                 }
             } catch (err) {
                 console.error('Comment failed:', err);
@@ -544,5 +554,11 @@ $portalCssVersion = is_file($portalCss) ? (string) filemtime($portalCss) : '1';
     })();
 
 </script>
+<?php
+$portalHeaderJsPath = FCPATH . 'assets/student/portal-header.js';
+$portalHeaderJsVersion = is_file($portalHeaderJsPath) ? (string) filemtime($portalHeaderJsPath) : '1';
+?>
+<script src="<?= base_url('assets/student/portal-header.js') ?>?v=<?= esc($portalHeaderJsVersion, 'attr') ?>"></script>
+<?= $this->include('partials/theme_script') ?>
 </body>
 </html>

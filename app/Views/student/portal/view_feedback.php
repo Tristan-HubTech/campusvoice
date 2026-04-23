@@ -19,6 +19,18 @@
     <section class="portal-card">
         <h3>Your Message</h3>
         <p class="message-box"><?= nl2br(esc((string) ($feedback['message'] ?? ''))) ?></p>
+        <?php
+        $vip = trim((string) ($feedback['image_path'] ?? ''));
+        if ($vip !== ''):
+            $vurl = \App\Libraries\FeedbackImageStorage::publicUrl($vip);
+        ?>
+            <h4 class="feedback-attachment-heading">Photo attachment</h4>
+            <div class="feedback-detail-image">
+                <a href="<?= esc($vurl) ?>" target="_blank" rel="noopener noreferrer" title="Open full size">
+                    <img src="<?= esc($vurl) ?>" alt="Feedback attachment" loading="lazy" decoding="async">
+                </a>
+            </div>
+        <?php endif; ?>
         <p class="muted">Submitted: <?= esc(date('M d, Y H:i', strtotime((string) ($feedback['created_at'] ?? 'now')))) ?></p>
     </section>
 

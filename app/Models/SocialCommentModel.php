@@ -16,6 +16,7 @@ class SocialCommentModel extends Model
         'parent_id',
         'user_id',
         'body',
+        'image_path',
         'is_anonymous',
     ];
 

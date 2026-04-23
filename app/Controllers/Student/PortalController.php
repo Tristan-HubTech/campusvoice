@@ -2,6 +2,7 @@
 
 namespace App\Controllers\Student;
 
+use App\Libraries\FeedbackImageStorage;
 use App\Models\AnnouncementModel;
 use App\Models\FeedbackCategoryModel;
 use App\Models\FeedbackModel;
@@ -111,6 +112,14 @@ class PortalController extends Controller
                 return redirect()->back()->with('error', implode(' ', $this->validator->getErrors()))->withInput();
             }
 
+            $uploadedFile = $this->request->getFile('image');
+            $imagePath    = null;
+            try {
+                $imagePath = FeedbackImageStorage::tryStore($uploadedFile);
+            } catch (\RuntimeException $e) {
+                return redirect()->back()->with('error', $e->getMessage())->withInput();
+            }
+
             $isAnonymous = (int) ($post['is_anonymous'] ?? 0);
 
             $autoSubject = ucfirst(trim((string) $post['type'])) . ': ' . mb_substr(trim((string) $post['message']), 0, 80);
@@ -122,6 +131,7 @@ class PortalController extends Controller
                 'type'         => $post['type'],
                 'subject'      => $autoSubject,
                 'message'      => trim((string) $post['message']),
+                'image_path'   => $imagePath,
                 'is_anonymous' => $isAnonymous,
                 'status'       => 'new',
                 'submitted_at' => date('Y-m-d H:i:s'),
@@ -198,6 +208,8 @@ class PortalController extends Controller
             return redirect()->to(site_url('users/feedback'))->with('error', 'Feedback not found or you do not have access.');
         }
 
+        FeedbackImageStorage::delete($feedback['image_path'] ?? null);
+
         $feedbackModel->delete((int) $feedback['id']);
 
         // Also delete the corresponding social post linked by feedback_id
@@ -242,7 +254,7 @@ class PortalController extends Controller
     private function buildCommunityPosts(int $viewerId): array
     {
         $posts = (new SocialPostModel())
-            ->select('social_posts.*, users.first_name, users.last_name, social_profiles.avatar_color, social_profiles.is_anonymous as profile_is_anonymous, feedbacks.status as feedback_status, feedbacks.type as feedback_type')
+            ->select('social_posts.*, users.first_name, users.last_name, social_profiles.avatar_color, social_profiles.is_anonymous as profile_is_anonymous, feedbacks.status as feedback_status, feedbacks.type as feedback_type, feedbacks.image_path as feedback_image_path')
             ->join('users', 'users.id = social_posts.user_id', 'inner')
             ->join('social_profiles', 'social_profiles.user_id = users.id', 'left')
             ->join('feedbacks', 'feedbacks.id = social_posts.feedback_id', 'left')
@@ -261,6 +273,17 @@ class PortalController extends Controller
 
         $postIds = array_map(static fn (array $post): int => (int) $post['id'], $posts);
         $db = db_connect();
+
+        $feedbackIds = array_values(array_unique(array_filter(array_map(
+            static fn (array $p): int => (int) ($p['feedback_id'] ?? 0),
+            $posts
+        ))));
+        $feedbackImageById = [];
+        if ($feedbackIds !== []) {
+            foreach ($db->table('feedbacks')->select('id, image_path')->whereIn('id', $feedbackIds)->get()->getResultArray() as $fr) {
+                $feedbackImageById[(int) $fr['id']] = $fr['image_path'] ?? null;
+            }
+        }
 
         $reactionRows = $db->table('social_post_reactions')
             ->select('post_id, reaction_type, COUNT(*) as total')
@@ -384,6 +407,12 @@ class PortalController extends Controller
         unset($comments);
 
         foreach ($posts as &$post) {
+            $feedbackId = (int) ($post['feedback_id'] ?? 0);
+            if ($feedbackId > 0) {
+                $post['feedback_image_path'] = $feedbackImageById[$feedbackId]
+                    ?? $post['feedback_image_path']
+                    ?? null;
+            }
             $postUserId = (int) $post['user_id'];
             $postIsAnonymous = (int) ($post['is_anonymous'] ?? 0) === 1 || (int) ($post['profile_is_anonymous'] ?? 0) === 1;
             $post['author_name'] = $postIsAnonymous

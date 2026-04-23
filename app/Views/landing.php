@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <?= $this->include('partials/theme_fouc') ?>
     <title>CampusVoice — Student Feedback Portal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -137,8 +138,9 @@
             .mock-stat-row { grid-template-columns: 1fr 1fr; }
         }
     </style>
+    <?= $this->include('partials/theme_styles') ?>
 </head>
-<body>
+<body class="landing-page">
 
 <nav>
     <div class="nav-inner">
@@ -146,7 +148,8 @@
             <img src="<?= base_url('assets/admin/logo.svg') ?>" alt="CampusVoice">
             CampusVoice
         </a>
-        <div class="nav-links">
+        <div class="nav-links landing-nav-actions">
+            <?= $this->include('partials/theme_toggle', ['toggleClass' => 'theme-toggle--on-light']) ?>
             <a href="<?= site_url('users/login?mode=register') ?>" class="btn-outline">Register</a>
             <a href="<?= site_url('users/login') ?>" class="btn-fill">Log In</a>
         </div>
@@ -209,6 +212,7 @@
 <footer>
     <p>&copy; <?= date('Y') ?> CampusVoice. All rights reserved.</p>
 </footer>
+<?= $this->include('partials/theme_script') ?>
 
 </body>
 </html>

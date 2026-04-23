@@ -11,7 +11,7 @@
     </div>
 
     <section class="portal-card">
-        <form method="post" action="<?= site_url('users/feedback/submit') ?>" class="portal-form">
+        <form method="post" action="<?= site_url('users/feedback/submit') ?>" class="portal-form" enctype="multipart/form-data">
             <label for="category_id">Category</label>
             <select id="category_id" name="category_id" required>
                 <option value="">Select category</option>
@@ -34,6 +34,11 @@
 
             <label for="message">Message</label>
             <textarea id="message" name="message" rows="8" required placeholder="Describe your feedback clearly."><?= esc((string) (old('message') ?? '')) ?></textarea>
+
+            <label for="feedback_image">Image <span class="muted">(optional, JPG, PNG, or WebP, max 5 MB)</span></label>
+            <div class="feedback-image-field">
+                <input id="feedback_image" name="image" type="file" accept="image/jpeg,image/png,image/webp" class="feedback-file-input">
+            </div>
 
             <label class="checkbox-row" for="is_anonymous">
                 <input id="is_anonymous" name="is_anonymous" type="checkbox" value="1" <?= old('is_anonymous') ? 'checked' : '' ?>>

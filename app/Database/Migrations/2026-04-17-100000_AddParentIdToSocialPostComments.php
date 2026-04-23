@@ -8,6 +8,10 @@ class AddParentIdToSocialPostComments extends Migration
 {
     public function up()
     {
+        if ($this->db->fieldExists('parent_id', 'social_post_comments')) {
+            return;
+        }
+
         $this->forge->addColumn('social_post_comments', [
             'parent_id' => [
                 'type'       => 'BIGINT',

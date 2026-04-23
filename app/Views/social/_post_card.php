@@ -39,6 +39,16 @@ if ($fbType !== '') {
 
     <div class="feed-body-text"><?= nl2br(esc($displayBody)) ?></div>
 
+    <?php
+    $fbImage = (string) ($post['feedback_image_path'] ?? '');
+    if ($fbImage !== ''):
+        $fbImageUrl = \App\Libraries\FeedbackImageStorage::publicUrl($fbImage);
+    ?>
+    <div class="feed-attachment">
+        <img src="<?= esc($fbImageUrl) ?>" alt="" class="feed-attachment__img" loading="lazy" decoding="async">
+    </div>
+    <?php endif; ?>
+
     <div class="post-summary-row">
         <div class="reaction-line">
             <?php foreach ($post['reaction_breakdown'] as $rType => $total): ?>
@@ -93,9 +103,23 @@ if ($fbType !== '') {
                     <div class="comment-item" data-comment-id="<?= (int) $comment['id'] ?>">
                         <div class="avatar avatar-small avatar-<?= esc((string) ($comment['avatar_color'] ?? 'blue')) ?>"><?= esc(strtoupper(substr((string) $comment['author_name'], 0, 1))) ?></div>
                         <div class="comment-body-wrap">
+                            <?php
+                            $cImgUrl = ! empty($comment['image_path'])
+                                ? \App\Libraries\CommentImageStorage::publicUrl((string) $comment['image_path'])
+                                : '';
+                            ?>
                             <div class="comment-bubble">
                                 <strong><?= esc((string) $comment['author_name']) ?></strong>
-                                <p><?= nl2br(esc((string) $comment['body'])) ?></p>
+                                <?php if (trim((string) ($comment['body'] ?? '')) !== ''): ?>
+                                    <p><?= nl2br(esc((string) $comment['body'])) ?></p>
+                                <?php endif; ?>
+                                <?php if ($cImgUrl !== ''): ?>
+                                    <div class="comment-attachment">
+                                        <a href="<?= esc($cImgUrl) ?>" target="_blank" rel="noopener noreferrer" class="comment-attachment__link">
+                                            <img src="<?= esc($cImgUrl) ?>" alt="" class="comment-attachment__img" loading="lazy" decoding="async">
+                                        </a>
+                                    </div>
+                                <?php endif; ?>
                                 <?php if ($crTotal > 0): ?>
                                     <span class="comment-reaction-badge">
                                         <?php foreach ($crBreakdown as $bType => $bCount):
@@ -142,9 +166,23 @@ if ($fbType !== '') {
                                         <div class="comment-item reply-item" data-comment-id="<?= (int) $reply['id'] ?>">
                                             <div class="avatar avatar-small avatar-<?= esc((string) ($reply['avatar_color'] ?? 'blue')) ?>"><?= esc(strtoupper(substr((string) $reply['author_name'], 0, 1))) ?></div>
                                             <div class="comment-body-wrap">
+                                                <?php
+                                                $rImgUrl = ! empty($reply['image_path'])
+                                                    ? \App\Libraries\CommentImageStorage::publicUrl((string) $reply['image_path'])
+                                                    : '';
+                                                ?>
                                                 <div class="comment-bubble">
                                                     <strong><?= esc((string) $reply['author_name']) ?></strong>
-                                                    <p><?= nl2br(esc((string) $reply['body'])) ?></p>
+                                                    <?php if (trim((string) ($reply['body'] ?? '')) !== ''): ?>
+                                                        <p><?= nl2br(esc((string) $reply['body'])) ?></p>
+                                                    <?php endif; ?>
+                                                    <?php if ($rImgUrl !== ''): ?>
+                                                        <div class="comment-attachment">
+                                                            <a href="<?= esc($rImgUrl) ?>" target="_blank" rel="noopener noreferrer" class="comment-attachment__link">
+                                                                <img src="<?= esc($rImgUrl) ?>" alt="" class="comment-attachment__img" loading="lazy" decoding="async">
+                                                            </a>
+                                                        </div>
+                                                    <?php endif; ?>
                                                     <?php if ($rrTotal > 0): ?>
                                                         <span class="comment-reaction-badge">
                                                             <?php foreach ($rrBreakdown as $bType => $bCount):
@@ -188,13 +226,17 @@ if ($fbType !== '') {
         <?php endif; ?>
 
         <?php if (! empty($currentUser['id'])): ?>
-            <form method="post" action="<?= site_url('posts/' . (int) $post['id'] . '/comment') ?>" class="comment-form">
+            <form method="post" action="<?= site_url('posts/' . (int) $post['id'] . '/comment') ?>" class="comment-form" enctype="multipart/form-data">
                 <input type="hidden" name="parent_id" value="0" class="comment-parent-id">
                 <div class="reply-indicator" style="display:none;">
                     <span class="reply-to-text"></span>
                     <button type="button" class="cancel-reply-btn" title="Cancel reply">&times;</button>
                 </div>
-                <textarea name="body" rows="2" placeholder="Write a comment..."></textarea>
+                <textarea name="body" rows="2" class="comment-body-input" placeholder="Write a comment..."></textarea>
+                <label class="comment-image-label">
+                    <span class="summary-muted">Image <span class="comment-image-hint">(optional, JPG/PNG/WebP, max 5 MB)</span></span>
+                    <input type="file" name="image" accept="image/jpeg,image/png,image/webp" class="comment-image-input">
+                </label>
                 <label class="summary-muted"><input type="checkbox" name="is_anonymous" value="1" class="anon-check"> Comment anonymously</label>
                 <button type="submit" class="solid-btn">Comment</button>
             </form>
