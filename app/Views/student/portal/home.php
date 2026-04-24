@@ -40,13 +40,11 @@
             <span>🌐</span> Community Feed
             <a href="<?= site_url('feed') ?>" class="home-feed-more">See all →</a>
         </div>
-
         <?php if (empty($posts)): ?>
-            <div class="home-empty">
-                <div class="home-empty__icon">💬</div>
-                <p>No posts yet. Be the first to start the conversation.</p>
-                <a href="<?= site_url('feed') ?>" class="btn-primary" style="margin-top:10px;">Go to Feed</a>
-            </div>
+            <section class="panel-card empty-card">
+                <h2>No posts yet</h2>
+                <p>The feed is ready. Publish the first update and start the conversation.</p>
+            </section>
         <?php else: ?>
             <?php foreach ($posts as $post): ?>
                 <?= view('social/_post_card', ['post' => $post, 'currentUser' => $currentUser]) ?>
