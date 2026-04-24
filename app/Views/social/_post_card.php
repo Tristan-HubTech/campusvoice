@@ -50,42 +50,38 @@ if ($fbType !== '') {
     <?php endif; ?>
 
     <div class="post-summary-row">
-        <div class="reaction-line">
-            <?php foreach ($post['reaction_breakdown'] as $rType => $total): ?>
-                <span class="mini-pill"><?= $emojiMap[$rType] ?? '' ?> <?= (int) $total ?></span>
-            <?php endforeach; ?>
-            <?php if ((int) $post['reaction_total'] === 0): ?>
-                <span class="summary-muted">No reactions yet</span>
-            <?php endif; ?>
+        <div class="post-reaction-summary">
+            <span class="reaction-content"><?php if ((int) $post['reaction_total'] === 0): ?>No reactions yet<?php else:
+                $sortedRx = $post['reaction_breakdown']; arsort($sortedRx);
+                foreach (array_slice($sortedRx, 0, 3, true) as $rType => $rCount):
+                    if ($rCount > 0 && isset($emojiMap[$rType])): ?><span class="top-emoji"><?= $emojiMap[$rType] ?></span><?php endif;
+                endforeach; ?><span class="top-count"><?= (int) $post['reaction_total'] ?></span><?php endif; ?></span>
         </div>
         <span class="summary-muted"><?= (int) $post['comment_total'] ?> comment<?= (int) $post['comment_total'] !== 1 ? 's' : '' ?></span>
     </div>
 
     <div class="post-action-bar">
         <?php if (! empty($currentUser['id'])): ?>
-            <span class="summary-muted post-comment-count"><?= (int) $post['comment_total'] ?> comment<?= (int) $post['comment_total'] !== 1 ? 's' : '' ?></span>
-            <div class="post-react-area">
-                <button type="button"
-                    class="post-react-btn<?= $viewerRx ? ' reacted' : '' ?>"
-                    data-post-id="<?= (int) $post['id'] ?>"
-                    data-current="<?= esc((string) $viewerRx) ?>"
-                    <?= ($viewerRx && isset($rxColors[$viewerRx])) ? 'style="color:' . $rxColors[$viewerRx] . '"' : '' ?>
-                >
-                    <?= $viewerRx
-                        ? (($emojiMap[$viewerRx] ?? '👍') . ' ' . ($emojiLabel[$viewerRx] ?? ucfirst($viewerRx)))
-                        : '👍 React' ?>
-                </button>
-                <div class="post-emoji-picker">
+            <div class="comment-like-wrap">
+                <div class="comment-reaction-picker" role="tooltip" aria-label="React">
                     <?php foreach ($emojiMap as $rType => $rEmoji): ?>
-                        <button type="button" class="post-emoji-btn"
+                        <button type="button" class="picker-emoji"
                             data-post-id="<?= (int) $post['id'] ?>"
                             data-reaction="<?= esc($rType) ?>"
                             title="<?= esc($emojiLabel[$rType]) ?>"><?= $rEmoji ?></button>
                     <?php endforeach; ?>
                 </div>
+                <button type="button"
+                    class="comment-like-btn<?= $viewerRx ? ' reacted' : '' ?>"
+                    data-post-id="<?= (int) $post['id'] ?>"
+                    data-current="<?= esc((string) $viewerRx) ?>"
+                    <?= ($viewerRx && isset($rxColors[$viewerRx])) ? 'style="color:' . $rxColors[$viewerRx] . '"' : '' ?>
+                ><span class="like-icon"><?= $viewerRx ? ($emojiMap[$viewerRx] ?? '👍') : '👍' ?></span
+                ><span class="like-label"> <?= $viewerRx ? esc(ucfirst((string) $viewerRx)) : 'Like' ?></span></button>
             </div>
+            <span class="summary-muted post-comment-count">💬 <?= (int) $post['comment_total'] ?> comment<?= (int) $post['comment_total'] !== 1 ? 's' : '' ?></span>
         <?php else: ?>
-            <a href="<?= site_url('users/login') ?>" class="comment-like-btn">👍 Log in to react</a>
+            <a href="<?= site_url('users/login') ?>" class="summary-muted">👍 Log in to react</a>
         <?php endif; ?>
     </div>
 
@@ -120,21 +116,17 @@ if ($fbType !== '') {
                                         </a>
                                     </div>
                                 <?php endif; ?>
-                                <?php if ($crTotal > 0): ?>
-                                    <span class="comment-reaction-badge">
-                                        <?php foreach ($crBreakdown as $bType => $bCount):
-                                            if ($bCount > 0 && isset($crEmojiMap[$bType])): ?>
-                                                <span class="badge-emoji"><?= $crEmojiMap[$bType] ?></span>
-                                            <?php endif;
-                                        endforeach; ?>
-                                        <span class="badge-count"><?= $crTotal ?></span>
-                                    </span>
-                                <?php endif; ?>
+                                    <span class="comment-reaction-badge" data-counts="<?= esc(json_encode($crBreakdown)) ?>"><?php if ($crTotal > 0): ?><?php foreach ($crBreakdown as $bType => $bCount): if ($bCount > 0 && isset($crEmojiMap[$bType])): ?><span class="badge-emoji"><?= $crEmojiMap[$bType] ?></span><?php endif; endforeach; ?><span class="badge-count"><?= $crTotal ?></span><?php endif; ?></span>
                             </div>
                             <div class="comment-actions">
                                 <span class="comment-date"><?= esc(date('M d, Y h:i A', strtotime((string) $comment['created_at']))) ?></span>
                                 <?php if (! empty($currentUser['id'])): ?>
                                     <span class="comment-like-wrap">
+                                        <div class="comment-reaction-picker">
+                                            <?php foreach ($crEmojiMap as $rType => $rEmoji): ?>
+                                                <button type="button" class="picker-emoji" data-reaction="<?= esc($rType) ?>" title="<?= esc(ucfirst($rType)) ?>"><?= $rEmoji ?></button>
+                                            <?php endforeach; ?>
+                                        </div>
                                         <button type="button"
                                             class="comment-like-btn<?= $viewerCRx ? ' reacted' : '' ?>"
                                             data-comment-id="<?= (int) $comment['id'] ?>"
@@ -142,12 +134,7 @@ if ($fbType !== '') {
                                             <?php if ($viewerCRx && isset($crColors[$viewerCRx])): ?>
                                                 style="color: <?= $crColors[$viewerCRx] ?>"
                                             <?php endif; ?>
-                                        ><?= $viewerCRx ? esc(ucfirst($viewerCRx)) : 'Like' ?></button>
-                                        <div class="comment-reaction-picker">
-                                            <?php foreach ($crEmojiMap as $rType => $rEmoji): ?>
-                                                <button type="button" class="picker-emoji" data-reaction="<?= esc($rType) ?>" title="<?= esc(ucfirst($rType)) ?>"><?= $rEmoji ?></button>
-                                            <?php endforeach; ?>
-                                        </div>
+                                        ><span class="fb-like-icon"><?= $viewerCRx ? ($crEmojiMap[$viewerCRx] ?? '👍') : '👍' ?></span><span class="fb-like-label"><?= $viewerCRx ? esc(ucfirst((string) $viewerCRx)) : 'Like' ?></span></button>
                                     </span>
                                     <button type="button" class="comment-reply-btn" data-comment-id="<?= (int) $comment['id'] ?>" data-author="<?= esc((string) $comment['author_name']) ?>">↩ Reply</button>
                                 <?php endif; ?>
@@ -183,21 +170,17 @@ if ($fbType !== '') {
                                                             </a>
                                                         </div>
                                                     <?php endif; ?>
-                                                    <?php if ($rrTotal > 0): ?>
-                                                        <span class="comment-reaction-badge">
-                                                            <?php foreach ($rrBreakdown as $bType => $bCount):
-                                                                if ($bCount > 0 && isset($crEmojiMap[$bType])): ?>
-                                                                    <span class="badge-emoji"><?= $crEmojiMap[$bType] ?></span>
-                                                                <?php endif;
-                                                            endforeach; ?>
-                                                            <span class="badge-count"><?= $rrTotal ?></span>
-                                                        </span>
-                                                    <?php endif; ?>
+                                                        <span class="comment-reaction-badge" data-counts="<?= esc(json_encode($rrBreakdown)) ?>"><?php if ($rrTotal > 0): ?><?php foreach ($rrBreakdown as $bType => $bCount): if ($bCount > 0 && isset($crEmojiMap[$bType])): ?><span class="badge-emoji"><?= $crEmojiMap[$bType] ?></span><?php endif; endforeach; ?><span class="badge-count"><?= $rrTotal ?></span><?php endif; ?></span>
                                                 </div>
                                                 <div class="comment-actions">
                                                     <span class="comment-date"><?= esc(date('M d, Y h:i A', strtotime((string) $reply['created_at']))) ?></span>
                                                     <?php if (! empty($currentUser['id'])): ?>
                                                         <span class="comment-like-wrap">
+                                                            <div class="comment-reaction-picker">
+                                                                <?php foreach ($crEmojiMap as $rType => $rEmoji): ?>
+                                                                    <button type="button" class="picker-emoji" data-reaction="<?= esc($rType) ?>" title="<?= esc(ucfirst($rType)) ?>"><?= $rEmoji ?></button>
+                                                                <?php endforeach; ?>
+                                                            </div>
                                                             <button type="button"
                                                                 class="comment-like-btn<?= $rrViewerRx ? ' reacted' : '' ?>"
                                                                 data-comment-id="<?= (int) $reply['id'] ?>"
@@ -205,12 +188,7 @@ if ($fbType !== '') {
                                                                 <?php if ($rrViewerRx && isset($crColors[$rrViewerRx])): ?>
                                                                     style="color: <?= $crColors[$rrViewerRx] ?>"
                                                                 <?php endif; ?>
-                                                            ><?= $rrViewerRx ? esc(ucfirst($rrViewerRx)) : 'Like' ?></button>
-                                                            <div class="comment-reaction-picker">
-                                                                <?php foreach ($crEmojiMap as $rType => $rEmoji): ?>
-                                                                    <button type="button" class="picker-emoji" data-reaction="<?= esc($rType) ?>" title="<?= esc(ucfirst($rType)) ?>"><?= $rEmoji ?></button>
-                                                                <?php endforeach; ?>
-                                                            </div>
+                                                            ><span class="fb-like-icon"><?= $rrViewerRx ? ($crEmojiMap[$rrViewerRx] ?? '👍') : '👍' ?></span><span class="fb-like-label"><?= $rrViewerRx ? esc(ucfirst((string) $rrViewerRx)) : 'Like' ?></span></button>
                                                         </span>
                                                     <?php endif; ?>
                                                 </div>

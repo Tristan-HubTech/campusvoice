@@ -24,12 +24,11 @@ $portalCssVersion = is_file($portalCss) ? (string) filemtime($portalCss) : '1';
 
 <header class="portal-header">
     <div class="portal-header-inner">
-        <a href="<?= site_url('users') ?>" class="portal-brand">
-            <img src="<?= base_url('assets/admin/logo-mark.svg') ?>" alt="CampusVoice" class="portal-logo">
-            <span>CampusVoice</span>
-        </a>
-
         <?php if (! empty($currentUser['id'])): ?>
+            <a href="<?= site_url('users') ?>" class="portal-brand">
+                <img src="<?= base_url('assets/admin/logo-mark.svg') ?>" alt="CampusVoice" class="portal-logo">
+                <span>CampusVoice</span>
+            </a>
             <?php
             $headerUserName = (string) (! empty($isAnonymous) ? ($anonAlias ?? 'Anonymous') : ($currentUser['name'] ?? 'User'));
             $this->setVar('headerUserName', $headerUserName);
@@ -37,7 +36,14 @@ $portalCssVersion = is_file($portalCss) ? (string) filemtime($portalCss) : '1';
             ?>
             <?= $this->include('partials/portal_header_authed') ?>
         <?php else: ?>
-            <div class="portal-header-spacer" aria-hidden="true"></div>
+            <div aria-hidden="true"></div>
+            <a href="<?= site_url('users') ?>" class="portal-brand portal-brand--hero">
+                <img src="<?= base_url('assets/admin/logo-mark.svg') ?>" alt="CampusVoice" class="portal-logo">
+                <div class="brand-hero-text">
+                    <span class="brand-hero-name">CampusVoice</span>
+                    <span class="brand-hero-sub">Your campus, your voice</span>
+                </div>
+            </a>
             <div class="topbar-actions portal-header-end">
                 <?= $this->include('partials/theme_toggle') ?>
                 <a href="<?= site_url('users/login?mode=register') ?>" class="ghost-btn">Join now</a>
@@ -114,11 +120,11 @@ $portalCssVersion = is_file($portalCss) ? (string) filemtime($portalCss) : '1';
                     '<strong>' + c.author_name + '</strong>' +
                     bodyHtml +
                     imgHtml +
+                    '<span class="comment-reaction-badge" data-counts="{}"></span>' +
                 '</div>' +
                 '<div class="comment-actions">' +
                     '<span class="comment-date">' + (c.created_at || 'Just now') + '</span>' +
                     '<span class="comment-like-wrap">' +
-                        '<button type="button" class="comment-like-btn" data-comment-id="' + c.id + '" data-current="">Like</button>' +
                         '<div class="comment-reaction-picker">' +
                             '<button type="button" class="picker-emoji" data-reaction="like" title="Like">👍</button>' +
                             '<button type="button" class="picker-emoji" data-reaction="love" title="Love">❤️</button>' +
@@ -127,6 +133,9 @@ $portalCssVersion = is_file($portalCss) ? (string) filemtime($portalCss) : '1';
                             '<button type="button" class="picker-emoji" data-reaction="sad" title="Sad">😢</button>' +
                             '<button type="button" class="picker-emoji" data-reaction="angry" title="Angry">😠</button>' +
                         '</div>' +
+                        '<button type="button" class="comment-like-btn" data-comment-id="' + c.id + '" data-current="">' +
+                            '<span class="fb-like-icon">👍</span><span class="fb-like-label">Like</span>' +
+                        '</button>' +
                     '</span>' +
                     replyBtn +
                 '</div>' +
@@ -306,155 +315,195 @@ $portalCssVersion = is_file($portalCss) ? (string) filemtime($portalCss) : '1';
     var rxLabelMap = { like:'Like', love:'Love', haha:'Haha', wow:'Wow', sad:'Sad', angry:'Angry' };
 
     /* ── Post Reactions ── */
-    function updatePostReactUI(card, data) {
-        var btn = card.querySelector('.post-react-btn');
-        if (btn) {
-            if (data.viewer_reaction) {
-                btn.textContent = (emojiMap[data.viewer_reaction] || '👍') + ' ' + (rxLabelMap[data.viewer_reaction] || data.viewer_reaction);
-                btn.style.color = rxColorMap[data.viewer_reaction] || '';
-                btn.classList.add('reacted');
-                btn.setAttribute('data-current', data.viewer_reaction);
-            } else {
-                btn.textContent = '👍 React';
-                btn.style.color = '';
-                btn.classList.remove('reacted');
-                btn.setAttribute('data-current', '');
-            }
-        }
-        var reactionLine = card.querySelector('.reaction-line');
-        if (reactionLine) {
-            var pills = '';
-            var bd = data.reaction_breakdown || {};
-            for (var t in bd) {
-                if (bd[t] > 0) pills += '<span class="mini-pill">' + (emojiMap[t] || '') + ' ' + bd[t] + '</span>';
-            }
-            reactionLine.innerHTML = pills || '<span class="summary-muted">No reactions yet</span>';
-        }
+    function updatePostSummary(postEl, breakdown) {
+        var summary = postEl.querySelector('.post-reaction-summary .reaction-content');
+        if (!summary) return;
+        var total = Object.keys(breakdown).reduce(function(a, k) { return a + parseInt(breakdown[k] || 0, 10); }, 0);
+        if (total === 0) { summary.textContent = 'No reactions yet'; return; }
+        var top = Object.keys(breakdown)
+            .filter(function(k) { return breakdown[k] > 0; })
+            .sort(function(a, b) { return breakdown[b] - breakdown[a]; })
+            .slice(0, 3);
+        summary.innerHTML = top.map(function(k) {
+            return '<span class="top-emoji">' + (emojiMap[k] || '') + '</span>';
+        }).join('') + '<span class="top-count">' + total + '</span>';
     }
 
-    /* Emoji picker buttons — bound directly, no delegation */
-    document.querySelectorAll('.post-emoji-btn').forEach(function(btn) {
-        btn.addEventListener('click', async function() {
-            var postId = btn.getAttribute('data-post-id');
-            var reaction = btn.getAttribute('data-reaction');
-            var card = document.getElementById('post-' + postId);
-            if (!card) return;
-            var fd = new FormData();
-            fd.append('reaction_type', reaction);
-            try {
-                var resp = await fetch('<?= site_url('posts/') ?>' + postId + '/react', {
-                    method: 'POST',
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                    body: fd,
-                });
-                var data = await resp.json();
-                if (data.ok) updatePostReactUI(card, data);
-            } catch (err) { console.error('Post reaction error:', err); }
-        });
-    });
+    function updatePostReactUI(card, data) {
+        var btn   = card.querySelector('.post-action-bar .comment-like-btn');
+        var icon  = btn ? btn.querySelector('.like-icon') : null;
+        var label = btn ? btn.querySelector('.like-label') : null;
+        var rx    = data.viewer_reaction;
 
-    /* Clicking the React button itself un-reacts (when already reacted) */
-    document.querySelectorAll('.post-react-btn').forEach(function(btn) {
-        btn.addEventListener('click', async function() {
-            var current = btn.getAttribute('data-current');
-            if (!current) return;
-            var postId = btn.getAttribute('data-post-id');
-            var card = document.getElementById('post-' + postId);
-            if (!card) return;
-            var fd = new FormData();
-            fd.append('reaction_type', current);
-            try {
-                var resp = await fetch('<?= site_url('posts/') ?>' + postId + '/react', {
-                    method: 'POST',
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                    body: fd,
-                });
-                var data = await resp.json();
-                if (data.ok) updatePostReactUI(card, data);
-            } catch (err) { console.error('Post un-react error:', err); }
-        });
-    });
+        if (btn) {
+            btn.setAttribute('data-current', rx || '');
+            btn.style.color = rx ? (rxColorMap[rx] || '') : '';
+            btn.classList.toggle('reacted', !!rx);
+        }
+        if (icon) {
+            icon.textContent = rx ? (emojiMap[rx] || '👍') : '👍';
+            if (rx) {
+                icon.classList.remove('pop-trigger');
+                void icon.offsetWidth;
+                icon.classList.add('pop-trigger');
+            }
+        }
+        if (label) label.textContent = rx ? (' ' + (rxLabelMap[rx] || rx)) : ' Like';
 
-    /* ── AJAX Comment Reactions ── */
+        updatePostSummary(card, data.breakdown || data.reaction_breakdown || {});
+    }
+
+    /* ── Comment Reaction System ── */
     var crEmojiMap = { like:'👍', love:'❤️', haha:'😆', wow:'😮', sad:'😢', angry:'😠' };
     var crColorMap = { like:'#2078f4', love:'#ed4956', haha:'#f7b928', wow:'#f7b928', sad:'#f7b928', angry:'#e9710f' };
 
-    function sendCommentReaction(commentId, reaction) {
+    function getBadge(commentEl) {
+        var bubble = commentEl.querySelector('.comment-bubble');
+        return bubble ? bubble.querySelector('.comment-reaction-badge') : null;
+    }
+
+    function renderBadge(badge, counts) {
+        var entries = Object.keys(counts).map(function(k) { return [k, parseInt(counts[k] || 0, 10)]; })
+            .filter(function(e) { return e[1] > 0; })
+            .sort(function(a, b) { return b[1] - a[1]; })
+            .slice(0, 3);
+        var total = Object.keys(counts).reduce(function(s, k) { return s + parseInt(counts[k] || 0, 10); }, 0);
+        if (total === 0) { badge.innerHTML = ''; badge.dataset.counts = '{}'; return; }
+        var html = entries.map(function(e) { return '<span class="badge-emoji">' + (crEmojiMap[e[0]] || '') + '</span>'; }).join('');
+        html += '<span class="badge-count">' + total + '</span>';
+        badge.innerHTML = html;
+        badge.dataset.counts = JSON.stringify(counts);
+    }
+
+    function updateCommentUI(commentEl, likeBtn, newRx, prevRx) {
+        var icon  = likeBtn.querySelector('.fb-like-icon');
+        var label = likeBtn.querySelector('.fb-like-label');
+        if (newRx) {
+            likeBtn.dataset.current = newRx;
+            likeBtn.style.color = crColorMap[newRx] || '';
+            likeBtn.classList.add('reacted');
+            if (icon)  icon.textContent  = crEmojiMap[newRx] || '👍';
+            if (label) label.textContent = rxLabelMap[newRx] || newRx;
+        } else {
+            likeBtn.dataset.current = '';
+            likeBtn.style.color = '';
+            likeBtn.classList.remove('reacted');
+            if (icon)  icon.textContent  = '👍';
+            if (label) label.textContent = 'Like';
+        }
+        var badge = getBadge(commentEl);
+        if (badge) {
+            var counts = {};
+            try { counts = JSON.parse(badge.dataset.counts || '{}'); } catch(e2) {}
+            if (prevRx) counts[prevRx] = Math.max(0, parseInt(counts[prevRx] || 0, 10) - 1);
+            if (newRx)  counts[newRx]  = parseInt(counts[newRx] || 0, 10) + 1;
+            renderBadge(badge, counts);
+        }
+    }
+
+    function renderCommentFromServer(commentEl, likeBtn, data) {
+        var rx     = data.viewer_reaction;
+        var counts = data.breakdown || data.reaction_breakdown || {};
+        var icon   = likeBtn.querySelector('.fb-like-icon');
+        var label  = likeBtn.querySelector('.fb-like-label');
+        likeBtn.dataset.current = rx || '';
+        likeBtn.style.color = rx ? (crColorMap[rx] || '') : '';
+        likeBtn.classList.toggle('reacted', !!rx);
+        if (icon)  icon.textContent  = rx ? (crEmojiMap[rx] || '👍') : '👍';
+        if (label) label.textContent = rx ? (rxLabelMap[rx] || rx) : 'Like';
+        var badge = getBadge(commentEl);
+        if (badge) renderBadge(badge, counts);
+    }
+
+    function sendCommentReact(commentId, reactionType) {
         var fd = new FormData();
-        fd.append('reaction_type', reaction);
+        fd.append('reaction_type', reactionType);
         return fetch('<?= site_url('comments/') ?>' + commentId + '/react', {
             method: 'POST',
             headers: { 'X-Requested-With': 'XMLHttpRequest' },
             body: fd,
-        }).then(function (r) { return r.json(); });
+        }).then(function(r) { return r.json(); });
     }
 
-    function updateCommentUI(item, data) {
-        var likeBtn = item.querySelector('.comment-like-btn');
-        if (!likeBtn) return;
-        if (data.viewer_reaction) {
-            likeBtn.textContent = data.viewer_reaction.charAt(0).toUpperCase() + data.viewer_reaction.slice(1);
-            likeBtn.style.color = crColorMap[data.viewer_reaction] || '#65676b';
-            likeBtn.classList.add('reacted');
-            likeBtn.setAttribute('data-current', data.viewer_reaction);
-        } else {
-            likeBtn.textContent = 'Like';
-            likeBtn.style.color = '';
-            likeBtn.classList.remove('reacted');
-            likeBtn.setAttribute('data-current', '');
-        }
-        var bubble = item.querySelector('.comment-bubble');
-        var badge = bubble.querySelector('.comment-reaction-badge');
-        var bd = data.reaction_breakdown || {};
-        var total = 0;
-        var html = '';
-        for (var t in crEmojiMap) {
-            if (bd[t] && bd[t] > 0) {
-                html += '<span class="badge-emoji">' + crEmojiMap[t] + '</span>';
-                total += bd[t];
-            }
-        }
-        if (total > 0) {
-            html += '<span class="badge-count">' + total + '</span>';
-            if (!badge) {
-                badge = document.createElement('span');
-                badge.className = 'comment-reaction-badge';
-                bubble.appendChild(badge);
-            }
-            badge.innerHTML = html;
-        } else if (badge) {
-            badge.remove();
-        }
-    }
-
-    /* Click a picker emoji → comment react */
-    document.addEventListener('click', async function (e) {
+    /* Unified .picker-emoji click — routes to post or comment based on data-post-id */
+    document.addEventListener('click', function(e) {
         var emoji = e.target.closest('.picker-emoji');
         if (!emoji) return;
-        e.preventDefault();
-        var item = emoji.closest('.comment-item');
-        if (!item) return;
-        var commentId = item.getAttribute('data-comment-id');
+        e.stopPropagation();
         var reaction = emoji.getAttribute('data-reaction');
-        try {
-            var data = await sendCommentReaction(commentId, reaction);
-            if (data.ok) updateCommentUI(item, data);
-        } catch (err) { console.error('Comment reaction error:', err); }
+        var postId   = emoji.getAttribute('data-post-id');
+
+        if (postId) {
+            var card = document.getElementById('post-' + postId);
+            if (!card) return;
+            var fd = new FormData();
+            fd.append('reaction_type', reaction);
+            fetch('<?= site_url('posts/') ?>' + postId + '/react', {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: fd,
+            }).then(function(r) { return r.json(); })
+            .then(function(data) { if (data.ok) updatePostReactUI(card, data); })
+            .catch(function(err) { console.error('Post reaction error:', err); });
+        } else {
+            var wrap    = emoji.closest('.comment-like-wrap');
+            var likeBtn = wrap ? wrap.querySelector('.comment-like-btn') : null;
+            var item    = emoji.closest('.comment-item');
+            if (!item || !likeBtn) return;
+            var commentId = likeBtn.dataset.commentId || likeBtn.getAttribute('data-comment-id');
+            var prev      = likeBtn.getAttribute('data-current') || null;
+            var newRx     = (prev === reaction) ? null : reaction;
+            updateCommentUI(item, likeBtn, newRx, prev);
+            sendCommentReact(commentId, reaction)
+                .then(function(data) {
+                    if (!data.ok) throw new Error('Server error');
+                    renderCommentFromServer(item, likeBtn, data);
+                })
+                .catch(function(err) {
+                    console.error('Comment reaction error:', err);
+                    updateCommentUI(item, likeBtn, prev, newRx);
+                });
+        }
     });
 
-    /* Click the Like/reaction text on a comment → toggle */
-    document.addEventListener('click', async function (e) {
+    /* Unified .comment-like-btn click — routes to post or comment based on data-post-id */
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.picker-emoji')) return;
         var likeBtn = e.target.closest('.comment-like-btn');
         if (!likeBtn) return;
-        var item = likeBtn.closest('.comment-item');
-        if (!item) return;
-        var commentId = item.getAttribute('data-comment-id');
-        var current = likeBtn.getAttribute('data-current');
-        var reaction = current || 'like';
-        try {
-            var data = await sendCommentReaction(commentId, reaction);
-            if (data.ok) updateCommentUI(item, data);
-        } catch (err) { console.error('Comment like error:', err); }
+        var postId  = likeBtn.getAttribute('data-post-id');
+        var current = likeBtn.getAttribute('data-current') || null;
+
+        if (postId) {
+            var reaction = current || 'like';
+            var card     = document.getElementById('post-' + postId);
+            if (!card) return;
+            var fd = new FormData();
+            fd.append('reaction_type', reaction);
+            fetch('<?= site_url('posts/') ?>' + postId + '/react', {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: fd,
+            }).then(function(r) { return r.json(); })
+            .then(function(data) { if (data.ok) updatePostReactUI(card, data); })
+            .catch(function(err) { console.error('Post like error:', err); });
+        } else {
+            var item = likeBtn.closest('.comment-item');
+            if (!item) return;
+            var commentId = likeBtn.dataset.commentId || likeBtn.getAttribute('data-comment-id');
+            var reaction  = current || 'like';
+            var newRx     = current ? null : 'like';
+            updateCommentUI(item, likeBtn, newRx, current);
+            sendCommentReact(commentId, reaction)
+                .then(function(data) {
+                    if (!data.ok) throw new Error('Server error');
+                    renderCommentFromServer(item, likeBtn, data);
+                })
+                .catch(function(err) {
+                    console.error('Comment like error:', err);
+                    updateCommentUI(item, likeBtn, current, newRx);
+                });
+        }
     });
 
     /* ── AJAX Delete Post ── */

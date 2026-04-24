@@ -48,14 +48,15 @@ html[data-theme="dark"] .theme-toggle__icon--sun {
 
 /* Light surfaces (admin topbar, marketing nav, login) */
 .theme-toggle--on-light {
-    border: 1px solid var(--line, #c5d7ff);
-    background: #f6f9ff;
-    color: #17324a;
+    border: 1px solid #8aaad8;
+    background: #dce8f8;
+    color: #0d1b3d;
+    box-shadow: 0 1px 3px rgba(11, 31, 77, 0.12);
 }
 
 .theme-toggle--on-light:hover {
-    background: #eef3ff;
-    border-color: #b4c8f5;
+    background: #ccdaf4;
+    border-color: #5a82b8;
 }
 
 html[data-theme="dark"] .theme-toggle--on-light {
@@ -183,6 +184,11 @@ html[data-theme="dark"] .announce-item-full {
     background: rgba(16, 24, 40, 0.85);
 }
 
+html[data-theme="dark"] .comment-stack .reply-item {
+    border: none;
+    background: none;
+}
+
 html[data-theme="dark"] .feed-body-text {
     color: #c9d4e8;
 }
@@ -257,10 +263,24 @@ html[data-theme="dark"] select {
     color: var(--ink);
 }
 
+html[data-theme="dark"] .comment-list {
+    background: rgba(10, 15, 28, 0.6);
+    scrollbar-color: #2a3a55 transparent;
+}
+
 html[data-theme="dark"] .comment-form {
     background: rgba(16, 24, 40, 0.88);
     border-color: var(--line);
     box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+}
+
+html[data-theme="dark"] .comment-form textarea {
+    background: #101824;
+    color: var(--ink);
+}
+
+html[data-theme="dark"] .comment-form textarea::placeholder {
+    color: #4a6a8a;
 }
 
 html[data-theme="dark"] .comment-bubble {
@@ -269,8 +289,47 @@ html[data-theme="dark"] .comment-bubble {
     color: var(--ink);
 }
 
+html[data-theme="dark"] .comment-bubble p,
+html[data-theme="dark"] .comment-item p {
+    color: #c9d4e8;
+}
+
+html[data-theme="dark"] .comment-bubble strong {
+    color: #e0e8f8;
+}
+
 html[data-theme="dark"] .comment-date {
     color: var(--ink-soft);
+}
+
+html[data-theme="dark"] .comment-reaction-picker {
+    background: #1a2438;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(133, 172, 255, 0.12);
+}
+
+html[data-theme="dark"] .picker-emoji:hover {
+    background: rgba(133, 172, 255, 0.12);
+}
+
+html[data-theme="dark"] .comment-like-btn {
+    color: #7a9acc;
+}
+
+html[data-theme="dark"] .comment-like-btn:hover {
+    background: rgba(133, 172, 255, 0.1);
+    color: #a8c8ff;
+    text-decoration: none;
+}
+
+html[data-theme="dark"] .mini-pill {
+    background: #1a2438;
+    border-color: #2a3a58;
+    color: #c9d4e8;
+}
+
+html[data-theme="dark"] .reaction-content,
+html[data-theme="dark"] .top-count {
+    color: #8a9bb8;
 }
 
 /* Portal alerts */

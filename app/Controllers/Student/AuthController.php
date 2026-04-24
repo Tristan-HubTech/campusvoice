@@ -193,13 +193,15 @@ class AuthController extends Controller
             return redirect()->to(site_url('users/login?mode=login'))->with('error', 'Your account is inactive. Please contact the administrator.')->withInput();
         }
 
+        $isNewUser = empty($user['last_login_at']);
         $userModel->update((int) $user['id'], ['last_login_at' => date('Y-m-d H:i:s')]);
 
         session()->set('student_auth', [
-            'id'    => (int) $user['id'],
-            'name'  => trim(((string) ($user['first_name'] ?? '')) . ' ' . ((string) ($user['last_name'] ?? ''))),
-            'email' => $user['email'],
-            'role'  => $user['role'],
+            'id'         => (int) $user['id'],
+            'name'       => trim(((string) ($user['first_name'] ?? '')) . ' ' . ((string) ($user['last_name'] ?? ''))),
+            'email'      => $user['email'],
+            'role'       => $user['role'],
+            'is_new_user' => $isNewUser,
         ]);
 
         return redirect()->to(site_url('users'));

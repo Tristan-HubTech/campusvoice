@@ -5,10 +5,14 @@
 <!-- NOTE: Student login form view file is app/Views/student/auth/login.php -->
 <div class="auth-shell">
     <header class="auth-topbar">
-        <a href="<?= site_url('/') ?>" class="auth-topbar-brand" aria-label="CampusVoice home">
-            <img src="<?= base_url('assets/admin/logo-mark.svg') ?>" alt="CampusVoice" class="auth-topbar-logo">
+        <div aria-hidden="true"></div>
+        <a href="<?= site_url('/') ?>" class="portal-brand portal-brand--hero" aria-label="CampusVoice home">
+            <img src="<?= base_url('assets/admin/logo-mark.svg') ?>" alt="CampusVoice" class="portal-logo">
+            <div class="brand-hero-text">
+                <span class="brand-hero-name">CampusVoice</span>
+                <span class="brand-hero-sub">Your campus, your voice</span>
+            </div>
         </a>
-        <h1 class="auth-topbar-title-text">CampusVoice</h1>
         <div class="auth-topbar-end">
             <?= $this->include('partials/theme_toggle') ?>
             <a href="<?= site_url('/') ?>" class="auth-topbar-exit" aria-label="Back to home">

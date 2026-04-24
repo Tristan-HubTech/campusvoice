@@ -251,6 +251,7 @@ document.getElementById('email_otp').addEventListener('input', function() {
     this.value = this.value.replace(/[^0-9]/g, '');
 });
 
+
 (function() {
     var form = document.getElementById('settingsForm');
     var saveBtn = document.getElementById('saveBtn');

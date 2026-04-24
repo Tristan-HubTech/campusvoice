@@ -474,10 +474,11 @@ HTML;
             ->where('user_id', $viewerId)
             ->first();
         return $this->response->setJSON([
-            'ok' => true,
-            'reaction_total' => $reactionTotal,
+            'ok'                 => true,
+            'reaction_total'     => $reactionTotal,
+            'breakdown'          => $breakdown,
             'reaction_breakdown' => $breakdown,
-            'viewer_reaction' => $viewerReaction ? (string) $viewerReaction['reaction_type'] : null,
+            'viewer_reaction'    => $viewerReaction ? (string) $viewerReaction['reaction_type'] : null,
         ]);
     }
 
@@ -674,6 +675,7 @@ HTML;
         return $this->response->setJSON([
             'ok'                 => true,
             'viewer_reaction'    => $viewerReaction,
+            'breakdown'          => $reactionBreakdown,
             'reaction_breakdown' => $reactionBreakdown,
         ]);
     }

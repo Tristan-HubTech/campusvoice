@@ -65,9 +65,16 @@ a:hover {
     margin: 0;
     padding: 12px 22px;
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
     gap: 18px;
+}
+
+.portal-header-end {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
 }
 
 .portal-brand {
@@ -83,6 +90,45 @@ a:hover {
     width: 40px;
     height: 40px;
     object-fit: contain;
+}
+
+.portal-brand--hero {
+    gap: 14px;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.portal-brand--hero .portal-logo {
+    width: 48px;
+    height: 48px;
+    filter: drop-shadow(0 0 10px rgba(133, 172, 255, 0.5));
+}
+
+.brand-hero-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.brand-hero-name {
+    font-family: 'Fraunces', serif;
+    font-size: 1.45rem;
+    font-weight: 700;
+    background: linear-gradient(120deg, #ffffff 0%, #a8c8ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    letter-spacing: 0.3px;
+}
+
+.brand-hero-sub {
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: rgba(168, 200, 255, 0.7);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    line-height: 1;
 }
 
 .portal-nav {
@@ -906,6 +952,15 @@ body.portal-nav-open .portal-menu-btn__line:nth-child(3) {
     border-radius: 14px;
     padding: 14px;
     transition: box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+/* strip card styling when reply-item is inside a comment stack */
+.comment-stack .reply-item {
+    border: none;
+    background: none;
+    border-radius: 0;
+    padding: 4px 0;
+    transition: none;
 }
 
 .feedback-mini-list li:hover,
@@ -2006,5 +2061,189 @@ body.portal-nav-open .portal-menu-btn__line:nth-child(3) {
 
     .btn-primary {
         width: 100%;
+    }
+}
+
+/* ═══════════════════════════════════════════
+   HOME FEED — PORTRAIT LAYOUT
+═══════════════════════════════════════════ */
+.home-feed {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 24px 16px 56px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Welcome hero card */
+.home-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    background: linear-gradient(130deg, #0b1f4d 0%, #1a3a8f 60%, #2756c8 100%);
+    border-radius: 20px;
+    padding: 22px 24px;
+    box-shadow: 0 16px 40px rgba(11, 31, 77, 0.28);
+    color: #fff;
+}
+
+.home-hero__left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+}
+
+.home-hero__avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+
+.home-hero__title {
+    margin: 0 0 3px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #fff;
+}
+
+.home-hero__sub {
+    margin: 0;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.home-hero .btn-primary {
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    box-shadow: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-size: 0.88rem;
+    padding: 10px 16px;
+}
+
+.home-hero .btn-primary:hover {
+    background: rgba(255, 255, 255, 0.28);
+}
+
+/* Section label row */
+.home-section-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.82rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-soft);
+    margin-bottom: 12px;
+}
+
+.home-feed-more {
+    margin-left: auto;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--primary);
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+/* Announcements */
+.home-announce__list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.home-announce__card {
+    background: linear-gradient(135deg, #fff8e1 0%, #fff3cd 100%);
+    border: 1px solid #ffe082;
+    border-left: 4px solid #f5a623;
+    border-radius: 14px;
+    padding: 14px 16px;
+}
+
+.home-announce__title {
+    margin: 0 0 6px;
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--ink);
+}
+
+.home-announce__body {
+    margin: 0 0 8px;
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+    line-height: 1.55;
+}
+
+.home-announce__date {
+    font-size: 0.76rem;
+    color: #b07a00;
+    font-weight: 600;
+}
+
+/* Feed section */
+.home-feed-section {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Empty state */
+.home-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--ink-soft);
+}
+
+.home-empty__icon {
+    font-size: 2.5rem;
+    margin-bottom: 4px;
+}
+
+.home-empty p {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+/* Feed cards inside home sit flush (no extra wrapper box) */
+.home-feed-section .feed-card {
+    margin-bottom: 12px;
+}
+
+.home-feed-section .feed-card:last-child {
+    margin-bottom: 0;
+}
+
+@media (max-width: 640px) {
+    .home-feed {
+        padding: 16px 12px 48px;
+        gap: 16px;
+    }
+
+    .home-hero {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+    }
+
+    .home-hero .btn-primary {
+        width: 100%;
+        justify-content: center;
     }
 }
