@@ -24,14 +24,28 @@
             <span>📢</span> Announcements
         </div>
         <div class="home-announce__list">
-            <?php foreach ($announcements as $ann): ?>
-            <div class="home-announce__card">
-                <h4 class="home-announce__title"><?= esc((string) $ann['title']) ?></h4>
-                <p class="home-announce__body"><?= nl2br(esc((string) $ann['body'])) ?></p>
-                <span class="home-announce__date"><?= esc(date('M d, Y', strtotime((string) $ann['created_at']))) ?></span>
+            <?php foreach (array_slice($announcements, 0, 3) as $ann):
+                $annBody    = (string) ($ann['body'] ?? '');
+                $annTrim    = trim(preg_replace('/\s+/', ' ', $annBody));
+                $hasMore    = mb_strlen($annTrim) > 100;
+                $annPreview = $hasMore ? mb_substr($annTrim, 0, 100) . '…' : $annTrim;
+            ?>
+            <div class="home-announce__card<?= $hasMore ? ' is-expandable' : '' ?>"<?= $hasMore ? ' role="button" tabindex="0" aria-expanded="false"' : '' ?>>
+                <div class="home-announce__head">
+                    <h4 class="home-announce__title"><?= esc((string) $ann['title']) ?></h4>
+                    <?php if ($hasMore): ?>
+                        <span class="home-announce__chevron" aria-hidden="true">▼</span>
+                    <?php endif; ?>
+                </div>
+                <p class="home-announce__preview"><?= esc($annPreview) ?></p>
+                <?php if ($hasMore): ?>
+                    <p class="home-announce__full"><?= nl2br(esc($annBody)) ?></p>
+                <?php endif; ?>
+                <span class="home-announce__date"><?= esc(date('M d, Y g:i A', strtotime((string) $ann['created_at']))) ?></span>
             </div>
             <?php endforeach; ?>
         </div>
+        <a href="<?= site_url('users/announcements') ?>" class="home-announce__view-all">View all announcements →</a>
     </section>
     <?php endif; ?>
 
@@ -53,4 +67,21 @@
     </section>
 
 </div>
+
+<script>
+(function () {
+    var cards = document.querySelectorAll('.home-announce__card.is-expandable');
+    function toggle(card) {
+        var willExpand = !card.classList.contains('expanded');
+        cards.forEach(function (c) { c.classList.remove('expanded'); c.setAttribute('aria-expanded', 'false'); });
+        if (willExpand) { card.classList.add('expanded'); card.setAttribute('aria-expanded', 'true'); }
+    }
+    cards.forEach(function (card) {
+        card.addEventListener('click', function () { toggle(card); });
+        card.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(card); }
+        });
+    });
+})();
+</script>
 <?= $this->endSection() ?>

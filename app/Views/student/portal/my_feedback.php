@@ -1,7 +1,7 @@
 <?= $this->extend('student/layout') ?>
 
 <?= $this->section('content') ?>
-<div class="portal-page">
+<div class="portal-page narrow">
     <div class="portal-welcome">
         <div>
             <h2>What You've Shared</h2>
@@ -18,6 +18,7 @@
                     <tr>
                         <th>#</th>
                         <th>Photo</th>
+                        <th>Ref #</th>
                         <th>Category</th>
                         <th>Type</th>
                         <th>Status</th>
@@ -45,6 +46,7 @@
                                     <span class="data-table__thumb--empty" title="No image">—</span>
                                 <?php endif; ?>
                             </td>
+                            <td><span class="fbk-badge">#FBK-<?= str_pad((string) (int) $item['id'], 4, '0', STR_PAD_LEFT) ?></span></td>
                             <td><?= esc((string) ($item['category_name'] ?? 'N/A')) ?></td>
                             <td><span class="pill type-<?= esc((string) ($item['type'] ?? 'suggestion')) ?>"><?= esc(ucfirst((string) ($item['type'] ?? 'suggestion'))) ?></span></td>
                             <td><span class="pill status-<?= esc((string) ($item['status'] ?? 'new')) ?>"><?= esc(ucfirst((string) ($item['status'] ?? 'new'))) ?></span></td>

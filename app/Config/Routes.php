@@ -39,7 +39,6 @@ $routes->group('admin', ['filter' => 'adminauth'], static function (RouteCollect
 	$routes->post('announcements/(:num)/delete', 'Admin\\AnnouncementController::delete/$1');
 
 	$routes->get('tools/otp', 'Admin\\OtpToolController::index');
-	$routes->get('activity/export', 'Admin\\DashboardController::exportActivity');
 	$routes->post('activity/purge', 'Admin\\DashboardController::purgeActivity');
 
 	// User Management

@@ -77,7 +77,9 @@ class FeedbackController extends AdminBaseController
             'admin_notes' => $adminNotes,
         ]);
 
-        if ($adminNotes !== '') {
+        $previousAdminNotes = trim((string) ($feedback['admin_notes'] ?? ''));
+
+        if ($adminNotes !== '' && $adminNotes !== $previousAdminNotes) {
             (new FeedbackReplyModel())->insert([
                 'feedback_id'   => $id,
                 'admin_user_id' => (int) ($this->adminUser()['id'] ?? 0),
@@ -126,6 +128,15 @@ class FeedbackController extends AdminBaseController
 
         $replyModel = new FeedbackReplyModel();
         $replyMessage = trim((string) $payload['message']);
+        
+        $existing = $replyModel->where('feedback_id', $id)
+            ->where('message', $replyMessage)
+            ->first();
+            
+        if ($existing !== null) {
+            return redirect()->back()->with('error', 'This reply has already been posted.');
+        }
+
         $replyId = $replyModel->insert([
             'feedback_id'   => $id,
             'admin_user_id' => (int) ($this->adminUser()['id'] ?? 0),

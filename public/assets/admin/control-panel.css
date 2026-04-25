@@ -443,12 +443,6 @@ a {
     background: linear-gradient(125deg, var(--emerald), var(--emerald-deep));
 }
 
-.inline-status-form {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
 .inline-status-form select {
     min-width: 110px;
     margin: 0;
@@ -472,10 +466,24 @@ a {
 .data-table th,
 .data-table td {
     text-align: left;
-    padding: 10px 9px;
+    padding: 8px 10px;
     border-bottom: 1px solid #e5e7eb;
-    vertical-align: top;
+    vertical-align: middle;
     font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+/* Subject can wrap; everything else stays compact */
+.data-table th:nth-child(4),
+.data-table td:nth-child(4) {
+    white-space: normal;
+    min-width: 220px;
+}
+
+/* Ref # badge column: only as wide as needed */
+.data-table th:first-child,
+.data-table td:first-child {
+    width: 1%;
 }
 
 .data-table th {
@@ -483,6 +491,65 @@ a {
     background: #edf3ff;
     position: sticky;
     top: 0;
+    font-weight: 700;
+}
+
+/* ID (first) + Quick Action (last) → centered */
+.data-table th:first-child,
+.data-table td:first-child,
+.data-table th:last-child,
+.data-table td:last-child {
+    text-align: center;
+}
+
+/* Type, Category, Status pill columns → centered (cols 2, 3, 6) */
+.data-table th:nth-child(2),
+.data-table td:nth-child(2),
+.data-table th:nth-child(3),
+.data-table td:nth-child(3),
+.data-table th:nth-child(6),
+.data-table td:nth-child(6) {
+    text-align: center;
+}
+
+.data-table tbody tr {
+    transition: background 0.12s ease;
+}
+.data-table tbody tr:hover {
+    background: #f4f7ff;
+}
+
+/* Feedback Ref # badge */
+.fbk-badge {
+    display: inline-block;
+    background: #F3F4F6;
+    color: #6B7280;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.02em;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+.fbk-badge-link,
+.fbk-badge-link:hover {
+    text-decoration: none;
+}
+.fbk-badge-link:hover .fbk-badge {
+    background: #E5E7EB;
+    color: #374151;
+}
+
+/* Inline status form sits in the Quick Action column — keep parts on one line */
+.inline-status-form {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .pill {

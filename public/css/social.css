@@ -13,6 +13,35 @@
     --shadow: 0 20px 45px rgba(7, 20, 53, 0.16);
 }
 
+/* ── Feedback status badge (post card meta line) ── */
+.fb-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    line-height: 1;
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-left: 2px;
+    white-space: nowrap;
+}
+
+.fb-status-badge--reviewed {
+    background: #FEF3C7;
+    color: #92400E;
+}
+
+.fb-status-badge--progress {
+    background: #DBEAFE;
+    color: #1E40AF;
+}
+
+.fb-status-badge--resolved {
+    background: #D1FAE5;
+    color: #065F46;
+}
+
 * {
     box-sizing: border-box;
 }

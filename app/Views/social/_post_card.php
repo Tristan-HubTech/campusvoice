@@ -30,8 +30,16 @@ if ($fbType !== '') {
                 <?php if ($fbType !== ''): ?>
                     <span class="pill type-<?= esc($fbType) ?>" style="font-size:0.7rem; padding:2px 9px; margin-left:2px;"><?= esc(ucfirst($fbType)) ?></span>
                 <?php endif; ?>
-                <?php if ($fbStatus === 'reviewed'): ?>
-                    <span style="display:inline-flex;align-items:center;gap:4px;font-size:0.7rem;font-weight:700;color:#0a57a1;background:#e8f2ff;border:1px solid #b8d0ff;border-radius:20px;padding:2px 8px;margin-left:2px;">&#9679; Under Review</span>
+                <?php
+                $statusLabelMap = [
+                    'reviewed'    => ['label' => 'Under Review', 'icon' => '🔍', 'cls' => 'fb-status-badge--reviewed'],
+                    'in_progress' => ['label' => 'In Progress',  'icon' => '🔧', 'cls' => 'fb-status-badge--progress'],
+                    'resolved'    => ['label' => 'Resolved',     'icon' => '✅', 'cls' => 'fb-status-badge--resolved'],
+                ];
+                if (isset($statusLabelMap[$fbStatus])):
+                    $sb = $statusLabelMap[$fbStatus];
+                ?>
+                    <span class="fb-status-badge <?= $sb['cls'] ?>"><?= $sb['icon'] ?> <?= esc($sb['label']) ?></span>
                 <?php endif; ?>
             </div>
         </div>

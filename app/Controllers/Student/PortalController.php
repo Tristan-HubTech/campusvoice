@@ -230,6 +230,8 @@ class PortalController extends Controller
         $userId = (int) ($studentUser['id'] ?? 0);
 
         $announcements = (new AnnouncementModel())
+            ->select('announcements.*, users.first_name AS author_first_name, users.last_name AS author_last_name')
+            ->join('users', 'users.id = announcements.posted_by', 'left')
             ->where('is_published', 1)
             ->groupStart()
                 ->where('expires_at IS NULL')
@@ -260,10 +262,6 @@ class PortalController extends Controller
             ->join('feedbacks', 'feedbacks.id = social_posts.feedback_id', 'left')
             ->where('users.is_active', 1)
             ->where('social_posts.is_public', 1)
-            ->groupStart()
-                ->where('social_posts.feedback_id IS NULL')
-                ->orWhere('feedbacks.status !=', 'resolved')
-            ->groupEnd()
             ->orderBy('social_posts.created_at', 'DESC')
             ->findAll(12);
 

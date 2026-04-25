@@ -785,10 +785,6 @@ HTML;
             ->join('feedbacks', 'feedbacks.id = social_posts.feedback_id', 'left')
             ->where('users.is_active', 1)
             ->where('social_posts.is_public', 1)
-            ->groupStart()
-                ->where('social_posts.feedback_id IS NULL')
-                ->orWhere('feedbacks.status !=', 'resolved')
-            ->groupEnd()
             ->orderBy('social_posts.created_at', 'DESC');
 
         if ($userId !== null) {

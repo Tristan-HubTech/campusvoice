@@ -137,7 +137,7 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
         <div class="panel-head stack-mobile">
             <h2>Feedback Management</h2>
             <div class="filter-row">
-                <input id="feedback-search" type="text" placeholder="Search subject, message, category, student">
+                <input id="feedback-search" type="text" placeholder="Search ref #, subject, message, student...">
                 <select id="feedback-status-filter">
                     <option value="">All Statuses</option>
                     <option value="new">New</option>
@@ -163,7 +163,7 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
             <table class="data-table">
                 <thead>
                 <tr>
-                    <th>ID</th>
+                    <th>Ref #</th>
                     <th>Type</th>
                     <th>Category</th>
                     <th>Subject</th>
@@ -176,8 +176,10 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                 <?php if (! empty($feedbackList)): ?>
                     <?php foreach ($feedbackList as $item): ?>
                         <?php
+                        $fbkPadded  = str_pad((string) (int) $item['id'], 4, '0', STR_PAD_LEFT);
                         $searchBlob = strtolower(
                             trim(
+                                'fbk-' . $fbkPadded . ' fbk' . $fbkPadded . ' ' .
                                 ((string) ($item['subject'] ?? '')) . ' ' .
                                 ((string) ($item['message'] ?? '')) . ' ' .
                                 ((string) ($item['category_name'] ?? '')) . ' ' .
@@ -188,12 +190,13 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                         ?>
                         <tr
                             data-feedback-row="1"
+                            data-id="<?= (int) $item['id'] ?>"
                             data-status="<?= esc((string) $item['status']) ?>"
                             data-type="<?= esc((string) $item['type']) ?>"
                             data-category="<?= (int) ($item['category_id'] ?? 0) ?>"
                             data-search="<?= esc($searchBlob, 'attr') ?>"
                         >
-                            <td><a href="<?= site_url('admin/feedback/' . (int) $item['id']) ?>">#<?= (int) $item['id'] ?></a></td>
+                            <td><a href="<?= site_url('admin/feedback/' . (int) $item['id']) ?>" class="fbk-badge-link"><span class="fbk-badge">#FBK-<?= str_pad((string) (int) $item['id'], 4, '0', STR_PAD_LEFT) ?></span></a></td>
                             <td><span class="pill type-<?= esc((string) $item['type']) ?>"><?= esc(ucfirst((string) $item['type'])) ?></span></td>
                             <td><?= esc((string) ($item['category_name'] ?? 'N/A')) ?></td>
                             <td>
@@ -543,10 +546,6 @@ $allCategories = $allCategories ?? [];
 </section>
 
 <?php if ($canViewActivity): ?>
-    <div class="export-toast" id="export-toast" hidden>
-        <span id="export-toast-text"></span>
-        <button type="button" class="export-toast-close" id="export-toast-close" aria-label="Dismiss">&#x2715;</button>
-    </div>
     <?php
     $activityFilters = $activityFilters ?? [];
     $activityPagination = $activityPagination ?? ['page' => 1, 'pages' => 1, 'total' => 0, 'perPage' => 20];
@@ -562,13 +561,9 @@ $allCategories = $allCategories ?? [];
         'activity_sort'     => $activitySort,
         'activity_dir'      => $activityDir,
     ];
-    $exportQuery = array_filter($activityFilterQuery, static function ($value): bool {
-        return $value !== '' && $value !== 0 && $value !== null;
-    });
     $currentPage = (int) ($activityPagination['page'] ?? 1);
     $totalPages = (int) ($activityPagination['pages'] ?? 1);
     $totalRows = (int) ($activityPagination['total'] ?? 0);
-    $exportMaxRows = (int) ($activityExportMaxRows ?? 20000);
     $retentionOptions = $activityPurgeRetentionOptions ?? [30, 90, 180, 365, 730];
     $startPage = max(1, $currentPage - 2);
     $endPage = min($totalPages, $currentPage + 2);
@@ -588,19 +583,30 @@ $allCategories = $allCategories ?? [];
     };
     ?>
     <section class="tab-panel" data-tab-panel="activity">
+        <div class="modal-overlay" id="purge-confirm-modal" hidden>
+            <div class="modal-card" style="max-width: 400px; text-align: center;">
+                <div class="confirm-modal-icon" style="font-size: 2.5rem; margin-bottom: 12px;">🗑️</div>
+                <h3 style="margin: 0 0 8px; font-size: 1.2rem; color: var(--ink);">Confirm Purge</h3>
+                <p style="color: var(--muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px;">
+                    Are you sure you want to permanently delete these activity logs? This action cannot be undone.
+                </p>
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <button type="button" class="btn-link secondary" id="purge-cancel-btn" style="padding: 10px 24px; border-radius: 12px; border: 1px solid #c7d7ff; background: #f8faff; color: var(--ink);">Cancel</button>
+                    <button type="button" class="btn-link danger-action" id="purge-confirm-btn" style="padding: 10px 24px; background: linear-gradient(135deg, #a23030, #74211d); color: #fff;">Yes, Purge</button>
+                </div>
+            </div>
+        </div>
         <section class="panel">
             <div class="panel-head stack-mobile">
                 <h2>Admin Activity Log</h2>
                 <div class="activity-toolbar">
                     <span class="muted"><?= esc((string) $totalRows) ?> matching records</span>
-                    <a class="btn-link secondary" id="export-csv-btn" href="<?= site_url('admin/activity/export?' . http_build_query($exportQuery)) ?>" data-export-max="<?= esc((string) $exportMaxRows) ?>">Export CSV</a>
                 </div>
             </div>
-            <p class="muted activity-note">Export is processed in batches and capped at <?= esc((string) $exportMaxRows) ?> rows per download.</p>
 
             <form method="get" action="<?= site_url('admin') ?>" class="activity-filter-form">
                 <input type="hidden" name="tab" value="activity">
-                <input type="text" name="activity_q" value="<?= esc((string) ($activityFilters['q'] ?? '')) ?>" placeholder="Search action, description, admin, IP">
+                <input type="text" name="activity_q" value="<?= esc((string) ($activityFilters['q'] ?? '')) ?>" placeholder="Search action, description, admin...">
                 <select name="activity_action">
                     <option value="">All Actions</option>
                     <?php foreach (($activityActionOptions ?? []) as $actionOption): ?>
@@ -624,7 +630,7 @@ $allCategories = $allCategories ?? [];
                 <a class="btn-link secondary" href="<?= site_url('admin?tab=activity') ?>">Reset</a>
             </form>
 
-            <form method="post" action="<?= site_url('admin/activity/purge') ?>" class="activity-purge-form" onsubmit="return confirm('Delete all logs older than selected retention?');">
+            <form id="activity-purge-form" method="post" action="<?= site_url('admin/activity/purge') ?>" class="activity-purge-form">
                 <label for="retention-days">Cleanup Retention</label>
                 <select id="retention-days" name="retention_days" required>
                     <?php foreach ($retentionOptions as $option): ?>
@@ -644,7 +650,6 @@ $allCategories = $allCategories ?? [];
                         <th><a class="sort-link" href="<?= site_url('admin?' . $buildSortQuery('action')) ?>#activity">Action<?= $sortIndicator('action') ?></a></th>
                         <th>Description</th>
                         <th><a class="sort-link" href="<?= site_url('admin?' . $buildSortQuery('target')) ?>#activity">Target<?= $sortIndicator('target') ?></a></th>
-                        <th><a class="sort-link" href="<?= site_url('admin?' . $buildSortQuery('ip')) ?>#activity">IP<?= $sortIndicator('ip') ?></a></th>
                         <th>Details</th>
                     </tr>
                     </thead>
@@ -690,7 +695,6 @@ $allCategories = $allCategories ?? [];
                                 <td><span class="pill status-reviewed"><?= esc((string) ($log['action'] ?? 'unknown')) ?></span></td>
                                 <td><?= esc((string) ($log['description'] ?? 'No description')) ?></td>
                                 <td><?= esc($targetLabel) ?></td>
-                                <td><?= esc((string) ($log['ip_address'] ?? '-')) ?></td>
                                 <td>
                                     <button
                                         type="button"
@@ -704,7 +708,7 @@ $allCategories = $allCategories ?? [];
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="7">No activity logs yet.</td>
+                            <td colspan="6">No activity logs yet.</td>
                         </tr>
                     <?php endif; ?>
                     </tbody>
@@ -754,10 +758,7 @@ $allCategories = $allCategories ?? [];
                         <h4>Target</h4>
                         <p id="activity-detail-target">-</p>
                     </div>
-                    <div>
-                        <h4>IP Address</h4>
-                        <p id="activity-detail-ip">-</p>
-                    </div>
+
                     <div>
                         <h4>User Agent</h4>
                         <p id="activity-detail-user-agent">-</p>
@@ -831,21 +832,27 @@ $allCategories = $allCategories ?? [];
         const feedbackCategoryFilter = document.getElementById('feedback-category-filter');
 
         function filterFeedbackRows() {
-            const query = (feedbackSearch.value || '').toLowerCase().trim();
+            const rawQuery = (feedbackSearch.value || '').toLowerCase().trim();
             const status = feedbackStatusFilter.value;
             const type = feedbackTypeFilter.value;
             const category = feedbackCategoryFilter.value;
+
+            // Detect Ref # search: "46", "0046", "fbk-46", "fbk-0046", "fbk0046", "#fbk-0046"
+            const refMatch = rawQuery.match(/^#?(?:fbk[-]?)?0*(\d+)$/);
+            const refId = refMatch ? parseInt(refMatch[1], 10) : null;
 
             document.querySelectorAll('[data-feedback-row="1"]').forEach(function (row) {
                 const rowStatus = row.getAttribute('data-status') || '';
                 const rowType = row.getAttribute('data-type') || '';
                 const rowCategory = row.getAttribute('data-category') || '';
+                const rowId = parseInt(row.getAttribute('data-id') || '0', 10);
                 const rowSearch = (row.getAttribute('data-search') || '').toLowerCase();
 
                 const matchesStatus = status === '' || rowStatus === status;
                 const matchesType = type === '' || rowType === type;
                 const matchesCategory = category === '' || rowCategory === category;
-                const matchesSearch = query === '' || rowSearch.indexOf(query) !== -1;
+                const matchesRef = refId !== null && rowId === refId;
+                const matchesSearch = rawQuery === '' || matchesRef || rowSearch.indexOf(rawQuery) !== -1;
 
                 row.style.display = (matchesStatus && matchesType && matchesCategory && matchesSearch) ? '' : 'none';
             });
@@ -1086,44 +1093,28 @@ $allCategories = $allCategories ?? [];
             });
         }
 
-        var exportToast = document.getElementById('export-toast');
-        var exportToastText = document.getElementById('export-toast-text');
-        var exportToastClose = document.getElementById('export-toast-close');
-        var exportToastTimer = null;
-        var exportToastDismiss = null;
+        var purgeForm = document.getElementById('activity-purge-form');
+        var purgeModal = document.getElementById('purge-confirm-modal');
+        var purgeCancel = document.getElementById('purge-cancel-btn');
+        var purgeConfirm = document.getElementById('purge-confirm-btn');
 
-        function showExportToast(message, type) {
-            if (!exportToast) { return; }
-            exportToastText.textContent = message;
-            exportToast.className = 'export-toast export-toast--' + (type || 'info');
-            exportToast.removeAttribute('hidden');
-
-            clearTimeout(exportToastDismiss);
-            exportToastDismiss = setTimeout(function () {
-                exportToast.setAttribute('hidden', 'hidden');
-            }, 8000);
-        }
-
-        if (exportToastClose) {
-            exportToastClose.addEventListener('click', function () {
-                clearTimeout(exportToastDismiss);
-                exportToast.setAttribute('hidden', 'hidden');
+        if (purgeForm && purgeModal) {
+            purgeForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                purgeModal.removeAttribute('hidden');
             });
+            if (purgeCancel) {
+                purgeCancel.addEventListener('click', function () {
+                    purgeModal.setAttribute('hidden', 'hidden');
+                });
+            }
+            if (purgeConfirm) {
+                purgeConfirm.addEventListener('click', function () {
+                    purgeForm.submit();
+                });
+            }
         }
 
-        var exportBtn = document.getElementById('export-csv-btn');
-        if (exportBtn) {
-            exportBtn.addEventListener('click', function () {
-                var maxRows = parseInt(exportBtn.getAttribute('data-export-max') || '20000', 10);
-                clearTimeout(exportToastTimer);
-                exportToastTimer = setTimeout(function () {
-                    showExportToast(
-                        'Export downloaded. Large datasets are capped at ' + maxRows.toLocaleString() + ' rows. Apply date or action filters to narrow the export.',
-                        'info'
-                    );
-                }, 5000);
-            });
-        }
 
         // ── User table filtering ──────────────────────────────────────
         var userSearch = document.getElementById('user-search');

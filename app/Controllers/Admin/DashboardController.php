@@ -10,9 +10,7 @@ use App\Models\UserModel;
 
 class DashboardController extends AdminBaseController
 {
-    private const ACTIVITY_EXPORT_BATCH_SIZE = 1000;
-    private const ACTIVITY_EXPORT_MAX_ROWS = 20000;
-    private const ACTIVITY_SORTABLE_COLUMNS = ['created_at', 'action', 'admin', 'target', 'ip'];
+    private const ACTIVITY_SORTABLE_COLUMNS = ['created_at', 'action', 'admin', 'target'];
     private const ACTIVITY_PURGE_RETENTION_OPTIONS = [30, 90, 180, 365, 730];
 
     public function index(): string
@@ -168,104 +166,9 @@ class DashboardController extends AdminBaseController
             'activityPagination'  => $activityPagination,
             'activityActionOptions' => $activityActionOptions,
             'activityAdminOptions' => $activityAdminOptions,
-            'activityExportMaxRows' => self::ACTIVITY_EXPORT_MAX_ROWS,
             'activityPurgeRetentionOptions' => self::ACTIVITY_PURGE_RETENTION_OPTIONS,
             'panelTab'            => $panelTab,
         ]);
-    }
-
-    public function exportActivity()
-    {
-        if (($this->adminUser()['role'] ?? '') !== 'system_admin') {
-            return redirect()->to(site_url('admin'))->with('error', 'Only system admin can export activity logs.');
-        }
-
-        $activityFilters = $this->readActivityFilters();
-
-        $query = (new AdminActivityLogModel())
-            ->select('admin_activity_logs.*, users.first_name, users.last_name, users.email')
-            ->join('users', 'users.id = admin_activity_logs.admin_user_id', 'left');
-        $this->applyActivityFilters($query, $activityFilters);
-
-        $totalRows = (int) $query->countAllResults(false);
-        $exportLimit = min($totalRows, self::ACTIVITY_EXPORT_MAX_ROWS);
-        $isTruncated = $totalRows > self::ACTIVITY_EXPORT_MAX_ROWS;
-
-        $handle = fopen('php://temp', 'r+');
-        fputcsv($handle, ['Time', 'Admin Name', 'Admin Email', 'Action', 'Description', 'Target', 'IP Address', 'User Agent', 'Metadata']);
-
-        $exported = 0;
-        $offset = 0;
-        while ($exported < $exportLimit) {
-            $batchLimit = min(self::ACTIVITY_EXPORT_BATCH_SIZE, $exportLimit - $exported);
-
-            $batchQuery = (new AdminActivityLogModel())
-                ->select('admin_activity_logs.*, users.first_name, users.last_name, users.email')
-                ->join('users', 'users.id = admin_activity_logs.admin_user_id', 'left');
-            $this->applyActivityFilters($batchQuery, $activityFilters);
-            $this->applyActivitySorting($batchQuery, $activityFilters);
-
-            $rows = $batchQuery->findAll($batchLimit, $offset);
-            if ($rows === []) {
-                break;
-            }
-
-            foreach ($rows as $row) {
-                $fullName = trim(((string) ($row['first_name'] ?? '')) . ' ' . ((string) ($row['last_name'] ?? '')));
-                $target = '-';
-                if (! empty($row['target_type']) && ! empty($row['target_id'])) {
-                    $target = (string) $row['target_type'] . ' #' . (int) $row['target_id'];
-                } elseif (! empty($row['target_type'])) {
-                    $target = (string) $row['target_type'];
-                }
-
-                $metadataText = (string) ($row['metadata'] ?? '');
-                if ($metadataText !== '') {
-                    $decoded = json_decode($metadataText, true);
-                    if (json_last_error() === JSON_ERROR_NONE) {
-                        $metadataText = (string) json_encode($decoded, JSON_UNESCAPED_SLASHES);
-                    }
-                }
-
-                fputcsv($handle, [
-                    (string) ($row['created_at'] ?? ''),
-                    $fullName !== '' ? $fullName : 'System',
-                    (string) ($row['email'] ?? ''),
-                    (string) ($row['action'] ?? ''),
-                    (string) ($row['description'] ?? ''),
-                    $target,
-                    (string) ($row['ip_address'] ?? ''),
-                    (string) ($row['user_agent'] ?? ''),
-                    $metadataText,
-                ]);
-            }
-
-            $fetchedCount = count($rows);
-            $exported += $fetchedCount;
-            $offset += $fetchedCount;
-            if ($fetchedCount < $batchLimit) {
-                break;
-            }
-        }
-
-        rewind($handle);
-        $csv = (string) stream_get_contents($handle);
-        fclose($handle);
-
-        $filename = 'campusvoice-activity-' . date('Ymd-His') . '.csv';
-
-        $response = $this->response
-            ->setHeader('Content-Type', 'text/csv; charset=UTF-8')
-            ->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"')
-            ->setHeader('X-Activity-Export-Total', (string) $totalRows)
-            ->setHeader('X-Activity-Export-Count', (string) $exported)
-            ->setBody($csv);
-
-        if ($isTruncated) {
-            $response->setHeader('X-Activity-Export-Truncated', '1');
-        }
-
-        return $response;
     }
 
     public function purgeActivity()
@@ -360,7 +263,6 @@ class DashboardController extends AdminBaseController
                 ->like('admin_activity_logs.action', $term)
                 ->orLike('admin_activity_logs.description', $term)
                 ->orLike('admin_activity_logs.target_type', $term)
-                ->orLike('admin_activity_logs.ip_address', $term)
                 ->orLike('users.email', $term)
                 ->orLike('users.first_name', $term)
                 ->orLike('users.last_name', $term)
@@ -400,8 +302,6 @@ class DashboardController extends AdminBaseController
         } elseif ($sort === 'target') {
             $query->orderBy('admin_activity_logs.target_type', $dir)
                 ->orderBy('admin_activity_logs.target_id', $dir);
-        } elseif ($sort === 'ip') {
-            $query->orderBy('admin_activity_logs.ip_address', $dir);
         } else {
             $query->orderBy('admin_activity_logs.created_at', $dir);
         }
