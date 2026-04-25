@@ -45,14 +45,26 @@ class PortalController extends Controller
             ->orderBy('feedbacks.created_at', 'DESC')
             ->findAll(5);
 
-        $announcements = (new AnnouncementModel())
+        $pinnedAnnouncements = (new AnnouncementModel())
             ->where('is_published', 1)
+            ->where('pinned', 1)
+            ->groupStart()
+                ->where('expires_at IS NULL')
+                ->orWhere('expires_at >=', date('Y-m-d H:i:s'))
+            ->groupEnd()
+            ->findAll(1);
+
+        $latestAnnouncements = (new AnnouncementModel())
+            ->where('is_published', 1)
+            ->where('pinned', 0)
             ->groupStart()
                 ->where('expires_at IS NULL')
                 ->orWhere('expires_at >=', date('Y-m-d H:i:s'))
             ->groupEnd()
             ->orderBy('created_at', 'DESC')
-            ->findAll(5);
+            ->findAll(1);
+
+        $announcements = array_merge($pinnedAnnouncements, $latestAnnouncements);
 
         $profileModel = new SocialProfileModel();
         $profile = $profileModel->where('user_id', $userId)->first();

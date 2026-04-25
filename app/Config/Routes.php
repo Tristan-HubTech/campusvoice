@@ -37,6 +37,7 @@ $routes->group('admin', ['filter' => 'adminauth'], static function (RouteCollect
 	$routes->get('announcements/(:num)/edit', 'Admin\\AnnouncementController::edit/$1');
 	$routes->post('announcements/(:num)', 'Admin\\AnnouncementController::update/$1');
 	$routes->post('announcements/(:num)/delete', 'Admin\\AnnouncementController::delete/$1');
+	$routes->post('announcements/toggle-pin', 'Admin\\AnnouncementController::togglePin');
 
 	$routes->get('tools/otp', 'Admin\\OtpToolController::index');
 	$routes->post('activity/purge', 'Admin\\DashboardController::purgeActivity');

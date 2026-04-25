@@ -27,14 +27,26 @@ class SocialController extends BaseController
 
         $isAnon = (int) (($profile ?? [])['is_anonymous'] ?? 0) === 1;
 
-        $announcements = (new \App\Models\AnnouncementModel())
+        $pinnedAnnouncements = (new \App\Models\AnnouncementModel())
             ->where('is_published', 1)
+            ->where('pinned', 1)
+            ->groupStart()
+                ->where('expires_at IS NULL')
+                ->orWhere('expires_at >=', date('Y-m-d H:i:s'))
+            ->groupEnd()
+            ->findAll(1);
+
+        $latestAnnouncements = (new \App\Models\AnnouncementModel())
+            ->where('is_published', 1)
+            ->where('pinned', 0)
             ->groupStart()
                 ->where('expires_at IS NULL')
                 ->orWhere('expires_at >=', date('Y-m-d H:i:s'))
             ->groupEnd()
             ->orderBy('created_at', 'DESC')
-            ->findAll(5);
+            ->findAll(1);
+
+        $announcements = array_merge($pinnedAnnouncements, $latestAnnouncements);
 
         return view('social/feed', [
             'title'              => 'Community Feed',

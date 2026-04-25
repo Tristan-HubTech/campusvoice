@@ -378,6 +378,10 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                                     <?php endif; ?>
                                 </td>
                                 <td>
+                                    <?php $isPinned = (int)($item['pinned'] ?? 0); ?>
+                                    <button type="button" class="text-btn pin-btn" data-announcement-id="<?= (int) $item['id'] ?>" title="<?= $isPinned ? 'Unpin this announcement' : 'Pin this announcement' ?>">
+                                        <?= $isPinned ? '📍 Unpin' : '📌 Pin' ?>
+                                    </button>
                                     <button type="button" class="text-btn" data-edit-announcement="<?= (int) $item['id'] ?>">Edit</button>
                                     <form method="post" action="<?= site_url('admin/announcements/' . (int) $item['id'] . '/delete') ?>" class="inline-form" onsubmit="return confirm('Delete this announcement?');">
                                         <button class="text-btn danger" type="submit">Delete</button>
@@ -396,6 +400,48 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
         </section>
     </div>
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.pin-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var id = this.getAttribute('data-announcement-id');
+            var button = this;
+            
+            fetch('<?= site_url("admin/announcements/toggle-pin") ?>', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: 'id=' + encodeURIComponent(id)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    // Reset all buttons to Pin
+                    document.querySelectorAll('.pin-btn').forEach(function(b) {
+                        b.textContent = '📌 Pin';
+                        b.title = 'Pin this announcement';
+                    });
+                    
+                    // If it was pinned, update this specific button
+                    if (data.pinned) {
+                        button.textContent = '📍 Unpin';
+                        button.title = 'Unpin this announcement';
+                    }
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to toggle pin'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Network error occurred.');
+            });
+        });
+    });
+});
+</script>
 
 
 <?php

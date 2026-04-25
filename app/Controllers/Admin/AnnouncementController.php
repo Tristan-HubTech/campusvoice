@@ -131,6 +131,43 @@ class AnnouncementController extends AdminBaseController
         return redirect()->to(site_url('admin') . '#announcements')->with('success', 'Announcement deleted successfully.');
     }
 
+    public function togglePin()
+    {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setStatusCode(400)->setJSON(['success' => false, 'message' => 'Invalid request']);
+        }
+
+        $id = $this->request->getPost('id');
+        if (!$id) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Missing ID']);
+        }
+
+        $announcementModel = new AnnouncementModel();
+        $announcement = $announcementModel->find($id);
+
+        if (!$announcement) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Announcement not found']);
+        }
+
+        $currentStatus = (int)($announcement['pinned'] ?? 0);
+        $newStatus = $currentStatus === 1 ? 0 : 1;
+
+        if ($newStatus === 1) {
+            // Unpin all first
+            $db = \Config\Database::connect();
+            $db->table('announcements')->update(['pinned' => 0]);
+        }
+
+        // Update the selected announcement
+        $announcementModel->update($id, ['pinned' => $newStatus]);
+
+        return $this->response->setJSON([
+            'success' => true,
+            'pinned'  => $newStatus,
+            'message' => $newStatus ? 'Announcement pinned' : 'Announcement unpinned'
+        ]);
+    }
+
     private function normalizeDateTime(?string $value): ?string
     {
         if ($value === null || trim($value) === '') {
