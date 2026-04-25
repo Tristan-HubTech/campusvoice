@@ -221,6 +221,7 @@ select {
         opacity: 0;
         transform: translateX(100%);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -311,7 +312,7 @@ select {
     border-radius: 14px;
     padding: 14px 16px;
     border: 1px solid #ffe082;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
 .announcement-card h4 {
@@ -666,12 +667,29 @@ select:focus {
     font-size: 1.4rem;
 }
 
-.avatar-blue { background: linear-gradient(135deg, #2b5bd7, #5f85f6); }
-.avatar-teal { background: linear-gradient(135deg, #0b6a62, #1aa397); }
-.avatar-coral { background: linear-gradient(135deg, #d55b54, #ef8c74); }
-.avatar-violet { background: linear-gradient(135deg, #6548d2, #9074f3); }
-.avatar-amber { background: linear-gradient(135deg, #cc7e1d, #efb14d); }
-.avatar-rose { background: linear-gradient(135deg, #c1447f, #eb73a4); }
+.avatar-blue {
+    background: linear-gradient(135deg, #2b5bd7, #5f85f6);
+}
+
+.avatar-teal {
+    background: linear-gradient(135deg, #0b6a62, #1aa397);
+}
+
+.avatar-coral {
+    background: linear-gradient(135deg, #d55b54, #ef8c74);
+}
+
+.avatar-violet {
+    background: linear-gradient(135deg, #6548d2, #9074f3);
+}
+
+.avatar-amber {
+    background: linear-gradient(135deg, #cc7e1d, #efb14d);
+}
+
+.avatar-rose {
+    background: linear-gradient(135deg, #c1447f, #eb73a4);
+}
 
 .feed-author {
     font-weight: 800;
@@ -707,11 +725,13 @@ select:focus {
     font-weight: 700;
     letter-spacing: 0.02em;
 }
+
 .feed-status-reviewed {
     background: #e8f2ff;
     color: #0a57a1;
     border: 1px solid #b8d0ff;
 }
+
 .feed-status-resolved {
     background: #e8f8ef;
     color: #1a7a45;
@@ -725,12 +745,6 @@ select:focus {
     justify-content: space-between;
     gap: 10px;
     margin-bottom: 2px;
-}
-
-.reaction-line {
-    display: flex;
-    align-items: center;
-    gap: 4px;
 }
 
 .post-reaction-summary {
@@ -778,19 +792,6 @@ select:focus {
     margin: 0;
 }
 
-.mini-pill {
-    display: inline-flex;
-    align-items: center;
-    border-radius: 999px;
-    padding: 4px 10px;
-    font-size: 0.76rem;
-    font-weight: 800;
-    border: 1px solid #cfddff;
-    background: #f4f7ff;
-    margin-left: 6px;
-    margin-right: 0;
-}
-
 .action-btn.active {
     background: linear-gradient(125deg, var(--blue), var(--accent));
     color: #fff;
@@ -811,6 +812,7 @@ select:focus {
     border-top: 1px solid #e4ecff;
     justify-content: space-between;
 }
+
 /* Reply indicator label for replies */
 .reply-indicator-label {
     display: inline-flex;
@@ -829,96 +831,6 @@ select:focus {
 
 .post-comment-count {
     font-size: 0.85rem;
-}
-
-/* ── Emoji React Bar (legacy, kept for backward compat) ── */
-.react-bar {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding-top: 12px;
-    margin-top: 12px;
-    border-top: 1px solid #e4ecff;
-    flex-wrap: wrap;
-}
-
-.react-bar form {
-    margin: 0;
-}
-
-.react-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 42px;
-    height: 42px;
-    border: 1px solid #dce6ff;
-    border-radius: 50%;
-    background: #f6f9ff;
-    font-size: 1.2rem;
-    cursor: pointer;
-    transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
-    padding: 0;
-    text-decoration: none;
-    color: var(--ink);
-}
-
-.react-btn:focus {
-    outline: none;
-}
-
-.react-btn:focus-visible {
-    outline: 2px solid var(--blue);
-    outline-offset: 2px;
-}
-
-.react-btn:hover {
-    transform: scale(1.18);
-    background: #edf2ff;
-    box-shadow: 0 4px 14px rgba(43, 91, 215, 0.14);
-    text-decoration: none;
-}
-
-/* Press-down feel when you click */
-.react-btn:active {
-    transform: scale(0.88);
-    transition-duration: 0.06s;
-}
-
-.react-btn.active {
-    background: linear-gradient(135deg, #dbeaff, #c5d7ff);
-    border-color: #85acff;
-    box-shadow: 0 0 0 2px rgba(43, 91, 215, 0.2), 0 4px 12px rgba(43, 91, 215, 0.12);
-    transform: scale(1.1);
-}
-
-/* Bounce pop after clicking a reaction */
-@keyframes react-pop {
-    0%   { transform: scale(0.85); }
-    50%  { transform: scale(1.25); }
-    100% { transform: scale(1.1); }
-}
-
-.react-btn.reacting {
-    animation: react-pop 0.35s ease;
-}
-
-.react-btn.react-share {
-    font-size: 1.1rem;
-    color: var(--muted);
-    margin-left: 4px;
-}
-
-.react-btn.react-share:hover {
-    color: var(--blue);
-}
-
-.react-btn.react-login {
-    width: auto;
-    border-radius: 14px;
-    padding: 8px 14px;
-    font-size: 0.85rem;
-    font-weight: 700;
 }
 
 .comment-stack {
@@ -1028,7 +940,7 @@ select:focus {
     right: 8px;
     background: #fff;
     border-radius: 10px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
     padding: 1px 6px;
     display: inline-flex;
     align-items: center;
@@ -1096,6 +1008,7 @@ select:focus {
     padding: 0;
     transition: color 0.15s;
 }
+
 .comment-reply-btn:hover {
     text-decoration: underline;
     color: #1a5dc4;
@@ -1116,6 +1029,7 @@ select:focus {
     margin-top: 2px;
     transition: color 0.15s;
 }
+
 .reply-count-btn:hover {
     text-decoration: underline;
     color: #1a5dc4;
@@ -1123,9 +1037,17 @@ select:focus {
 
 /* New comment/reply entrance animation */
 @keyframes comment-appear {
-    from { opacity: 0; transform: translateY(6px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
+
 .newly-added {
     animation: comment-appear 0.3s ease forwards;
 }
@@ -1136,9 +1058,11 @@ select:focus {
     padding-left: 8px;
     border-left: 2px solid #e4e6eb;
 }
+
 .reply-item {
     margin-bottom: 6px;
 }
+
 .reply-item .comment-bubble {
     background: #f5f6f8;
 }
@@ -1154,12 +1078,14 @@ select:focus {
     font-size: 0.82rem;
     color: #fff;
 }
+
 .reply-to-text {
     flex: 1;
     font-weight: 700;
 }
+
 .cancel-reply-btn {
-    background: rgba(255,255,255,0.18);
+    background: rgba(255, 255, 255, 0.18);
     border: none;
     cursor: pointer;
     font-size: 0.9rem;
@@ -1169,8 +1095,9 @@ select:focus {
     line-height: 1.4;
     font-weight: 700;
 }
+
 .cancel-reply-btn:hover {
-    background: rgba(255,255,255,0.35);
+    background: rgba(255, 255, 255, 0.35);
 }
 
 /* Comment form reply-mode visual */
@@ -1179,9 +1106,11 @@ select:focus {
     background: rgba(228, 237, 255, 0.92);
     box-shadow: 0 0 0 3px rgba(30, 110, 240, 0.13), 0 6px 24px rgba(7, 20, 53, 0.10);
 }
+
 .comment-form.replying textarea {
     background: linear-gradient(135deg, #e4edff 0%, #d6e3ff 100%);
 }
+
 .comment-form.replying .solid-btn {
     background: linear-gradient(125deg, #1e6ef0, #1a5dc4);
 }
@@ -1194,15 +1123,18 @@ select:focus {
     margin: 8px 0;
     font-size: 0.85rem;
 }
+
 .comment-image-hint {
     font-weight: 400;
     font-size: 0.78rem;
     opacity: 0.85;
 }
+
 .comment-image-input {
     font-size: 0.8rem;
     max-width: 100%;
 }
+
 .comment-attachment {
     margin-top: 8px;
     border-radius: 10px;
@@ -1211,9 +1143,11 @@ select:focus {
     background: #0a1224;
     max-width: 100%;
 }
+
 .comment-attachment__link {
     display: block;
 }
+
 .comment-attachment__img {
     display: block;
     width: 100%;
@@ -1357,6 +1291,7 @@ select:focus {
     line-height: 1;
     display: inline-block;
 }
+
 .fb-like-label {
     font-size: 0.82rem;
     font-weight: 600;
@@ -1367,9 +1302,17 @@ select:focus {
 }
 
 @keyframes like-pop {
-    0%   { transform: scale(1); }
-    50%  { transform: scale(1.65); }
-    100% { transform: scale(1); }
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.65);
+    }
+
+    100% {
+        transform: scale(1);
+    }
 }
 
 .stats-grid.compact {
@@ -1577,7 +1520,7 @@ select:focus {
     grid-template-columns: 1fr !important;
 }
 
-.anon-toggle-row > div:first-child {
+.anon-toggle-row>div:first-child {
     background: linear-gradient(135deg, #0d1b3d 0%, #132e5e 100%);
     border: 1px solid #1e3055;
     border-radius: 16px;

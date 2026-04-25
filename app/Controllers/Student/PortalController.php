@@ -82,7 +82,7 @@ class PortalController extends Controller
             ->findAll(200);
 
         return view('student/portal/my_feedback', array_merge([
-            'title'        => 'My Submissions',
+            'title'        => 'My Voice',
             'studentUser'  => $studentUser,
             'feedbackList' => $feedbackList,
         ], $this->anonViewData($userId)));
@@ -156,7 +156,7 @@ class PortalController extends Controller
         }
 
         return view('student/portal/submit', array_merge([
-            'title'       => 'Submit Feedback',
+            'title'       => 'Share Feedback',
             'studentUser' => $studentUser,
             'categories'  => $categories,
         ], $this->anonViewData($userId)));

@@ -4,10 +4,10 @@
 <div class="portal-page">
     <div class="portal-welcome">
         <div>
-            <h2>My Feedback Submissions</h2>
+            <h2>What You've Shared</h2>
             <p class="muted">Track statuses and read admin replies on each submission.</p>
         </div>
-        <a href="<?= site_url('users/feedback/submit') ?>" class="btn-primary">+ Submit Feedback</a>
+        <a href="<?= site_url('users/feedback/submit') ?>" class="btn-primary">+ Share Feedback</a>
     </div>
 
     <section class="portal-card">
@@ -56,12 +56,14 @@
                                         <?= $rc ?> <?= $rc === 1 ? 'reply' : 'replies' ?>
                                     </a>
                                 <?php else: ?>
-                                    <span class="muted" style="font-size:0.8rem;">—</span>
+                                    <span class="muted" style="font-size:0.85rem;">0</span>
                                 <?php endif; ?>
                             </td>
-                            <td style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
-                                <a href="<?= site_url('users/feedback/' . (int) $item['id']) ?>" class="btn-view-sm">View</a>
-                                <button type="button" class="btn-delete-sm" data-delete-url="<?= site_url('users/feedback/' . (int) $item['id'] . '/delete') ?>">Delete</button>
+                            <td>
+                                <div class="row-actions">
+                                    <a href="<?= site_url('users/feedback/' . (int) $item['id']) ?>" class="btn-view-sm">View</a>
+                                    <button type="button" class="btn-delete-sm" data-delete-url="<?= site_url('users/feedback/' . (int) $item['id'] . '/delete') ?>">Delete</button>
+                                </div>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -69,7 +71,7 @@
                 </table>
             </div>
         <?php else: ?>
-            <p class="muted empty-hint">No submissions yet. <a href="<?= site_url('users/feedback/submit') ?>">Submit your first feedback.</a></p>
+            <p class="muted empty-hint">Nothing shared yet. <a href="<?= site_url('users/feedback/submit') ?>">Got something on your mind?</a></p>
         <?php endif; ?>
     </section>
 </div>

@@ -51,13 +51,12 @@ if ($fbType !== '') {
 
     <div class="post-summary-row">
         <div class="post-reaction-summary">
-            <span class="reaction-content"><?php if ((int) $post['reaction_total'] === 0): ?>No reactions yet<?php else:
+            <span class="reaction-content" data-counts="<?= esc(json_encode($post['reaction_breakdown'])) ?>"><?php if ((int) $post['reaction_total'] === 0): ?>No reactions yet<?php else:
                 $sortedRx = $post['reaction_breakdown']; arsort($sortedRx);
                 foreach (array_slice($sortedRx, 0, 3, true) as $rType => $rCount):
                     if ($rCount > 0 && isset($emojiMap[$rType])): ?><span class="top-emoji"><?= $emojiMap[$rType] ?></span><?php endif;
                 endforeach; ?><span class="top-count"><?= (int) $post['reaction_total'] ?></span><?php endif; ?></span>
         </div>
-        <span class="summary-muted"><?= (int) $post['comment_total'] ?> comment<?= (int) $post['comment_total'] !== 1 ? 's' : '' ?></span>
     </div>
 
     <div class="post-action-bar">

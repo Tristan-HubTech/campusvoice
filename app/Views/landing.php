@@ -193,7 +193,7 @@
     <div class="feature-grid">
         <div class="feature-card">
             <div class="feature-icon">📝</div>
-            <h3>Submit Feedback</h3>
+            <h3>Share Feedback</h3>
             <p>Easily submit complaints, suggestions, or praise about any aspect of campus life.</p>
         </div>
         <div class="feature-card">

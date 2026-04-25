@@ -321,12 +321,6 @@ html[data-theme="dark"] .comment-like-btn:hover {
     text-decoration: none;
 }
 
-html[data-theme="dark"] .mini-pill {
-    background: #1a2438;
-    border-color: #2a3a58;
-    color: #c9d4e8;
-}
-
 html[data-theme="dark"] .reaction-content,
 html[data-theme="dark"] .top-count {
     color: #8a9bb8;
@@ -596,4 +590,146 @@ html[data-theme="dark"] .admin-feedback-image,
 html[data-theme="dark"] .comment-attachment {
     border-color: var(--line);
     background: #0a0e18;
+}
+
+/* ═══ Auth pages (Register / Login / Forgot Password) — dark mode ═══ */
+
+/* Card background */
+html[data-theme="dark"] .auth-card,
+html[data-theme="dark"] .auth-panel {
+    background: rgba(14, 22, 40, 0.92);
+    border-color: rgba(133, 172, 255, 0.18);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* Tab switcher */
+html[data-theme="dark"] .auth-tab-bar {
+    background: rgba(10, 18, 35, 0.7);
+    border-color: rgba(133, 172, 255, 0.15);
+}
+
+html[data-theme="dark"] .auth-tab-btn {
+    color: #8aaae8;
+}
+
+html[data-theme="dark"] .auth-tab-btn.active {
+    background: linear-gradient(125deg, #1a3a8f, #0d214e);
+    color: #fff;
+}
+
+/* Form labels */
+html[data-theme="dark"] .auth-form label,
+html[data-theme="dark"] .auth-panel label {
+    color: #c5d4f0;
+}
+
+/* Standard inputs */
+html[data-theme="dark"] .auth-panel .auth-form input,
+html[data-theme="dark"] .auth-panel input {
+    background: rgba(20, 30, 55, 0.85);
+    border-color: rgba(133, 172, 255, 0.3);
+    color: #e8efff;
+}
+
+html[data-theme="dark"] .auth-panel .auth-form input::placeholder,
+html[data-theme="dark"] .auth-panel input::placeholder {
+    color: rgba(140, 165, 210, 0.6);
+}
+
+html[data-theme="dark"] .auth-panel .auth-form input:focus,
+html[data-theme="dark"] .auth-panel input:focus {
+    border-color: #4d7eff;
+    outline-color: rgba(77, 126, 255, 0.2);
+    background: rgba(20, 30, 55, 0.95);
+}
+
+/* Disabled inputs (OTP input before code is sent) */
+html[data-theme="dark"] .auth-panel .auth-form input:disabled,
+html[data-theme="dark"] .auth-panel input:disabled {
+    background: rgba(15, 22, 42, 0.6);
+    border-color: rgba(100, 130, 180, 0.2);
+    color: rgba(140, 165, 210, 0.4);
+    cursor: not-allowed;
+}
+
+/* OTP button — default (not yet ready) */
+html[data-theme="dark"] .auth-otp-btn {
+    background: rgba(25, 40, 75, 0.8);
+    border-color: rgba(133, 172, 255, 0.3);
+    color: #8aaae8;
+}
+
+html[data-theme="dark"] .auth-otp-btn:hover:not(:disabled) {
+    background: rgba(35, 55, 100, 0.9);
+    color: #b8d0ff;
+}
+
+/* OTP button — disabled state */
+html[data-theme="dark"] .auth-otp-btn:disabled {
+    background: rgba(15, 22, 42, 0.5);
+    border-color: rgba(80, 110, 160, 0.2);
+    color: rgba(120, 150, 200, 0.4);
+    opacity: 1; /* override default opacity so border is still readable */
+}
+
+/* OTP button — ready (email filled, can send) */
+html[data-theme="dark"] .auth-otp-btn.ready:not(:disabled) {
+    background: rgba(43, 91, 215, 0.9);
+    border-color: #2b5bd7;
+    color: #fff;
+}
+
+html[data-theme="dark"] .auth-otp-btn.ready:not(:disabled):hover {
+    background: rgba(53, 101, 230, 0.98);
+}
+
+/* OTP status text (success/error message below the button) */
+html[data-theme="dark"] .otp-status-text {
+    color: #8aaae8;
+}
+
+/* Auth links */
+html[data-theme="dark"] .auth-panel a,
+html[data-theme="dark"] .auth-link-subtle {
+    color: #7aacff;
+}
+
+html[data-theme="dark"] .auth-panel a:hover,
+html[data-theme="dark"] .auth-link-subtle:hover {
+    color: #a5caff;
+}
+
+/* Auth alert boxes */
+html[data-theme="dark"] .auth-alert {
+    background: rgba(20, 30, 55, 0.9);
+    border-color: rgba(133, 172, 255, 0.2);
+    color: #c5d4f0;
+}
+
+html[data-theme="dark"] .auth-alert.success {
+    background: rgba(6, 50, 30, 0.85);
+    border-color: rgba(52, 180, 100, 0.3);
+    color: #6ee7b7;
+}
+
+html[data-theme="dark"] .auth-alert.error {
+    background: rgba(60, 15, 15, 0.85);
+    border-color: rgba(200, 70, 70, 0.3);
+    color: #fca5a5;
+}
+
+/* ═══ Status badges — dark mode ═══ */
+html[data-theme="dark"] .fs-badge--reviewed {
+    background: rgba(146, 64, 14, 0.25);
+    color: #fcd34d;
+}
+
+html[data-theme="dark"] .fs-badge--in-progress {
+    background: rgba(30, 64, 175, 0.25);
+    color: #93c5fd;
+}
+
+html[data-theme="dark"] .fs-badge--resolved {
+    background: rgba(6, 95, 70, 0.25);
+    color: #6ee7b7;
 }

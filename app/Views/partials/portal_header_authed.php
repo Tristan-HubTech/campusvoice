@@ -3,8 +3,8 @@ $headerUserName = (string) ($headerUserName ?? 'Student');
 $currentTitle = (string) ($currentTitle ?? '');
 $navItems = [
     ['label' => 'Home', 'url' => site_url('users'), 'title' => 'My Portal'],
-    ['label' => 'My Feedback', 'url' => site_url('users/feedback'), 'title' => 'My Submissions'],
-    ['label' => 'Submit', 'url' => site_url('users/feedback/submit'), 'title' => 'Submit Feedback'],
+    ['label' => 'My Voice', 'url' => site_url('users/feedback'), 'title' => 'My Voice'],
+    ['label' => 'Speak Up', 'url' => site_url('users/feedback/submit'), 'title' => 'Share Feedback'],
     ['label' => 'Announcements', 'url' => site_url('users/announcements'), 'title' => 'Announcements'],
     ['label' => 'Settings', 'url' => site_url('settings'), 'title' => 'Settings'],
 ];

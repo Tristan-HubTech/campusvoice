@@ -15,7 +15,7 @@
                 <p class="home-hero__sub">Your campus voice matters.</p>
             </div>
         </div>
-        <a href="<?= site_url('users/feedback/submit') ?>" class="btn-primary">+ Submit Feedback</a>
+        <a href="<?= site_url('users/feedback/submit') ?>" class="btn-primary">+ Share Feedback</a>
     </div>
 
     <?php if (!empty($announcements)): ?>

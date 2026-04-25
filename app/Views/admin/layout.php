@@ -8,7 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="<?= base_url('assets/admin/control-panel.css') ?>">
+    <?php $cpCssV = is_file(FCPATH . 'assets/admin/control-panel.css') ? filemtime(FCPATH . 'assets/admin/control-panel.css') : '1'; ?>
+    <link rel="stylesheet" href="<?= base_url('assets/admin/control-panel.css') . '?v=' . $cpCssV ?>">
     <?= $this->include('partials/theme_styles') ?>
 </head>
 <body>
@@ -41,17 +42,17 @@
     </aside>
 
     <div class="admin-main">
-        <header class="admin-topbar">
+        <header class="admin-topbar" style="background:linear-gradient(175deg,#0a1535 0%,#0d214e 58%,#102a62 100%);color:#fff;border:1px solid rgba(133,172,255,.32);">
             <button type="button" class="menu-btn" id="menuBtn">Menu</button>
             <div>
-                <h1><?= esc($title ?? 'Control Panel') ?></h1>
-                <p>Manage feedback, announcements, and response workflows.</p>
+                <h1 style="color:#fff;"><?= esc($title ?? 'Control Panel') ?></h1>
+                <p style="color:rgba(255,255,255,.65);">Manage feedback, announcements, and response workflows.</p>
             </div>
             <div class="admin-topbar-actions">
                 <?= $this->include('partials/theme_toggle', ['toggleClass' => 'theme-toggle--on-light']) ?>
                 <div class="admin-user">
-                    <strong><?= esc((string) ($adminUser['name'] ?? 'Admin')) ?></strong>
-                    <small><?= esc((string) ($adminUser['email'] ?? '')) ?></small>
+                    <strong style="color:#fff;"><?= esc((string) ($adminUser['name'] ?? 'Admin')) ?></strong>
+                    <small style="color:rgba(255,255,255,.6);"><?= esc((string) ($adminUser['email'] ?? '')) ?></small>
                 </div>
             </div>
         </header>

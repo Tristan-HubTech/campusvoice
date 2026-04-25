@@ -1,0 +1,41 @@
+# ── Environment ──
+.env
+.env.*
+!.env.example
+
+# ── Composer / dependencies ──
+/vendor/
+composer.phar
+
+# ── CodeIgniter 4 writable directories ──
+writable/cache/*
+!writable/cache/index.html
+writable/debugbar/*
+!writable/debugbar/index.html
+writable/logs/*
+!writable/logs/index.html
+writable/session/*
+!writable/session/index.html
+writable/uploads/*
+!writable/uploads/index.html
+writable/temp/
+writable/tmp_*
+*.log
+
+# ── Local build / test artifacts ──
+phpunit.xml
+.phpunit.result.cache
+build/
+coverage/
+
+# ── IDE / editor ──
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ── PHP runtime ──
+*.cache

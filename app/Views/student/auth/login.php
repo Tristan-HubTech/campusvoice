@@ -6,13 +6,13 @@
 <div class="auth-shell">
     <header class="auth-topbar">
         <div aria-hidden="true"></div>
-        <a href="<?= site_url('/') ?>" class="portal-brand portal-brand--hero" aria-label="CampusVoice home">
+        <div class="portal-brand portal-brand--hero">
             <img src="<?= base_url('assets/admin/logo-mark.svg') ?>" alt="CampusVoice" class="portal-logo">
             <div class="brand-hero-text">
                 <span class="brand-hero-name">CampusVoice</span>
                 <span class="brand-hero-sub">Your campus, your voice</span>
             </div>
-        </a>
+        </div>
         <div class="auth-topbar-end">
             <?= $this->include('partials/theme_toggle') ?>
             <a href="<?= site_url('/') ?>" class="auth-topbar-exit" aria-label="Back to home">
@@ -85,7 +85,7 @@
                     <label for="reg-otp">OTP Code</label>
                     <button type="button" class="auth-otp-btn" id="send-register-otp-btn">Send OTP to Email</button>
                     <small id="register-otp-status" class="otp-status-text" aria-live="polite"></small>
-                    <input id="reg-otp" name="otp" type="text" inputmode="numeric" pattern="[0-9]*" required maxlength="6" placeholder="Send OTP first" disabled>
+                    <input id="reg-otp" name="otp" type="text" inputmode="numeric" pattern="[0-9]*" required maxlength="6" placeholder="Send OTP first" disabled id="reg-otp">
 
                     <label for="reg-password">Password <small>(min 8 characters)</small></label>
                     <input id="reg-password" name="password" type="password" required minlength="8" maxlength="255" autocomplete="new-password" placeholder="Create a password">
@@ -284,6 +284,35 @@
         }
 
         setMode(authMode, false);
+
+        // ── OTP auto-clear on failed submission ──────────────────────────
+        // When the server redirects back with an error (wrong OTP), withInput()
+        // re-populates the field. Clear it, focus it, and flash a red border.
+        (function () {
+            var errorEl = document.querySelector('.portal-alert.error, .auth-alert.error, .auth-alert--error');
+            if (!errorEl) {
+                // Fallback: check common flash selectors
+                errorEl = document.querySelector('.alert-error, .flash-error, [class*="alert"][class*="error"]');
+            }
+            var otpField = document.getElementById('reg-otp');
+            if (otpField && otpField.value !== '' && errorEl) {
+                // Clear the old wrong value
+                otpField.value = '';
+                // Re-enable if it had been populated (withInput keeps it enabled after OTP was sent)
+                otpField.disabled = false;
+                otpField.placeholder = 'Enter 6-digit OTP';
+                // Flash red border for 900ms then restore
+                otpField.style.transition = 'border-color 0.2s, box-shadow 0.2s';
+                otpField.style.borderColor = '#e53e3e';
+                otpField.style.boxShadow = '0 0 0 3px rgba(229, 62, 62, 0.18)';
+                setTimeout(function () {
+                    otpField.style.borderColor = '';
+                    otpField.style.boxShadow = '';
+                }, 900);
+                // Auto-focus so user can type immediately
+                otpField.focus();
+            }
+        })();
     })();
 </script>
 <?= $this->endSection() ?>

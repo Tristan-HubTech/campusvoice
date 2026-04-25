@@ -4,15 +4,15 @@
 <div class="portal-page narrow">
     <div class="portal-welcome">
         <div>
-            <h2>Submit Feedback</h2>
-            <p class="muted">Your voice matters. Share a complaint, suggestion, or praise.</p>
+            <h2>Share Feedback</h2>
+            <p class="muted">Something broken? An idea? Someone doing great work? Let us know.</p>
         </div>
-        <a href="<?= site_url('users/feedback') ?>" class="link-more">Back to My Feedback</a>
+        <a href="<?= site_url('users/feedback') ?>" class="link-more">Back to My Voice</a>
     </div>
 
     <section class="portal-card">
         <form method="post" action="<?= site_url('users/feedback/submit') ?>" class="portal-form" enctype="multipart/form-data">
-            <label for="category_id">Category</label>
+            <label for="category_id">What's this about?</label>
             <select id="category_id" name="category_id" required>
                 <option value="">Select category</option>
                 <?php foreach (($categories ?? []) as $cat): ?>
@@ -32,8 +32,8 @@
                 <?php endforeach; ?>
             </select>
 
-            <label for="message">Message</label>
-            <textarea id="message" name="message" rows="8" required placeholder="Describe your feedback clearly."><?= esc((string) (old('message') ?? '')) ?></textarea>
+            <label for="message">Your Message</label>
+            <textarea id="message" name="message" rows="8" required placeholder="Share the details so we can take action."><?= esc((string) (old('message') ?? '')) ?></textarea>
 
             <label for="feedback_image">Image <span class="muted">(optional, JPG, PNG, or WebP, max 5 MB)</span></label>
             <div class="feedback-image-field">
@@ -46,7 +46,7 @@
             </label>
 
             <div class="form-actions">
-                <button type="submit" class="btn-primary">Submit Feedback</button>
+                <button type="submit" class="btn-primary">Share</button>
             </div>
         </form>
     </section>
