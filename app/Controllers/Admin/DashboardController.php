@@ -16,7 +16,7 @@ class DashboardController extends AdminBaseController
     public function index(): string
     {
         $adminUser = $this->adminUser();
-        $canViewActivity = ($adminUser['role'] ?? '') === 'system_admin';
+        $canViewActivity = in_array($adminUser['role'] ?? '', ['system_admin', 'admin'], true);
 
         $requestedTab = (string) ($this->request->getGet('tab') ?? 'overview');
         $allowedTabs = ['overview', 'feedback', 'announcements', 'users', 'categories'];
@@ -28,7 +28,9 @@ class DashboardController extends AdminBaseController
 
         $stats = [
             'feedback_total'     => (new FeedbackModel())->countAllResults(),
-            'feedback_new'       => (new FeedbackModel())->where('status', 'new')->countAllResults(),
+            'feedback_pending'   => (new FeedbackModel())->where('status', 'pending')->countAllResults(),
+            'feedback_approved'  => (new FeedbackModel())->where('status', 'approved')->countAllResults(),
+            'feedback_rejected'  => (new FeedbackModel())->where('status', 'rejected')->countAllResults(),
             'feedback_reviewed'  => (new FeedbackModel())->where('status', 'reviewed')->countAllResults(),
             'feedback_resolved'  => (new FeedbackModel())->where('status', 'resolved')->countAllResults(),
             'student_total'      => (new UserModel())
@@ -173,8 +175,8 @@ class DashboardController extends AdminBaseController
 
     public function purgeActivity()
     {
-        if (($this->adminUser()['role'] ?? '') !== 'system_admin') {
-            return redirect()->to(site_url('admin'))->with('error', 'Only system admin can purge activity logs.');
+        if (! in_array($this->adminUser()['role'] ?? '', ['system_admin', 'admin'], true)) {
+            return redirect()->to(site_url('admin'))->with('error', 'You do not have permission to purge activity logs.');
         }
 
         $retentionDays = (int) ($this->request->getPost('retention_days') ?? 0);

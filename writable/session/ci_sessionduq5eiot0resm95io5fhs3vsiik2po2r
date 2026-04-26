@@ -1,1 +1,0 @@
-__ci_last_regenerate|i:1777040961;_ci_previous_url|s:41:"http://localhost/campusvoice/public/users";admin_auth|a:4:{s:2:"id";i:2;s:4:"name";s:12:"School Admin";s:5:"email";s:23:"admin@campusvoice.local";s:4:"role";s:5:"admin";}student_auth|a:5:{s:2:"id";i:7;s:4:"name";s:10:"Ara Tambok";s:5:"email";s:26:"arabellamira2004@gmail.com";s:4:"role";s:7:"student";s:11:"is_new_user";b:0;}

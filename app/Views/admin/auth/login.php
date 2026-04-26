@@ -18,13 +18,12 @@
 <main class="login-wrap">
     <section class="login-panel">
         <div class="login-brand">
-            <img src="<?= base_url('assets/admin/logo.svg') ?>" alt="CampusVoice logo" class="login-logo">
+            <img src="<?= base_url('assets/admin/logo.svg') ?>" alt="CampusVoice" class="login-logo">
         </div>
 
         <div class="login-head">
-            <span class="eyebrow">CampusVoice</span>
-            <h1>Admin Control Panel Login</h1>
-            <p>Secure access for administrators and system administrators.</p>
+            <h1>Login to your account</h1>
+            <p>Enter your credentials to access the control panel.</p>
         </div>
 
         <?php if (session()->getFlashdata('error')): ?>
@@ -36,14 +35,16 @@
         <?php endif; ?>
 
         <form method="post" action="<?= site_url('admin/login') ?>" class="login-form">
-            <label for="password">Master Password</label>
-            <input id="password" name="password" type="password" required placeholder="Enter master password" autofocus>
+            <div class="field-group">
+                <label for="password">Master Password</label>
+                <input id="password" name="password" type="password" required placeholder="Enter master password" autofocus>
+            </div>
 
-            <button type="submit">Sign In</button>
+            <button type="submit">Sign In &rarr;</button>
         </form>
 
         <div class="login-note">
-
+            CampusVoice &copy; <?= date('Y') ?>
         </div>
     </section>
 </main>

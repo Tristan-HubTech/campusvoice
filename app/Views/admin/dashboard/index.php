@@ -2,6 +2,7 @@
 
 <?= $this->section('content') ?>
 <?php
+use App\Libraries\FeedbackImageStorage;
 $canViewActivity = ! empty($canViewActivity);
 $allowedTabs = ['overview', 'feedback', 'announcements', 'users', 'categories'];
 if ($canViewActivity) {
@@ -31,8 +32,12 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
             <strong><?= esc((string) ($stats['feedback_total'] ?? 0)) ?></strong>
         </article>
         <article class="stat-card">
-            <span>New</span>
-            <strong><?= esc((string) ($stats['feedback_new'] ?? 0)) ?></strong>
+            <span>Pending</span>
+            <strong><?= esc((string) ($stats['feedback_pending'] ?? 0)) ?></strong>
+        </article>
+        <article class="stat-card">
+            <span>Approved</span>
+            <strong><?= esc((string) ($stats['feedback_approved'] ?? 0)) ?></strong>
         </article>
         <article class="stat-card">
             <span>Reviewed</span>
@@ -134,16 +139,28 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
 
 <section class="tab-panel" data-tab-panel="feedback">
     <section class="panel">
+        <?php
+        $stripCounts = [];
+        foreach ($feedbackList as $_fbk) {
+            $s = (string) ($_fbk['status'] ?? 'pending');
+            $stripCounts[$s] = ($stripCounts[$s] ?? 0) + 1;
+        }
+        ?>
+        <div class="fbk-status-strip">
+            <button type="button" class="fbk-status-pill fbk-s-all active" data-filter-status="">
+                All <span class="fbk-count"><?= count($feedbackList) ?></span>
+            </button>
+            <?php foreach (['pending' => 'Pending', 'approved' => 'Approved', 'rejected' => 'Rejected', 'reviewed' => 'Reviewed', 'resolved' => 'Resolved'] as $sKey => $sLabel): ?>
+            <button type="button" class="fbk-status-pill fbk-s-<?= $sKey ?>" data-filter-status="<?= $sKey ?>">
+                <?= $sLabel ?> <span class="fbk-count"><?= $stripCounts[$sKey] ?? 0 ?></span>
+            </button>
+            <?php endforeach; ?>
+        </div>
+
         <div class="panel-head stack-mobile">
             <h2>Feedback Management</h2>
-            <div class="filter-row">
+            <div class="filter-row fbk-filter-row">
                 <input id="feedback-search" type="text" placeholder="Search ref #, subject, message, student...">
-                <select id="feedback-status-filter">
-                    <option value="">All Statuses</option>
-                    <option value="new">New</option>
-                    <option value="reviewed">Reviewed</option>
-                    <option value="resolved">Resolved</option>
-                </select>
                 <select id="feedback-type-filter">
                     <option value="">All Types</option>
                     <option value="complaint">Complaint</option>
@@ -169,7 +186,8 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                     <th>Subject</th>
                     <th>Author</th>
                     <th>Status</th>
-                    <th>Quick Action</th>
+                    <th>Date</th>
+                    <th>Action</th>
                 </tr>
                 </thead>
                 <tbody id="feedback-table-body">
@@ -177,6 +195,7 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                     <?php foreach ($feedbackList as $item): ?>
                         <?php
                         $fbkPadded  = str_pad((string) (int) $item['id'], 4, '0', STR_PAD_LEFT);
+                        $currentStatus = (string) $item['status'];
                         $searchBlob = strtolower(
                             trim(
                                 'fbk-' . $fbkPadded . ' fbk' . $fbkPadded . ' ' .
@@ -191,12 +210,12 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                         <tr
                             data-feedback-row="1"
                             data-id="<?= (int) $item['id'] ?>"
-                            data-status="<?= esc((string) $item['status']) ?>"
+                            data-status="<?= esc($currentStatus) ?>"
                             data-type="<?= esc((string) $item['type']) ?>"
                             data-category="<?= (int) ($item['category_id'] ?? 0) ?>"
                             data-search="<?= esc($searchBlob, 'attr') ?>"
                         >
-                            <td><a href="<?= site_url('admin/feedback/' . (int) $item['id']) ?>" class="fbk-badge-link"><span class="fbk-badge">#FBK-<?= str_pad((string) (int) $item['id'], 4, '0', STR_PAD_LEFT) ?></span></a></td>
+                            <td><a href="<?= site_url('admin/feedback/' . (int) $item['id']) ?>" class="fbk-badge-link"><span class="fbk-badge">#FBK-<?= $fbkPadded ?></span></a></td>
                             <td><span class="pill type-<?= esc((string) $item['type']) ?>"><?= esc(ucfirst((string) $item['type'])) ?></span></td>
                             <td><?= esc((string) ($item['category_name'] ?? 'N/A')) ?></td>
                             <td>
@@ -211,28 +230,49 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                             </td>
                             <td>
                                 <?php if ((int) ($item['is_anonymous'] ?? 0) === 1): ?>
-                                    Anonymous
+                                    <span class="muted">Anonymous</span>
                                 <?php else: ?>
                                     <?= esc(trim(((string) ($item['first_name'] ?? '')) . ' ' . ((string) ($item['last_name'] ?? '')))) ?>
                                 <?php endif; ?>
                             </td>
-                            <td><span class="pill status-<?= esc((string) $item['status']) ?>"><?= esc(ucfirst((string) $item['status'])) ?></span></td>
-                            <td>
-                                <form method="post" action="<?= site_url('admin/feedback/' . (int) $item['id'] . '/status') ?>" class="inline-status-form" data-current-status="<?= esc((string) $item['status']) ?>">
-                                    <select name="status">
-                                        <?php foreach (['new', 'reviewed', 'resolved'] as $status): ?>
-                                            <option value="<?= esc($status) ?>" <?= ((string) $item['status'] === $status) ? 'selected' : '' ?>><?= esc(ucfirst($status)) ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                    <input type="hidden" name="admin_notes" value="">
-                                    <button class="mini-btn" type="submit">Save</button>
-                                </form>
+                            <td><span class="pill status-<?= esc($currentStatus) ?>"><?= esc(ucfirst($currentStatus)) ?></span></td>
+                            <td class="muted" style="font-size:0.8rem;white-space:nowrap;"><?= esc(date('M d, Y', strtotime((string) ($item['created_at'] ?? 'now')))) ?></td>
+                            <td class="fbk-actions-cell">
+                                <?php if ($currentStatus === 'pending'): ?>
+                                    <div class="fbk-action-btns">
+                                        <form method="post" action="<?= site_url('admin/feedback/' . (int) $item['id'] . '/status') ?>">
+                                            <input type="hidden" name="status" value="approved">
+                                            <input type="hidden" name="admin_notes" value="">
+                                            <button class="fbk-act-btn fbk-act-approve" type="submit">Approve</button>
+                                        </form>
+                                        <form method="post" action="<?= site_url('admin/feedback/' . (int) $item['id'] . '/status') ?>" class="inline-status-form">
+                                            <input type="hidden" name="status" value="rejected">
+                                            <input type="hidden" name="admin_notes" value="">
+                                            <button class="fbk-act-btn fbk-act-reject" type="submit">Reject</button>
+                                        </form>
+                                    </div>
+                                <?php elseif ($currentStatus === 'approved'): ?>
+                                    <div class="fbk-action-btns">
+                                        <form method="post" action="<?= site_url('admin/feedback/' . (int) $item['id'] . '/status') ?>" class="inline-status-form">
+                                            <input type="hidden" name="status" value="reviewed">
+                                            <input type="hidden" name="admin_notes" value="">
+                                            <button class="fbk-act-btn fbk-act-review" type="submit">Reviewed</button>
+                                        </form>
+                                        <form method="post" action="<?= site_url('admin/feedback/' . (int) $item['id'] . '/status') ?>" class="inline-status-form">
+                                            <input type="hidden" name="status" value="resolved">
+                                            <input type="hidden" name="admin_notes" value="">
+                                            <button class="fbk-act-btn fbk-act-resolve" type="submit">Resolved</button>
+                                        </form>
+                                    </div>
+                                <?php else: ?>
+                                    <span class="fbk-act-done">—</span>
+                                <?php endif; ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="7">No feedback available.</td>
+                        <td colspan="8">No feedback available.</td>
                     </tr>
                 <?php endif; ?>
                 </tbody>
@@ -245,9 +285,9 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
 <div class="modal-overlay" id="statusUpdateModal" hidden>
     <div class="modal-card" style="max-width:460px; padding:24px 28px;">
         <div class="modal-head">
-            <h3 style="margin:0; font-size:1rem;">Mark as <span id="statusModalLabel" style="text-transform:capitalize;"></span></h3>
+            <h3 style="margin:0; font-size:1rem;" id="statusModalLabel">Confirm Action</h3>
         </div>
-        <p style="margin:0 0 12px; font-size:0.875rem; color:#5f7298;">Optionally add a message for the student explaining this status change. Leave blank to skip.</p>
+        <p id="statusModalDesc" style="margin:0 0 12px; font-size:0.875rem; color:#5f7298;">Optionally add a message for the student. Leave blank to skip.</p>
         <textarea id="statusModalNotes" rows="4" placeholder="e.g. We have reviewed your concern and will address it shortly…" style="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #c8d8ff; border-radius:8px; font-size:0.875rem; resize:vertical; min-height:90px; font-family:inherit;"></textarea>
         <div style="display:flex; gap:10px; margin-top:16px; justify-content:flex-end;">
             <button type="button" id="statusModalCancel" class="mini-btn secondary">Cancel</button>
@@ -257,26 +297,38 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
 </div>
 <script>
 (function () {
-    var modal   = document.getElementById('statusUpdateModal');
-    var label   = document.getElementById('statusModalLabel');
-    var notes   = document.getElementById('statusModalNotes');
+    var modal      = document.getElementById('statusUpdateModal');
+    var label      = document.getElementById('statusModalLabel');
+    var desc       = document.getElementById('statusModalDesc');
+    var notes      = document.getElementById('statusModalNotes');
     var btnCancel  = document.getElementById('statusModalCancel');
     var btnConfirm = document.getElementById('statusModalConfirm');
     var pendingForm = null;
 
+    var statusTitles = {
+        rejected: 'Reject Feedback',
+        reviewed: 'Mark as Reviewed',
+        resolved: 'Mark as Resolved',
+    };
+    var statusDescriptions = {
+        rejected: 'Please provide a reason — this will be shared with the student.',
+        reviewed: 'Optionally add a message for the student about this review.',
+        resolved: 'Optionally confirm to the student that this issue has been resolved.',
+    };
+
     document.querySelectorAll('.inline-status-form').forEach(function (form) {
         form.addEventListener('submit', function (e) {
-            var select = form.querySelector('select[name="status"]');
-            if (!select) return;
-            var chosen = select.value;
-            if (chosen === 'reviewed' || chosen === 'resolved') {
-                e.preventDefault();
-                pendingForm = form;
-                label.textContent = chosen.charAt(0).toUpperCase() + chosen.slice(1);
-                notes.value = '';
-                modal.removeAttribute('hidden');
-                setTimeout(function () { notes.focus(); }, 50);
-            }
+            var statusInput = form.querySelector('[name="status"]');
+            if (!statusInput) return;
+            var chosen = statusInput.value;
+            if (chosen === 'approved') return;
+            e.preventDefault();
+            pendingForm = form;
+            label.textContent = statusTitles[chosen] || ('Mark as ' + chosen.charAt(0).toUpperCase() + chosen.slice(1));
+            if (desc) desc.textContent = statusDescriptions[chosen] || 'Optionally add a message for the student. Leave blank to skip.';
+            notes.value = '';
+            modal.removeAttribute('hidden');
+            setTimeout(function () { notes.focus(); }, 50);
         });
     });
 
@@ -313,24 +365,50 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                 <h2 id="announcement-form-title">Create Announcement</h2>
             </div>
 
-            <form method="post" action="<?= site_url('admin/announcements') ?>" class="form-grid" id="announcement-form">
+            <form method="post" action="<?= site_url('admin/announcements') ?>" class="form-grid" id="announcement-form" enctype="multipart/form-data">
                 <label for="ann-title">Title</label>
                 <input id="ann-title" name="title" required maxlength="180" placeholder="Title">
 
                 <label for="ann-body">Body</label>
                 <textarea id="ann-body" name="body" rows="8" required placeholder="Announcement content"></textarea>
 
-                <label for="ann-publish">Publish At</label>
-                <input id="ann-publish" name="publish_at" type="datetime-local" min="<?= date('Y-m-d') ?>T00:00">
+                <label for="ann-image">Image <small class="muted">— optional, JPG/PNG/WebP, max 5 MB</small></label>
+                <div id="ann-image-preview-wrap" style="display:none; margin-bottom:6px;">
+                    <img id="ann-image-preview" src="" alt="Current image" style="max-width:100%; max-height:180px; border-radius:10px; border:1px solid var(--line); object-fit:cover; display:block; margin-bottom:6px;">
+                    <label style="display:flex; align-items:center; gap:6px; font-size:0.82rem; cursor:pointer;">
+                        <input type="checkbox" name="remove_image" id="ann-remove-image" value="1"> Remove current image
+                    </label>
+                </div>
+                <input type="file" id="ann-image" name="image" accept="image/jpeg,image/png,image/webp"
+                       style="border:1px solid var(--line); border-radius:10px; padding:8px 10px; font-size:0.85rem; width:100%; box-sizing:border-box;">
 
-                <label for="ann-expires">Expires At</label>
-                <input id="ann-expires" name="expires_at" type="datetime-local" min="<?= date('Y-m-d') ?>T00:00">
+                <label>Publish At <small class="muted">— blank = publish immediately</small></label>
+                <div class="ann-dt-row">
+                    <input type="date" id="ann-publish-date" class="ann-dt-date">
+                    <input type="time" id="ann-publish-time" class="ann-dt-time" value="08:00">
+                    <button type="button" class="ann-dt-clear" data-dt-clear="publish" title="Clear">✕</button>
+                </div>
+                <div class="ann-dt-quick">
+                    <button type="button" class="ann-quick-btn" data-quick-publish="today">Today</button>
+                    <button type="button" class="ann-quick-btn" data-quick-publish="tomorrow">Tomorrow</button>
+                    <button type="button" class="ann-quick-btn" data-quick-publish="week">+1 Week</button>
+                </div>
+                <input type="hidden" name="publish_at" id="ann-publish-at">
 
-                <label for="ann-is-published">Status</label>
-                <select id="ann-is-published" name="is_published">
-                    <option value="1">Published</option>
-                    <option value="0">Draft</option>
-                </select>
+                <label>Expires At <small class="muted">— blank = never expires</small></label>
+                <div class="ann-dt-row">
+                    <input type="date" id="ann-expires-date" class="ann-dt-date">
+                    <input type="time" id="ann-expires-time" class="ann-dt-time" value="23:59">
+                    <button type="button" class="ann-dt-clear" data-dt-clear="expires" title="Clear">✕</button>
+                </div>
+                <div class="ann-dt-quick">
+                    <button type="button" class="ann-quick-btn" data-quick-expires="week">+1 Week</button>
+                    <button type="button" class="ann-quick-btn" data-quick-expires="month">+1 Month</button>
+                    <button type="button" class="ann-quick-btn" data-quick-expires="year">+1 Year</button>
+                </div>
+                <input type="hidden" name="expires_at" id="ann-expires-at">
+
+                <input type="hidden" name="is_published" id="ann-is-published" value="1">
 
                 <div class="form-actions">
                     <button type="submit" id="announcement-submit-btn">Publish Announcement</button>
@@ -339,7 +417,7 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
             </form>
         </section>
 
-        <section class="panel">
+        <section class="panel" id="announcement-list">
             <div class="panel-head">
                 <h2>Announcement List</h2>
             </div>
@@ -350,12 +428,27 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                     <tr>
                         <th>Title</th>
                         <th>Status</th>
+                        <th>Publishes</th>
+                        <th>Expires</th>
                         <th>Actions</th>
                     </tr>
                     </thead>
                     <tbody>
                     <?php if (! empty($announcements)): ?>
                         <?php foreach ($announcements as $item): ?>
+                            <?php
+                            $annNow       = time();
+                            $annPublishRaw = (string) ($item['publish_at'] ?? '');
+                            $annExpiresRaw = (string) ($item['expires_at'] ?? '');
+                            $annPublishTs  = $annPublishRaw !== '' ? strtotime($annPublishRaw) : null;
+                            $annExpiresTs  = $annExpiresRaw !== '' ? strtotime($annExpiresRaw) : null;
+                            $annIsLive     = (int) ($item['is_published'] ?? 0) === 1
+                                             && ($annPublishTs === null || $annPublishTs <= $annNow)
+                                             && ($annExpiresTs === null || $annExpiresTs >= $annNow);
+                            $annIsExpired  = $annExpiresTs !== null && $annExpiresTs < $annNow;
+                            $annIsScheduled = (int) ($item['is_published'] ?? 0) === 1
+                                              && $annPublishTs !== null && $annPublishTs > $annNow;
+                            ?>
                             <tr
                                 data-announcement-row="1"
                                 data-id="<?= (int) $item['id'] ?>"
@@ -363,23 +456,50 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                                 data-body="<?= esc((string) $item['body'], 'attr') ?>"
                                 data-audience="<?= esc((string) $item['audience'], 'attr') ?>"
                                 data-is-published="<?= (int) ($item['is_published'] ?? 0) ?>"
-                                data-publish-at="<?= esc((string) ($item['publish_at'] ?? ''), 'attr') ?>"
-                                data-expires-at="<?= esc((string) ($item['expires_at'] ?? ''), 'attr') ?>"
+                                data-publish-at="<?= esc($annPublishRaw, 'attr') ?>"
+                                data-expires-at="<?= esc($annExpiresRaw, 'attr') ?>"
+                                data-image-path="<?= esc($item['image_path'] ?? '', 'attr') ?>"
+                                data-image-url="<?= esc($item['image_path'] ? FeedbackImageStorage::publicUrl((string)$item['image_path']) : '', 'attr') ?>"
                             >
-                                <td>
-                                    <strong><?= esc((string) $item['title']) ?></strong>
-                                    <div class="muted"><?= esc(strlen((string) $item['body']) > 70 ? substr((string) $item['body'], 0, 70) . '...' : (string) $item['body']) ?></div>
+                                <?php
+                                $annTitle = (string) $item['title'];
+                                $annBody  = (string) $item['body'];
+                                $annTitleShort = mb_strlen($annTitle) > 42 ? mb_substr($annTitle, 0, 42) . '…' : $annTitle;
+                                $annBodyShort  = mb_strlen($annBody)  > 60 ? mb_substr($annBody,  0, 60) . '…' : $annBody;
+                                ?>
+                                <td style="max-width:220px;">
+                                    <?php if ((int)($item['pinned'] ?? 0) === 1): ?>
+                                        <span style="font-size:0.75rem; margin-right:4px;" title="Pinned">📍</span>
+                                    <?php endif; ?>
+                                    <strong style="display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px;" title="<?= esc($annTitle, 'attr') ?>"><?= esc($annTitleShort) ?></strong>
+                                    <div class="muted" style="font-size:0.78rem; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px;" title="<?= esc($annBody, 'attr') ?>"><?= esc($annBodyShort) ?></div>
                                 </td>
-                                <td>
-                                    <?php if ((int) ($item['is_published'] ?? 0) === 1): ?>
-                                        <span class="pill status-reviewed">Published</span>
+                                <td style="text-align:center;">
+                                    <?php if ($annIsExpired): ?>
+                                        <span class="pill status-rejected">Expired</span>
+                                    <?php elseif ($annIsScheduled): ?>
+                                        <span class="pill status-pending">Scheduled</span>
+                                    <?php elseif ($annIsLive): ?>
+                                        <span class="pill status-approved">Live</span>
                                     <?php else: ?>
                                         <span class="pill status-new">Draft</span>
                                     <?php endif; ?>
                                 </td>
+                                <td style="font-size:0.8rem; white-space:nowrap; color:var(--muted);">
+                                    <?= $annPublishTs !== null ? esc(date('M d, Y H:i', $annPublishTs)) : '<em>Immediate</em>' ?>
+                                </td>
+                                <td style="font-size:0.8rem; white-space:nowrap;">
+                                    <?php if ($annExpiresTs !== null): ?>
+                                        <span style="color:<?= $annIsExpired ? '#991b1b' : 'var(--muted)' ?>;">
+                                            <?= esc(date('M d, Y H:i', $annExpiresTs)) ?>
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="muted"><em>Never</em></span>
+                                    <?php endif; ?>
+                                </td>
                                 <td>
                                     <?php $isPinned = (int)($item['pinned'] ?? 0); ?>
-                                    <button type="button" class="text-btn pin-btn" data-announcement-id="<?= (int) $item['id'] ?>" title="<?= $isPinned ? 'Unpin this announcement' : 'Pin this announcement' ?>">
+                                    <button type="button" class="text-btn pin-btn" data-announcement-id="<?= (int) $item['id'] ?>" title="<?= $isPinned ? 'Unpin' : 'Pin' ?>">
                                         <?= $isPinned ? '📍 Unpin' : '📌 Pin' ?>
                                     </button>
                                     <button type="button" class="text-btn" data-edit-announcement="<?= (int) $item['id'] ?>">Edit</button>
@@ -391,7 +511,7 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="3">No announcements available.</td>
+                            <td colspan="5">No announcements available.</td>
                         </tr>
                     <?php endif; ?>
                     </tbody>
@@ -847,10 +967,18 @@ $allCategories = $allCategories ?? [];
             }
         }
 
+        // Map element-level anchors inside tabs to their parent tab name
+        const anchorToTab = { 'announcement-list': 'announcements' };
+
         function resolveInitialTab() {
             const hash = window.location.hash.replace('#', '').trim();
             if (allowedTabs.includes(hash)) {
                 return hash;
+            }
+
+            // Handle anchors that live inside a tab panel (e.g. #announcement-list)
+            if (anchorToTab[hash]) {
+                return anchorToTab[hash];
             }
 
             if (allowedTabs.includes(safePanelTab)) {
@@ -873,13 +1001,13 @@ $allCategories = $allCategories ?? [];
         openTab(resolveInitialTab(), false);
 
         const feedbackSearch = document.getElementById('feedback-search');
-        const feedbackStatusFilter = document.getElementById('feedback-status-filter');
         const feedbackTypeFilter = document.getElementById('feedback-type-filter');
         const feedbackCategoryFilter = document.getElementById('feedback-category-filter');
+        let activeFeedbackStatus = '';
 
         function filterFeedbackRows() {
             const rawQuery = (feedbackSearch.value || '').toLowerCase().trim();
-            const status = feedbackStatusFilter.value;
+            const status = activeFeedbackStatus;
             const type = feedbackTypeFilter.value;
             const category = feedbackCategoryFilter.value;
 
@@ -904,11 +1032,20 @@ $allCategories = $allCategories ?? [];
             });
         }
 
-        [feedbackSearch, feedbackStatusFilter, feedbackTypeFilter, feedbackCategoryFilter].forEach(function (input) {
+        [feedbackSearch, feedbackTypeFilter, feedbackCategoryFilter].forEach(function (input) {
             if (input) {
                 input.addEventListener('input', filterFeedbackRows);
                 input.addEventListener('change', filterFeedbackRows);
             }
+        });
+
+        document.querySelectorAll('.fbk-status-pill').forEach(function (pill) {
+            pill.addEventListener('click', function () {
+                document.querySelectorAll('.fbk-status-pill').forEach(function (p) { p.classList.remove('active'); });
+                pill.classList.add('active');
+                activeFeedbackStatus = pill.getAttribute('data-filter-status') || '';
+                filterFeedbackRows();
+            });
         });
 
         async function postJson(url, payload, statusEl, resultEl) {
@@ -966,39 +1103,130 @@ $allCategories = $allCategories ?? [];
         const announcementSubmitBtn = document.getElementById('announcement-submit-btn');
         const announcementCancelBtn = document.getElementById('announcement-cancel-edit');
 
-        function toDateTimeLocal(value) {
-            if (!value) {
-                return '';
-            }
+        var annPublishDate = document.getElementById('ann-publish-date');
+        var annPublishTime = document.getElementById('ann-publish-time');
+        var annExpiresDate = document.getElementById('ann-expires-date');
+        var annExpiresTime = document.getElementById('ann-expires-time');
+        var annPublishHidden = document.getElementById('ann-publish-at');
+        var annExpiresHidden = document.getElementById('ann-expires-at');
 
-            const normalized = value.replace(' ', 'T');
-            return normalized.length >= 16 ? normalized.slice(0, 16) : '';
+        function splitDateTimeInto(prefix, rawValue) {
+            var dateEl = prefix === 'publish' ? annPublishDate : annExpiresDate;
+            var timeEl = prefix === 'publish' ? annPublishTime : annExpiresTime;
+            var defaultTime = prefix === 'publish' ? '08:00' : '23:59';
+            if (rawValue && rawValue.length >= 10) {
+                var normalized = rawValue.replace(' ', 'T');
+                dateEl.value = normalized.slice(0, 10);
+                timeEl.value = normalized.length >= 16 ? normalized.slice(11, 16) : defaultTime;
+            } else {
+                dateEl.value = '';
+                timeEl.value = defaultTime;
+            }
+        }
+
+        function buildHiddenDateTimes() {
+            annPublishHidden.value = annPublishDate.value
+                ? annPublishDate.value + ' ' + (annPublishTime.value || '00:00') + ':00'
+                : '';
+            annExpiresHidden.value = annExpiresDate.value
+                ? annExpiresDate.value + ' ' + (annExpiresTime.value || '23:59') + ':00'
+                : '';
         }
 
         function resetAnnouncementForm() {
-            if (!announcementForm) {
-                return;
-            }
-
+            if (!announcementForm) { return; }
             announcementForm.action = <?= json_encode(site_url('admin/announcements')) ?>;
             announcementTitle.textContent = 'Create Announcement';
             announcementSubmitBtn.textContent = 'Publish Announcement';
             announcementCancelBtn.style.display = 'none';
             announcementForm.reset();
             announcementForm.elements.is_published.value = '1';
+            splitDateTimeInto('publish', '');
+            splitDateTimeInto('expires', '');
+            // Clear image preview
+            var previewWrap = document.getElementById('ann-image-preview-wrap');
+            var previewImg  = document.getElementById('ann-image-preview');
+            if (previewWrap) { previewWrap.style.display = 'none'; }
+            if (previewImg)  { previewImg.src = ''; }
         }
+
+        if (announcementForm) {
+            announcementForm.addEventListener('submit', buildHiddenDateTimes);
+        }
+
+        // Live image preview when user picks a new file
+        var annImageInput = document.getElementById('ann-image');
+        if (annImageInput) {
+            annImageInput.addEventListener('change', function () {
+                var file = this.files && this.files[0];
+                var previewWrap = document.getElementById('ann-image-preview-wrap');
+                var previewImg  = document.getElementById('ann-image-preview');
+                var removeChk   = document.getElementById('ann-remove-image');
+                if (file) {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        previewImg.src = e.target.result;
+                        previewWrap.style.display = '';
+                        if (removeChk) removeChk.checked = false;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        document.querySelectorAll('[data-dt-clear]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var prefix = btn.getAttribute('data-dt-clear');
+                if (prefix === 'publish') { annPublishDate.value = ''; annPublishTime.value = '08:00'; }
+                else { annExpiresDate.value = ''; annExpiresTime.value = '23:59'; }
+            });
+        });
+
+        function addDays(d, n) { var r = new Date(d); r.setDate(r.getDate() + n); return r; }
+        function addMonths(d, n) { var r = new Date(d); r.setMonth(r.getMonth() + n); return r; }
+        function addYears(d, n) { var r = new Date(d); r.setFullYear(r.getFullYear() + n); return r; }
+        function toDateStr(d) {
+            var y = d.getFullYear();
+            var m = String(d.getMonth() + 1).padStart(2, '0');
+            var day = String(d.getDate()).padStart(2, '0');
+            return y + '-' + m + '-' + day;
+        }
+        function currentTimeStr() {
+            var now = new Date();
+            return String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+        }
+
+        document.querySelectorAll('[data-quick-publish]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var today = new Date();
+                var type = btn.getAttribute('data-quick-publish');
+                if (type === 'today') annPublishDate.value = toDateStr(today);
+                else if (type === 'tomorrow') annPublishDate.value = toDateStr(addDays(today, 1));
+                else if (type === 'week') annPublishDate.value = toDateStr(addDays(today, 7));
+                // Only pre-fill the time if the user hasn't already typed one.
+                // An empty or default '08:00' value means they haven't set it yet.
+                if (!annPublishTime.value || annPublishTime.value === '08:00') {
+                    annPublishTime.value = currentTimeStr();
+                }
+            });
+        });
+
+        document.querySelectorAll('[data-quick-expires]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var today = new Date();
+                var type = btn.getAttribute('data-quick-expires');
+                if (type === 'week') annExpiresDate.value = toDateStr(addDays(today, 7));
+                else if (type === 'month') annExpiresDate.value = toDateStr(addMonths(today, 1));
+                else if (type === 'year') annExpiresDate.value = toDateStr(addYears(today, 1));
+            });
+        });
 
         document.querySelectorAll('[data-edit-announcement]').forEach(function (button) {
             button.addEventListener('click', function () {
-                if (!announcementForm) {
-                    return;
-                }
-
+                if (!announcementForm) { return; }
                 const id = button.getAttribute('data-edit-announcement');
                 const row = document.querySelector('[data-announcement-row="1"][data-id="' + id + '"]');
-                if (!row) {
-                    return;
-                }
+                if (!row) { return; }
 
                 announcementForm.action = <?= json_encode(site_url('admin/announcements')) ?> + '/' + id;
                 announcementTitle.textContent = 'Edit Announcement #' + id;
@@ -1008,8 +1236,22 @@ $allCategories = $allCategories ?? [];
                 announcementForm.elements.title.value = row.getAttribute('data-title') || '';
                 announcementForm.elements.body.value = row.getAttribute('data-body') || '';
                 announcementForm.elements.is_published.value = row.getAttribute('data-is-published') || '1';
-                announcementForm.elements.publish_at.value = toDateTimeLocal(row.getAttribute('data-publish-at') || '');
-                announcementForm.elements.expires_at.value = toDateTimeLocal(row.getAttribute('data-expires-at') || '');
+                splitDateTimeInto('publish', row.getAttribute('data-publish-at') || '');
+                splitDateTimeInto('expires', row.getAttribute('data-expires-at') || '');
+
+                // Show existing image preview if present
+                var existingImgUrl = row.getAttribute('data-image-url') || '';
+                var previewWrap = document.getElementById('ann-image-preview-wrap');
+                var previewImg  = document.getElementById('ann-image-preview');
+                var removeChk   = document.getElementById('ann-remove-image');
+                if (existingImgUrl) {
+                    previewImg.src = existingImgUrl;
+                    previewWrap.style.display = '';
+                    removeChk.checked = false;
+                } else {
+                    previewWrap.style.display = 'none';
+                    previewImg.src = '';
+                }
 
                 openTab('announcements', true);
                 announcementForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1017,9 +1259,7 @@ $allCategories = $allCategories ?? [];
         });
 
         if (announcementCancelBtn) {
-            announcementCancelBtn.addEventListener('click', function () {
-                resetAnnouncementForm();
-            });
+            announcementCancelBtn.addEventListener('click', function () { resetAnnouncementForm(); });
         }
 
         resetAnnouncementForm();

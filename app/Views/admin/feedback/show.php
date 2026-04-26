@@ -56,16 +56,40 @@
             <?php endif; ?>
         </p>
 
-        <form method="post" action="<?= site_url('admin/feedback/' . (int) $feedback['id'] . '/status') ?>" class="form-grid">
-            <h3>Update Status</h3>
-            <select name="status" required>
-                <?php foreach (['new', 'reviewed', 'resolved'] as $status): ?>
-                    <option value="<?= esc($status) ?>" <?= ((string) $feedback['status'] === $status) ? 'selected' : '' ?>><?= esc(ucfirst($status)) ?></option>
-                <?php endforeach; ?>
-            </select>
-            <textarea name="admin_notes" rows="3" placeholder="Optional note for your team"><?= esc((string) ($feedback['admin_notes'] ?? '')) ?></textarea>
-            <button type="submit">Save Status</button>
-        </form>
+        <?php $cs = (string) $feedback['status']; ?>
+        <?php if ($cs === 'pending'): ?>
+        <div class="fbk-detail-actions">
+            <h4>Action</h4>
+            <div class="fbk-action-btns">
+                <form method="post" action="<?= site_url('admin/feedback/' . (int) $feedback['id'] . '/status') ?>">
+                    <input type="hidden" name="status" value="approved">
+                    <input type="hidden" name="admin_notes" value="">
+                    <button class="fbk-act-btn fbk-act-approve" type="submit">Approve</button>
+                </form>
+                <form method="post" action="<?= site_url('admin/feedback/' . (int) $feedback['id'] . '/status') ?>" class="detail-status-form">
+                    <input type="hidden" name="status" value="rejected">
+                    <input type="hidden" name="admin_notes" value="">
+                    <button class="fbk-act-btn fbk-act-reject" type="submit">Reject</button>
+                </form>
+            </div>
+        </div>
+        <?php elseif ($cs === 'approved'): ?>
+        <div class="fbk-detail-actions">
+            <h4>Action</h4>
+            <div class="fbk-action-btns">
+                <form method="post" action="<?= site_url('admin/feedback/' . (int) $feedback['id'] . '/status') ?>" class="detail-status-form">
+                    <input type="hidden" name="status" value="reviewed">
+                    <input type="hidden" name="admin_notes" value="">
+                    <button class="fbk-act-btn fbk-act-review" type="submit">Mark Reviewed</button>
+                </form>
+                <form method="post" action="<?= site_url('admin/feedback/' . (int) $feedback['id'] . '/status') ?>" class="detail-status-form">
+                    <input type="hidden" name="status" value="resolved">
+                    <input type="hidden" name="admin_notes" value="">
+                    <button class="fbk-act-btn fbk-act-resolve" type="submit">Mark Resolved</button>
+                </form>
+            </div>
+        </div>
+        <?php endif; ?>
     </section>
 
     <section class="panel">
@@ -96,4 +120,69 @@
         </form>
     </section>
 </div>
+<div class="modal-overlay" id="detailStatusModal" hidden>
+    <div class="modal-card" style="max-width:460px; padding:24px 28px;">
+        <div class="modal-head">
+            <h3 style="margin:0; font-size:1rem;" id="detailModalTitle">Confirm Action</h3>
+        </div>
+        <p id="detailModalDesc" style="margin:0 0 12px; font-size:0.875rem; color:#5f7298;"></p>
+        <textarea id="detailModalNotes" rows="4" placeholder="e.g. Thank you for your feedback — we have taken note of this." style="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #c8d8ff; border-radius:8px; font-size:0.875rem; resize:vertical; min-height:90px; font-family:inherit;"></textarea>
+        <div style="display:flex; gap:10px; margin-top:16px; justify-content:flex-end;">
+            <button type="button" id="detailModalCancel" class="mini-btn secondary">Cancel</button>
+            <button type="button" id="detailModalConfirm" class="mini-btn">Confirm</button>
+        </div>
+    </div>
+</div>
+<script>
+(function () {
+    var modal   = document.getElementById('detailStatusModal');
+    var title   = document.getElementById('detailModalTitle');
+    var desc    = document.getElementById('detailModalDesc');
+    var notes   = document.getElementById('detailModalNotes');
+    var btnCancel  = document.getElementById('detailModalCancel');
+    var btnConfirm = document.getElementById('detailModalConfirm');
+    var pendingForm = null;
+
+    var statusTitles = {
+        rejected: 'Reject Feedback',
+        reviewed: 'Mark as Reviewed',
+        resolved: 'Mark as Resolved',
+    };
+    var statusDescs = {
+        rejected: 'Please provide a reason — this will be shared with the student.',
+        reviewed: 'Optionally add a message for the student about this review.',
+        resolved: 'Optionally confirm to the student that this issue has been resolved.',
+    };
+
+    document.querySelectorAll('.detail-status-form').forEach(function (form) {
+        form.addEventListener('submit', function (e) {
+            var si = form.querySelector('[name="status"]');
+            if (!si) return;
+            var chosen = si.value;
+            if (chosen === 'approved') return;
+            e.preventDefault();
+            pendingForm = form;
+            title.textContent = statusTitles[chosen] || ('Mark as ' + chosen.charAt(0).toUpperCase() + chosen.slice(1));
+            desc.textContent = statusDescs[chosen] || 'Optionally add a message for the student. Leave blank to skip.';
+            notes.value = '';
+            modal.removeAttribute('hidden');
+            setTimeout(function () { notes.focus(); }, 50);
+        });
+    });
+
+    function closeModal() { modal.setAttribute('hidden', ''); pendingForm = null; }
+
+    btnCancel.addEventListener('click', closeModal);
+    btnConfirm.addEventListener('click', function () {
+        if (!pendingForm) return;
+        var hn = pendingForm.querySelector('[name="admin_notes"]');
+        if (hn) hn.value = notes.value.trim();
+        modal.setAttribute('hidden', '');
+        pendingForm.submit();
+        pendingForm = null;
+    });
+    modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !modal.hasAttribute('hidden')) closeModal(); });
+}());
+</script>
 <?= $this->endSection() ?>

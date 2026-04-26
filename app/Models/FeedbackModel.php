@@ -23,6 +23,9 @@ class FeedbackModel extends Model
         'submitted_at',
         'resolved_at',
         'admin_notes',
+        'rejection_reason',
+        'reviewed_by',
+        'reviewed_at',
     ];
 
     protected bool $allowEmptyInserts = false;

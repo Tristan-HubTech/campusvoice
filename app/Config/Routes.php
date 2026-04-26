@@ -5,9 +5,9 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
-$routes->get('/', 'SocialController::index');
+$routes->get('/', static function () { return redirect()->to(site_url('users')); });
 
-$routes->get('feed', 'SocialController::index');
+$routes->get('feed', static function () { return redirect()->to(site_url('users')); });
 $routes->post('feed/post', 'SocialController::createPost');
 $routes->post('posts/(:num)/react', 'SocialController::react/$1');
 $routes->post('posts/(:num)/comment', 'SocialController::comment/$1');
@@ -46,6 +46,10 @@ $routes->group('admin', ['filter' => 'adminauth'], static function (RouteCollect
 	$routes->post('users/(:num)/toggle-status', 'Admin\\UserManagementController::toggleStatus/$1');
 	$routes->post('users/(:num)/send-reset', 'Admin\\UserManagementController::sendPasswordReset/$1');
 
+	// Feedback approval workflow
+	$routes->post('feedback/(:num)/approve', 'Admin\\FeedbackController::approve/$1');
+	$routes->post('feedback/(:num)/reject',  'Admin\\FeedbackController::reject/$1');
+
 	// Category Management
 	$routes->post('categories', 'Admin\\CategoryController::store');
 	$routes->post('categories/(:num)/update', 'Admin\\CategoryController::update/$1');
@@ -60,6 +64,7 @@ $routes->post('users/register/send-otp', 'Student\\AuthController::sendRegisterO
 $routes->match(['get', 'post'], 'users/forgot-password', 'Student\\AuthController::forgotPassword');
 $routes->post('users/forgot-password/send-otp', 'Student\\AuthController::sendForgotOtp');
 $routes->post('users/forgot-password/verify-otp', 'Student\\AuthController::verifyForgotOtp');
+$routes->match(['get', 'post'], 'users/set-password/(:segment)', 'Student\\AuthController::adminResetPassword/$1');
 $routes->get('users/logout', 'Student\\AuthController::logout');
 
 // Legacy portal aliases (kept for old bookmarks/links)
@@ -80,14 +85,6 @@ $routes->group('users', ['filter' => 'studentauth'], static function (RouteColle
 	$routes->post('feedback/(:num)/delete', 'Student\\PortalController::deleteFeedback/$1');
 });
 
-$routes->group('portal', ['filter' => 'studentauth'], static function (RouteCollection $routes): void {
-	$routes->get('/', 'Student\\PortalController::index');
-	$routes->get('announcements', 'Student\\PortalController::announcements');
-	$routes->get('feedback', 'Student\\PortalController::myFeedback');
-	$routes->match(['get', 'post'], 'feedback/submit', 'Student\\PortalController::submitFeedback');
-	$routes->get('feedback/(:num)', 'Student\\PortalController::viewFeedback/$1');
-	$routes->post('feedback/(:num)/delete', 'Student\\PortalController::deleteFeedback/$1');
-});
 
 $routes->group('api', ['namespace' => 'App\\Controllers\\Api'], static function (RouteCollection $routes): void {
 	$routes->post('auth/register', 'AuthController::register');

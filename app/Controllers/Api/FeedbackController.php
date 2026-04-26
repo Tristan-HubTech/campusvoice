@@ -95,7 +95,7 @@ class FeedbackController extends ApiController
             'subject'      => $payload['subject'] ?? null,
             'message'      => trim($payload['message']),
             'is_anonymous' => isset($payload['is_anonymous']) ? (int) $payload['is_anonymous'] : 0,
-            'status'       => 'new',
+            'status'       => 'pending',
             'submitted_at' => date('Y-m-d H:i:s'),
         ]);
 

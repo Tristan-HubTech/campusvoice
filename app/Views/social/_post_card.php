@@ -1,5 +1,5 @@
 <?php
-$emojiMap   = ['like' => '👍', 'love' => '❤️', 'haha' => '😆', 'wow' => '😮', 'sad' => '😢', 'angry' => '😠'];
+$emojiMap   = ['like' => "👍\u{FE0F}", 'love' => "❤\u{FE0F}", 'haha' => "😆\u{FE0F}", 'wow' => "😮\u{FE0F}", 'sad' => "😢\u{FE0F}", 'angry' => "😠\u{FE0F}"];
 $emojiLabel = ['like' => 'Like', 'love' => 'Love', 'haha' => 'Haha', 'wow' => 'Wow', 'sad' => 'Sad', 'angry' => 'Angry'];
 $rxColors   = ['like' => '#2078f4', 'love' => '#ed4956', 'haha' => '#f7b928', 'wow' => '#f7b928', 'sad' => '#f7b928', 'angry' => '#e9710f'];
 $viewerRx   = $post['viewer_reaction'] ?? null;
@@ -100,7 +100,7 @@ if ($fbType !== '') {
                     $crBreakdown = $comment['reaction_breakdown'] ?? [];
                     $crTotal     = array_sum($crBreakdown);
                     $viewerCRx   = $comment['viewer_reaction'] ?? null;
-                    $crEmojiMap  = ['like' => '👍', 'love' => '❤️', 'haha' => '😆', 'wow' => '😮', 'sad' => '😢', 'angry' => '😠'];
+                    $crEmojiMap  = ['like' => "👍\u{FE0F}", 'love' => "❤\u{FE0F}", 'haha' => "😆\u{FE0F}", 'wow' => "😮\u{FE0F}", 'sad' => "😢\u{FE0F}", 'angry' => "😠\u{FE0F}"];
                     $crColors    = ['like' => '#2078f4', 'love' => '#ed4956', 'haha' => '#f7b928', 'wow' => '#f7b928', 'sad' => '#f7b928', 'angry' => '#e9710f'];
                     ?>
                     <div class="comment-item" data-comment-id="<?= (int) $comment['id'] ?>">

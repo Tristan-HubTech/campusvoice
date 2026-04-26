@@ -217,7 +217,7 @@
     });
 
     /* ── Emoji maps ── */
-    var emojiMap   = { like:'👍', love:'❤️', haha:'😆', wow:'😮', sad:'😢', angry:'😠' };
+    var emojiMap   = { like:'👍\uFE0F', love:'❤\uFE0F', haha:'😆\uFE0F', wow:'😮\uFE0F', sad:'😢\uFE0F', angry:'😠\uFE0F' };
     var rxColorMap = { like:'#2078f4', love:'#ed4956', haha:'#f7b928', wow:'#f7b928', sad:'#f7b928', angry:'#e9710f' };
     var rxLabelMap = { like:'Like', love:'Love', haha:'Haha', wow:'Wow', sad:'Sad', angry:'Angry' };
     var crEmojiMap = emojiMap;

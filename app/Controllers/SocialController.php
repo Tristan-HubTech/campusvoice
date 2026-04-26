@@ -16,48 +16,9 @@ class SocialController extends BaseController
 {
     private array $avatarPalette = ['blue', 'teal', 'coral', 'violet', 'amber', 'rose'];
 
-    public function index(): string
+    public function index()
     {
-        $viewer = $this->viewer();
-        $viewerId = (int) ($viewer['id'] ?? 0);
-
-        if ($viewerId > 0) {
-            $profile = $this->ensureProfile($viewerId);
-        }
-
-        $isAnon = (int) (($profile ?? [])['is_anonymous'] ?? 0) === 1;
-
-        $pinnedAnnouncements = (new \App\Models\AnnouncementModel())
-            ->where('is_published', 1)
-            ->where('pinned', 1)
-            ->groupStart()
-                ->where('expires_at IS NULL')
-                ->orWhere('expires_at >=', date('Y-m-d H:i:s'))
-            ->groupEnd()
-            ->findAll(1);
-
-        $latestAnnouncements = (new \App\Models\AnnouncementModel())
-            ->where('is_published', 1)
-            ->where('pinned', 0)
-            ->groupStart()
-                ->where('expires_at IS NULL')
-                ->orWhere('expires_at >=', date('Y-m-d H:i:s'))
-            ->groupEnd()
-            ->orderBy('created_at', 'DESC')
-            ->findAll(1);
-
-        $announcements = array_merge($pinnedAnnouncements, $latestAnnouncements);
-
-        return view('social/feed', [
-            'title'              => 'Community Feed',
-            'pageKey'            => 'feed',
-            'studentUser'        => $viewer,
-            'currentUser'        => $viewer,
-            'posts'              => $this->buildPosts($viewerId),
-            'announcements'      => $announcements,
-            'isAnonymous'        => $isAnon,
-            'anonAlias'          => $isAnon ? $this->anonymousAlias($viewerId) : '',
-        ]);
+        return redirect()->to(site_url('users'));
     }
 
     public function profile(int $userId): string
@@ -404,7 +365,7 @@ HTML;
 
         (new SocialPostModel())->insert($postPayload);
 
-        return redirect()->to(site_url('feed'))->with('success', 'Your post is now live.');
+        return redirect()->to(site_url('users'))->with('success', 'Your post is now live.');
     }
 
     public function deletePost(int $postId)
@@ -797,6 +758,11 @@ HTML;
             ->join('feedbacks', 'feedbacks.id = social_posts.feedback_id', 'left')
             ->where('users.is_active', 1)
             ->where('social_posts.is_public', 1)
+            // Feedback-linked posts must be in [approved, reviewed, resolved]; non-feedback community posts always show
+            ->groupStart()
+                ->where('social_posts.feedback_id IS NULL')
+                ->orWhereIn('feedbacks.status', ['approved', 'reviewed', 'resolved'])
+            ->groupEnd()
             ->orderBy('social_posts.created_at', 'DESC');
 
         if ($userId !== null) {

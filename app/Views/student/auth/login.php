@@ -15,9 +15,6 @@
         </div>
         <div class="auth-topbar-end">
             <?= $this->include('partials/theme_toggle') ?>
-            <a href="<?= site_url('/') ?>" class="auth-topbar-exit" aria-label="Back to home">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M10.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L9.293 7.5H1.5a.5.5 0 0 0 0 1h7.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/><path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H8a.5.5 0 0 0 0 1h6a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H8a.5.5 0 0 0 0 1h6z"/></svg>
-                Exit
             </a>
         </div>
     </header>
@@ -81,6 +78,7 @@
 
                     <label for="reg-email">Email Address</label>
                     <input id="reg-email" name="email" type="email" required maxlength="150" autocomplete="off" placeholder="you@example.com">
+                    <small id="reg-email-hint" class="otp-status-text" aria-live="polite"></small>
 
                     <label for="reg-otp">OTP Code</label>
                     <button type="button" class="auth-otp-btn" id="send-register-otp-btn">Send OTP to Email</button>
@@ -261,11 +259,45 @@
                     });
             }
 
+            var emailHintEl = document.getElementById('reg-email-hint');
+
+            function getEmailHint(values) {
+                var emailPattern = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+                if (!emailPattern.test(values.email)) {
+                    return '';
+                }
+                var noName     = !values.firstName || !values.lastName;
+                var noPassword = !values.password || values.password.length < 8;
+                var mismatch   = values.password && values.password.length >= 8 && values.password !== values.confirm;
+
+                if (noName && noPassword) {
+                    return '👆 Fill in your name and create a password first, then you can send the OTP.';
+                }
+                if (noName) {
+                    return '👆 Please fill in your first and last name to continue.';
+                }
+                if (!values.password) {
+                    return '🔒 Create a password below, then we\'ll send an OTP to verify your email.';
+                }
+                if (values.password.length < 8) {
+                    return '🔒 Your password needs at least 8 characters.';
+                }
+                if (mismatch) {
+                    return '⚠ The passwords you entered don\'t match yet.';
+                }
+                return '';
+            }
+
             function updateOtpButtonState() {
                 var values = gatherRegisterFields();
                 var isReady = areRegisterRequirementsComplete(values);
                 sendOtpBtn.classList.toggle('ready', isReady);
                 sendOtpBtn.disabled = !isReady;
+                if (emailHintEl) {
+                    var hint = isReady ? '' : getEmailHint(values);
+                    emailHintEl.textContent = hint;
+                    emailHintEl.style.color = hint ? '#92400e' : '';
+                }
             }
 
             sendOtpBtn.addEventListener('click', function () {

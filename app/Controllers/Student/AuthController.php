@@ -196,6 +196,9 @@ class AuthController extends Controller
         $isNewUser = empty($user['last_login_at']);
         $userModel->update((int) $user['id'], ['last_login_at' => date('Y-m-d H:i:s')]);
 
+        // Hard reset: never let a student session coexist with an admin session in the same browser.
+        session()->remove('admin_auth');
+
         session()->set('student_auth', [
             'id'         => (int) $user['id'],
             'name'       => trim(((string) ($user['first_name'] ?? '')) . ' ' . ((string) ($user['last_name'] ?? ''))),
@@ -310,6 +313,94 @@ class AuthController extends Controller
         return false;
     }
 
+    // Shows the set-password page linked from an admin-initiated reset email.
+    public function adminResetPassword(string $token)
+    {
+        if ($this->request->getMethod() === 'post') {
+            return $this->processAdminReset($token);
+        }
+
+        $record = $this->findAdminResetToken($token);
+
+        return view('student/auth/set-password', [
+            'title'        => 'Set New Password',
+            'isAuthScreen' => true,
+            'valid'        => $record !== null,
+            'token'        => $token,
+        ]);
+    }
+
+    private function processAdminReset(string $token)
+    {
+        $post  = $this->request->getPost();
+        $rules = [
+            'password'         => 'required|min_length[8]|max_length[255]',
+            'password_confirm' => 'required|matches[password]',
+        ];
+
+        if (! $this->validateData($post, $rules)) {
+            return redirect()->to(site_url('users/set-password/' . $token))
+                ->with('error', implode(' ', $this->validator->getErrors()));
+        }
+
+        $record = $this->findAdminResetToken($token);
+
+        if ($record === null) {
+            return view('student/auth/set-password', [
+                'title'        => 'Set New Password',
+                'isAuthScreen' => true,
+                'valid'        => false,
+                'token'        => $token,
+            ]);
+        }
+
+        $userModel = new UserModel();
+        $user = $userModel->where('email', $record['email'])->where('is_active', 1)->first();
+
+        if ($user === null) {
+            return redirect()->to(site_url('users/login'))
+                ->with('error', 'Account not found or inactive. Please contact your administrator.');
+        }
+
+        $password = (string) ($post['password'] ?? '');
+
+        if (password_verify($password, (string) ($user['password_hash'] ?? ''))) {
+            return redirect()->to(site_url('users/set-password/' . $token))
+                ->with('error', 'Your new password cannot be the same as your current password.');
+        }
+
+        $now = date('Y-m-d H:i:s');
+        $userModel->update((int) $user['id'], [
+            'password_hash' => password_hash($password, PASSWORD_DEFAULT),
+        ]);
+
+        $otpModel = new PasswordOtpModel();
+        $otpModel->update((int) $record['id'], ['used_at' => $now]);
+
+        return redirect()->to(site_url('users/login'))
+            ->with('success', 'Password set successfully. You can now log in.');
+    }
+
+    private function findAdminResetToken(string $token): ?array
+    {
+        $now      = date('Y-m-d H:i:s');
+        $otpModel = new PasswordOtpModel();
+
+        $records = $otpModel
+            ->where('purpose', 'admin_reset')
+            ->where('used_at', null)
+            ->where('expires_at >=', $now)
+            ->findAll();
+
+        foreach ($records as $record) {
+            if (password_verify($token, (string) $record['otp_hash'])) {
+                return $record;
+            }
+        }
+
+        return null;
+    }
+
     // Shows and processes the forgot-password page (step 1: email, step 2: OTP + new password).
     public function forgotPassword()
     {
@@ -321,6 +412,11 @@ class AuthController extends Controller
             return $this->handleResetPassword();
         }
 
+        if ($this->request->getGet('restart') === '1') {
+            session()->remove('forgot_password_reset');
+            return redirect()->to(site_url('users/forgot-password'));
+        }
+
         $forgotResetState = session()->get('forgot_password_reset');
 
         return view('student/auth/forgot-password', [
@@ -328,6 +424,7 @@ class AuthController extends Controller
             'isAuthScreen'           => true,
             'forgotOtpVerified'      => is_array($forgotResetState) && ! empty($forgotResetState['email']),
             'forgotOtpVerifiedEmail' => is_array($forgotResetState) ? (string) ($forgotResetState['email'] ?? '') : '',
+            'forgotSessionOtp'       => is_array($forgotResetState) ? (string) ($forgotResetState['otp'] ?? '') : '',
         ]);
     }
 
@@ -347,11 +444,11 @@ class AuthController extends Controller
         $userModel = new UserModel();
         $user = $userModel->where('email', $email)->where('is_active', 1)->first();
 
-        // Always return OK to prevent email enumeration.
+        // Only send OTP if the email belongs to an active account.
         if ($user === null) {
-            return $this->response->setJSON([
-                'ok'      => true,
-                'message' => 'If that email is registered, an OTP has been sent.',
+            return $this->response->setStatusCode(404)->setJSON([
+                'ok'      => false,
+                'message' => 'No account found with that email address.',
             ]);
         }
 
@@ -407,7 +504,7 @@ class AuthController extends Controller
 
         return $this->response->setJSON([
             'ok'      => true,
-            'message' => 'If that email is registered, an OTP has been sent.',
+            'message' => 'OTP sent to ' . $email . '. Please check your inbox.',
         ]);
     }
 
@@ -441,6 +538,7 @@ class AuthController extends Controller
         session()->set('forgot_password_reset', [
             'email'       => $email,
             'verified_at' => time(),
+            'otp'         => $otp,
         ]);
 
         return $this->response->setJSON([
@@ -477,24 +575,32 @@ class AuthController extends Controller
 
         if (! $isVerifiedForEmail) {
             return redirect()->to(site_url('users/forgot-password'))
-                ->with('error', 'Please verify the OTP first before setting a new password.')
-                ->withInput();
+                ->with('error', 'Please verify the OTP first before setting a new password.');
         }
 
-        if (! $this->verifyResetOtp($email, $otp, true)) {
-            session()->remove('forgot_password_reset');
-            return redirect()->to(site_url('users/forgot-password'))
-                ->with('error', 'Invalid or expired OTP. Please request a new one.')
-                ->withInput();
-        }
-
+        // ── Fetch user FIRST ──────────────────────────────────────────────────
         $userModel = new UserModel();
         $user = $userModel->where('email', $email)->where('is_active', 1)->first();
 
         if ($user === null) {
+            session()->remove('forgot_password_reset');
             return redirect()->to(site_url('users/forgot-password'))
-                ->with('error', 'Account not found.')
-                ->withInput();
+                ->with('error', 'Account not found.');
+        }
+
+        // ── Same-password check BEFORE consuming the OTP ──────────────────────
+        // If this fails the OTP is still valid and the user can retry immediately.
+        if (password_verify($password, (string) ($user['password_hash'] ?? ''))) {
+            return redirect()->to(site_url('users/forgot-password'))
+                ->with('error', '⚠ Your new password cannot be the same as your current password. Please choose a different one.');
+            // Note: NO ->withInput() so the password fields are blank on retry.
+        }
+
+        // ── Consume the OTP only when we are sure we can proceed ──────────────
+        if (! $this->verifyResetOtp($email, $otp, true)) {
+            session()->remove('forgot_password_reset');
+            return redirect()->to(site_url('users/forgot-password'))
+                ->with('error', 'Invalid or expired OTP. Please request a new one.');
         }
 
         $userModel->update((int) $user['id'], [

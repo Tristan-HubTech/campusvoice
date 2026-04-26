@@ -15,35 +15,58 @@
                 <p class="home-hero__sub">Your campus voice matters.</p>
             </div>
         </div>
-        <a href="<?= site_url('users/feedback/submit') ?>" class="btn-primary">+ Share Feedback</a>
+        <a href="<?= site_url('users/feedback/submit') ?>" class="fb-hero__cta">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Share Feedback
+        </a>
     </div>
 
     <?php if (!empty($announcements)): ?>
     <section class="home-announce">
         <div class="home-section-label">
-            <span>📢</span> Announcements
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 8.5c0 2.5-3 4-3 4v3l-5-2H7a4 4 0 0 1 0-8h7c0 0 8 .5 8 3z"/></svg>
+            Announcements
         </div>
         <div class="home-announce__list">
             <?php foreach ($announcements as $ann):
-                $isPinned   = (int)($ann['pinned'] ?? 0) === 1;
-                $annBody    = (string) ($ann['body'] ?? '');
-                $annTrim    = trim(preg_replace('/\s+/', ' ', $annBody));
-                $hasMore    = mb_strlen($annTrim) > 100;
-                $annPreview = $hasMore ? mb_substr($annTrim, 0, 100) . '…' : $annTrim;
+                $isPinned = (int)($ann['pinned'] ?? 0) === 1;
+                $annBody  = (string) ($ann['body'] ?? '');
+                $annTitle = (string) ($ann['title'] ?? 'Untitled');
+                $annDate  = (string) ($ann['created_at'] ?? 'now');
             ?>
-            <div class="home-announcement-card<?= $isPinned ? ' is-pinned' : '' ?>">
-                <div class="home-announcement-card__head">
-                    <h4 class="home-announcement-card__title">
+            <div class="h-ann-card<?= $isPinned ? ' is-pinned' : '' ?>">
+                <div class="h-ann-card__stripe"></div>
+                <div class="h-ann-card__body">
+                    <div class="h-ann-card__head">
+                        <h4 class="h-ann-card__title">
+                            <?= esc($annTitle) ?>
+                        </h4>
                         <?php if ($isPinned): ?>
-                            <span class="home-announcement-card__badge">📌 Pinned</span>
+                            <span class="h-ann-badge h-ann-badge--pinned">📌 Pinned</span>
                         <?php endif; ?>
-                        <?= esc((string) $ann['title']) ?>
-                    </h4>
-                    <span class="home-announcement-card__arrow" aria-hidden="true">▼</span>
+                    </div>
+                    <div style="display: flex; gap: 12px; margin-bottom: 8px;">
+                        <div class="h-ann-card__content h-ann-body-clamp" style="flex: 1; margin-bottom: 0;"><?= nl2br(esc($annBody)) ?></div>
+                        <?php
+                        $annImgPath = (string) ($ann['image_path'] ?? '');
+                        if ($annImgPath !== ''): 
+                            $annImgUrl = App\Libraries\FeedbackImageStorage::publicUrl($annImgPath);
+                        ?>
+                            <div class="h-ann-card__thumb">
+                                <img src="<?= esc($annImgUrl) ?>" alt="Attachment" loading="lazy">
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    <div class="h-ann-card__footer">
+                        <div class="h-ann-card__meta-left" style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                            <span class="h-ann-card__date">
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                                <?= esc(date('M d, Y g:i A', strtotime($annDate))) ?>
+                            </span>
+                        </div>
+                        <a href="<?= site_url('users/announcements') ?>" class="h-ann-read-link">Read more →</a>
+                    </div>
                 </div>
-                <p class="home-announcement-card__preview"><?= esc($annPreview) ?></p>
-                <div class="home-announcement-card__full"><?= nl2br(esc($annBody)) ?></div>
-                <span class="home-announcement-card__date"><?= esc(date('M d, Y g:i A', strtotime((string) $ann['created_at']))) ?></span>
             </div>
             <?php endforeach; ?>
         </div>
@@ -54,7 +77,6 @@
     <section class="home-feed-section">
         <div class="home-section-label">
             <span>🌐</span> Community Feed
-            <a href="<?= site_url('feed') ?>" class="home-feed-more">See all →</a>
         </div>
         <?php if (empty($posts)): ?>
             <section class="panel-card empty-card">
@@ -69,21 +91,4 @@
     </section>
 
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.home-announcement-card').forEach(card => {
-        card.addEventListener('click', function() {
-            this.classList.toggle('expanded');
-        });
-        
-        card.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                this.classList.toggle('expanded');
-            }
-        });
-    });
-});
-</script>
 <?= $this->endSection() ?>

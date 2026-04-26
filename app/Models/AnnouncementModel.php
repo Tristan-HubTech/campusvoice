@@ -14,11 +14,13 @@ class AnnouncementModel extends Model
     protected $allowedFields    = [
         'title',
         'body',
+        'image_path',
         'posted_by',
         'audience',
         'publish_at',
         'expires_at',
         'is_published',
+        'pinned',
     ];
 
     protected bool $allowEmptyInserts = false;

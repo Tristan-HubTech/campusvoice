@@ -45,12 +45,18 @@ class PortalController extends Controller
             ->orderBy('feedbacks.created_at', 'DESC')
             ->findAll(5);
 
+        $now = date('Y-m-d H:i:s');
+
         $pinnedAnnouncements = (new AnnouncementModel())
             ->where('is_published', 1)
             ->where('pinned', 1)
             ->groupStart()
+                ->where('publish_at IS NULL')
+                ->orWhere('publish_at <=', $now)
+            ->groupEnd()
+            ->groupStart()
                 ->where('expires_at IS NULL')
-                ->orWhere('expires_at >=', date('Y-m-d H:i:s'))
+                ->orWhere('expires_at >=', $now)
             ->groupEnd()
             ->findAll(1);
 
@@ -58,8 +64,12 @@ class PortalController extends Controller
             ->where('is_published', 1)
             ->where('pinned', 0)
             ->groupStart()
+                ->where('publish_at IS NULL')
+                ->orWhere('publish_at <=', $now)
+            ->groupEnd()
+            ->groupStart()
                 ->where('expires_at IS NULL')
-                ->orWhere('expires_at >=', date('Y-m-d H:i:s'))
+                ->orWhere('expires_at >=', $now)
             ->groupEnd()
             ->orderBy('created_at', 'DESC')
             ->findAll(1);
@@ -145,7 +155,7 @@ class PortalController extends Controller
                 'message'      => trim((string) $post['message']),
                 'image_path'   => $imagePath,
                 'is_anonymous' => $isAnonymous,
-                'status'       => 'new',
+                'status'       => 'pending',
                 'submitted_at' => date('Y-m-d H:i:s'),
             ]);
 
@@ -164,7 +174,7 @@ class PortalController extends Controller
                 'is_anonymous' => $isAnonymous,
             ]);
 
-            return redirect()->to(site_url('users/feedback'))->with('success', 'Your feedback has been submitted successfully.');
+            return redirect()->to(site_url('users/feedback'))->with('success', 'Your feedback has been submitted and is pending admin review.');
         }
 
         return view('student/portal/submit', array_merge([
@@ -241,13 +251,18 @@ class PortalController extends Controller
 
         $userId = (int) ($studentUser['id'] ?? 0);
 
+        $now = date('Y-m-d H:i:s');
         $announcements = (new AnnouncementModel())
             ->select('announcements.*, users.first_name AS author_first_name, users.last_name AS author_last_name')
             ->join('users', 'users.id = announcements.posted_by', 'left')
             ->where('is_published', 1)
             ->groupStart()
+                ->where('publish_at IS NULL')
+                ->orWhere('publish_at <=', $now)
+            ->groupEnd()
+            ->groupStart()
                 ->where('expires_at IS NULL')
-                ->orWhere('expires_at >=', date('Y-m-d H:i:s'))
+                ->orWhere('expires_at >=', $now)
             ->groupEnd()
             ->orderBy('created_at', 'DESC')
             ->findAll(100);
@@ -274,6 +289,11 @@ class PortalController extends Controller
             ->join('feedbacks', 'feedbacks.id = social_posts.feedback_id', 'left')
             ->where('users.is_active', 1)
             ->where('social_posts.is_public', 1)
+            // Feedback-linked posts must be in [approved, reviewed, resolved]; non-feedback community posts always show
+            ->groupStart()
+                ->where('social_posts.feedback_id IS NULL')
+                ->orWhereIn('feedbacks.status', ['approved', 'reviewed', 'resolved'])
+            ->groupEnd()
             ->orderBy('social_posts.created_at', 'DESC')
             ->findAll(12);
 

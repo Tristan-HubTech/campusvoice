@@ -78,6 +78,9 @@ class AuthController extends AdminBaseController
                 return redirect()->back()->with('error', 'Invalid admin password.');
             }
 
+            // Hard reset: never let an admin session coexist with a student session in the same browser.
+            session()->remove('student_auth');
+
             session()->set('admin_auth', $sessionAuth);
 
             $this->logActivity(

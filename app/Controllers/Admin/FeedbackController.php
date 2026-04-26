@@ -52,7 +52,7 @@ class FeedbackController extends AdminBaseController
         $payload = $this->request->getPost();
 
         $rules = [
-            'status' => 'required|in_list[new,reviewed,resolved]',
+            'status' => 'required|in_list[pending,approved,rejected,reviewed,resolved]',
         ];
 
         if (! $this->validateData($payload, $rules)) {
@@ -143,7 +143,7 @@ class FeedbackController extends AdminBaseController
             'message'       => $replyMessage,
         ]);
 
-        if ($feedback['status'] === 'new') {
+        if (in_array((string) $feedback['status'], ['approved', 'pending'], true)) {
             $feedbackModel->update($id, ['status' => 'reviewed']);
         }
 
@@ -154,7 +154,7 @@ class FeedbackController extends AdminBaseController
                 'target_type' => 'feedback',
                 'target_id'   => $id,
                 'reply_id'    => (int) $replyId,
-                'status_now'  => $feedback['status'] === 'new' ? 'reviewed' : (string) $feedback['status'],
+                'status_now'  => in_array((string) $feedback['status'], ['approved', 'pending'], true) ? 'reviewed' : (string) $feedback['status'],
             ]
         );
 
@@ -167,5 +167,98 @@ class FeedbackController extends AdminBaseController
         }
 
         return redirect()->to(site_url('admin/feedback/' . $id))->with('success', 'Reply posted successfully.');
+    }
+
+    public function approve(int $id)
+    {
+        $feedbackModel = new FeedbackModel();
+        $feedback = $feedbackModel->find($id);
+
+        $isAjax = $this->request->isAJAX();
+
+        if ($feedback === null) {
+            return $isAjax
+                ? $this->response->setJSON(['ok' => false, 'message' => 'Feedback not found.'])
+                : redirect()->back()->with('error', 'Feedback not found.');
+        }
+
+        if (! in_array((string) $feedback['status'], ['pending', 'rejected'], true)) {
+            return $isAjax
+                ? $this->response->setJSON(['ok' => false, 'message' => 'This feedback has already been processed.'])
+                : redirect()->back()->with('error', 'This feedback has already been processed.');
+        }
+
+        $adminId = (int) ($this->adminUser()['id'] ?? 0);
+
+        $feedbackModel->update($id, [
+            'status'           => 'approved',
+            'rejection_reason' => null,
+            'reviewed_by'      => $adminId,
+            'reviewed_at'      => date('Y-m-d H:i:s'),
+        ]);
+
+        $this->logActivity(
+            'feedback.approved',
+            'Approved feedback for public feed.',
+            ['target_type' => 'feedback', 'target_id' => $id, 'from_status' => (string) $feedback['status']]
+        );
+
+        if ($isAjax) {
+            return $this->response->setJSON(['ok' => true, 'status' => 'approved']);
+        }
+        return redirect()->to(site_url('admin') . '#feedback')->with('success', 'Feedback approved.');
+    }
+
+    public function reject(int $id)
+    {
+        $feedbackModel = new FeedbackModel();
+        $feedback = $feedbackModel->find($id);
+
+        $isAjax = $this->request->isAJAX();
+        $reason = trim((string) ($this->request->getPost('reason') ?? ''));
+
+        if ($feedback === null) {
+            return $isAjax
+                ? $this->response->setJSON(['ok' => false, 'message' => 'Feedback not found.'])
+                : redirect()->back()->with('error', 'Feedback not found.');
+        }
+
+        if ($reason === '') {
+            return $isAjax
+                ? $this->response->setJSON(['ok' => false, 'message' => 'Rejection reason is required.'])
+                : redirect()->back()->with('error', 'Rejection reason is required.');
+        }
+
+        if (mb_strlen($reason) > 1000) {
+            return $isAjax
+                ? $this->response->setJSON(['ok' => false, 'message' => 'Rejection reason is too long (max 1000 chars).'])
+                : redirect()->back()->with('error', 'Rejection reason is too long.');
+        }
+
+        if (! in_array((string) $feedback['status'], ['pending', 'approved'], true)) {
+            return $isAjax
+                ? $this->response->setJSON(['ok' => false, 'message' => 'Only pending or approved feedback can be rejected.'])
+                : redirect()->back()->with('error', 'Only pending or approved feedback can be rejected.');
+        }
+
+        $adminId = (int) ($this->adminUser()['id'] ?? 0);
+
+        $feedbackModel->update($id, [
+            'status'           => 'rejected',
+            'rejection_reason' => $reason,
+            'reviewed_by'      => $adminId,
+            'reviewed_at'      => date('Y-m-d H:i:s'),
+        ]);
+
+        $this->logActivity(
+            'feedback.rejected',
+            'Rejected feedback.',
+            ['target_type' => 'feedback', 'target_id' => $id, 'from_status' => (string) $feedback['status'], 'reason' => $reason]
+        );
+
+        if ($isAjax) {
+            return $this->response->setJSON(['ok' => true, 'status' => 'rejected']);
+        }
+        return redirect()->to(site_url('admin') . '#feedback')->with('success', 'Feedback rejected.');
     }
 }

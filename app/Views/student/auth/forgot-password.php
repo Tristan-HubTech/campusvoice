@@ -5,13 +5,18 @@
 $forgotOtpVerified = ! empty($forgotOtpVerified);
 $verifiedEmail = (string) ($forgotOtpVerifiedEmail ?? '');
 $emailValue = (string) (old('email') ?? ($forgotOtpVerified ? $verifiedEmail : ''));
+$sessionOtp  = (string) ($forgotSessionOtp ?? '');
 ?>
 <div class="auth-shell">
     <header class="auth-topbar">
-        <a href="<?= site_url('/') ?>" class="auth-topbar-brand" aria-label="CampusVoice home">
-            <img src="<?= base_url('assets/admin/logo-mark.svg') ?>" alt="CampusVoice" class="auth-topbar-logo">
-        </a>
-        <h1 class="auth-topbar-title-text">CampusVoice</h1>
+        <div aria-hidden="true"></div>
+        <div class="portal-brand portal-brand--hero">
+            <img src="<?= base_url('assets/admin/logo-mark.svg') ?>" alt="CampusVoice" class="portal-logo">
+            <div class="brand-hero-text">
+                <span class="brand-hero-name">CampusVoice</span>
+                <span class="brand-hero-sub">Your campus, your voice</span>
+            </div>
+        </div>
         <div class="auth-topbar-end">
             <?= $this->include('partials/theme_toggle') ?>
             <a href="<?= site_url('users/login') ?>" class="auth-topbar-exit" aria-label="Back to login">
@@ -22,14 +27,35 @@ $emailValue = (string) (old('email') ?? ($forgotOtpVerified ? $verifiedEmail : '
     </header>
 
     <div class="auth-split auth-split--center">
-        <section class="auth-panel">
+        <section class="auth-panel fp-panel">
 
-            <div class="auth-forgot-header">
-                <div class="auth-forgot-icon" aria-hidden="true">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16"><path d="M8 1a4.5 4.5 0 0 0-4.5 4.5v.88l-.853.58A1 1 0 0 0 2 7.8V14a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V7.8a1 1 0 0 0-.647-.94L12.5 6.38V5.5A4.5 4.5 0 0 0 8 1zm0 1a3.5 3.5 0 0 1 3.5 3.5v1.07L8 8.571 4.5 6.57V5.5A3.5 3.5 0 0 1 8 2zm4 5.535V14H4V7.535l4 2.286 4-2.286z"/></svg>
+            <!-- Header -->
+            <div class="fp-hero">
+                <div class="fp-hero__icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                 </div>
-                <h2 class="auth-forgot-title">Reset Password</h2>
-                <p class="auth-forgot-subtitle">Enter your registered email to receive a one-time code.</p>
+                <div>
+                    <h1 class="fp-hero__title">Reset Password</h1>
+                    <p class="fp-hero__sub">Enter your email to receive a one-time code.</p>
+                </div>
+            </div>
+
+            <!-- Step track -->
+            <div class="fp-steps">
+                <div class="fp-step<?= !$forgotOtpVerified ? ' fp-step--active' : ' fp-step--done' ?>">
+                    <span class="fp-step__num"><?= !$forgotOtpVerified ? '1' : '✓' ?></span>
+                    <span class="fp-step__label">Email</span>
+                </div>
+                <div class="fp-step__line"></div>
+                <div class="fp-step<?= !$forgotOtpVerified ? '' : ' fp-step--done' ?>">
+                    <span class="fp-step__num">2</span>
+                    <span class="fp-step__label">Verify OTP</span>
+                </div>
+                <div class="fp-step__line"></div>
+                <div class="fp-step<?= $forgotOtpVerified ? ' fp-step--active' : '' ?>">
+                    <span class="fp-step__num">3</span>
+                    <span class="fp-step__label">New Password</span>
+                </div>
             </div>
 
             <?php if (session()->has('error')): ?>
@@ -41,34 +67,64 @@ $emailValue = (string) (old('email') ?? ($forgotOtpVerified ? $verifiedEmail : '
 
             <form method="post" action="<?= site_url('users/forgot-password') ?>" class="auth-form" novalidate autocomplete="off" id="forgot-form">
 
-                <label for="fp-email">Email Address</label>
-                <div class="auth-otp-row">
-                    <input id="fp-email" name="email" type="email" required maxlength="150"
-                           autocomplete="off" placeholder="you@example.com"
-                          value="<?= esc($emailValue) ?>"<?= $forgotOtpVerified ? ' readonly' : '' ?>>
-                    <button type="button" class="auth-otp-btn" id="send-forgot-otp-btn" disabled>Send OTP</button>
+                <div class="fp-field-group">
+                    <label for="fp-email">Email Address</label>
+                    <div class="auth-otp-row">
+                        <input id="fp-email" name="email" type="email" required maxlength="150"
+                               autocomplete="off" placeholder="you@example.com"
+                               value="<?= esc($emailValue) ?>"<?= $forgotOtpVerified ? ' readonly' : '' ?>>
+                        <button type="button" class="auth-otp-btn" id="send-forgot-otp-btn" disabled>Send OTP</button>
+                    </div>
+                    <small id="forgot-otp-status" class="otp-status-text" aria-live="polite"></small>
                 </div>
-                <small id="forgot-otp-status" class="otp-status-text" aria-live="polite"></small>
 
-                <label for="fp-otp">OTP Code</label>
-                  <div class="auth-otp-row">
-                      <input id="fp-otp" name="otp" type="text" inputmode="numeric" pattern="[0-9]*"
-                          required maxlength="6" placeholder="Send OTP first"
-                          value="<?= esc((string) (old('otp') ?? '')) ?>"<?= $forgotOtpVerified ? ' readonly' : ' disabled' ?>>
-                    <button type="button" class="auth-otp-btn<?= $forgotOtpVerified ? ' ready' : '' ?>" id="verify-forgot-otp-btn" disabled>Verify OTP</button>
-                  </div>
+                <div class="fp-field-group">
+                    <label for="fp-otp">OTP Code</label>
+                    <?php if ($forgotOtpVerified && $sessionOtp !== ''): ?>
+                        <!-- Hidden: submit the verified OTP from session -->
+                        <input type="hidden" name="otp" value="<?= esc($sessionOtp) ?>">
+                        <div class="auth-otp-row">
+                            <input id="fp-otp" type="text" placeholder="OTP verified" readonly
+                                   style="background:rgba(34,197,94,0.06);border-color:#86efac;color:#15803d;">
+                            <button type="button" class="auth-otp-btn ready" disabled>✓ Verified</button>
+                        </div>
+                    <?php else: ?>
+                        <div class="auth-otp-row">
+                            <input id="fp-otp" name="otp" type="text" inputmode="numeric" pattern="[0-9]*"
+                                   required maxlength="6" placeholder="Send OTP first"
+                                   value="<?= esc((string) (old('otp') ?? '')) ?>"<?= $forgotOtpVerified ? ' readonly' : ' disabled' ?>>
+                            <button type="button" class="auth-otp-btn<?= $forgotOtpVerified ? ' ready' : '' ?>" id="verify-forgot-otp-btn" disabled>Verify OTP</button>
+                        </div>
+                    <?php endif ?>
+                </div>
 
-                <label for="fp-password">New Password <small>(min 8 characters)</small></label>
-                <input id="fp-password" name="password" type="password" required
-                      minlength="8" maxlength="255" autocomplete="new-password"
-                      placeholder="Create new password"<?= $forgotOtpVerified ? '' : ' disabled' ?>>
+                <div class="fp-field-group">
+                    <label for="fp-password">New Password <small>(min 8 characters)</small></label>
+                    <input id="fp-password" name="password" type="password" required
+                           minlength="8" maxlength="255" autocomplete="new-password"
+                           placeholder="Create new password"<?= $forgotOtpVerified ? '' : ' disabled' ?>>
+                    <small id="fp-pw-len-warn" class="fp-warn" style="display:none;"></small>
+                </div>
 
-                <label for="fp-confirm">Confirm New Password</label>
-                <input id="fp-confirm" name="password_confirm" type="password" required
-                       maxlength="255" autocomplete="new-password"
-                      placeholder="Repeat new password"<?= $forgotOtpVerified ? '' : ' disabled' ?>>
+                <div class="fp-field-group">
+                    <label for="fp-confirm">Confirm New Password</label>
+                    <input id="fp-confirm" name="password_confirm" type="password" required
+                           maxlength="255" autocomplete="new-password"
+                           placeholder="Repeat new password"<?= $forgotOtpVerified ? '' : ' disabled' ?>>
+                    <small id="fp-pw-match-warn" class="fp-warn" style="display:none;"></small>
+                </div>
 
-                  <button type="submit" class="btn-primary" id="fp-submit-btn"<?= $forgotOtpVerified ? '' : ' disabled' ?>>Reset Password</button>
+                <button type="submit" class="btn-primary" id="fp-submit-btn"<?= $forgotOtpVerified ? '' : ' disabled' ?> style="<?= $forgotOtpVerified ? '' : 'opacity:0.5;cursor:not-allowed;' ?>">
+                    Reset Password
+                </button>
+
+                <?php if ($forgotOtpVerified): ?>
+                <div style="text-align:center;margin-top:12px;">
+                    <a href="<?= site_url('users/forgot-password?restart=1') ?>" class="auth-link-subtle" style="font-size:0.8rem;color:#6b7280;">
+                        ↩ Use a different email?
+                    </a>
+                </div>
+                <?php endif ?>
             </form>
 
         </section>
@@ -147,6 +203,30 @@ $emailValue = (string) (old('email') ?? ($forgotOtpVerified ? $verifiedEmail : '
         var confirm  = confirmEl ? confirmEl.value : '';
         var ready    = otpVerified && password.length >= 8 && password === confirm;
         submitBtn.disabled = !ready;
+        submitBtn.style.opacity = ready ? '1' : '0.5';
+        submitBtn.style.cursor  = ready ? 'pointer' : 'not-allowed';
+
+        // Show/hide password match warning
+        var warnEl = document.getElementById('fp-pw-match-warn');
+        if (warnEl) {
+            if (confirm.length > 0 && password !== confirm) {
+                warnEl.textContent = '⚠ Passwords do not match.';
+                warnEl.style.display = 'block';
+            } else {
+                warnEl.style.display = 'none';
+            }
+        }
+
+        // Show/hide password length warning
+        var lenWarnEl = document.getElementById('fp-pw-len-warn');
+        if (lenWarnEl) {
+            if (password.length > 0 && password.length < 8) {
+                lenWarnEl.textContent = '⚠ Password must be at least 8 characters.';
+                lenWarnEl.style.display = 'block';
+            } else {
+                lenWarnEl.style.display = 'none';
+            }
+        }
     }
 
     if (emailEl) {

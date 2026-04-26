@@ -284,7 +284,7 @@ a {
 
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
     gap: 12px;
 }
 
@@ -356,6 +356,68 @@ a {
     grid-template-columns: 1.4fr repeat(3, 1fr) auto;
     gap: 8px;
     width: 100%;
+}
+
+/* ── Announcement split date/time picker ────────────────────────── */
+.ann-dt-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.ann-dt-date {
+    flex: 1;
+    min-width: 0;
+}
+
+.ann-dt-time {
+    width: 150px;
+    flex-shrink: 0;
+}
+
+.ann-dt-clear {
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.ann-dt-clear:hover {
+    background: #fee2e2;
+    color: #991b1b;
+    border-color: #ef4444;
+}
+
+.ann-dt-quick {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    flex-wrap: wrap;
+}
+
+.ann-quick-btn {
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 3px 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--muted);
+    font-family: inherit;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.ann-quick-btn:hover {
+    background: #dbeafe;
+    color: #1e40af;
+    border-color: #3b82f6;
 }
 
 .activity-toolbar {
@@ -586,14 +648,184 @@ a {
     color: #2f569f;
 }
 
+.status-pending {
+    background: #fff8e1;
+    color: #92400e;
+}
+
+.status-approved {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-rejected {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
 .status-reviewed {
-    background: #e7f0ff;
-    color: #204b9a;
+    background: #dbeafe;
+    color: #1e40af;
 }
 
 .status-resolved {
-    background: #e3eeff;
-    color: #1e468f;
+    background: #ede9fe;
+    color: #5b21b6;
+}
+
+/* ── Feedback status strip ─────────────────────────────────────── */
+.fbk-status-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--line);
+}
+
+.fbk-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 0.79rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1.5px solid #d6e2ff;
+    background: var(--surface-2);
+    color: var(--muted);
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.fbk-status-pill .fbk-count {
+    background: rgba(0, 0, 0, 0.07);
+    border-radius: 999px;
+    padding: 1px 7px;
+    font-size: 0.73rem;
+}
+
+.fbk-status-pill.fbk-s-all.active,
+.fbk-status-pill.fbk-s-all:hover {
+    background: #1a3a8a;
+    color: #fff;
+    border-color: #1a3a8a;
+}
+
+.fbk-status-pill.fbk-s-pending.active,
+.fbk-status-pill.fbk-s-pending:hover {
+    background: #fff8e1;
+    color: #92400e;
+    border-color: #f59e0b;
+}
+
+.fbk-status-pill.fbk-s-approved.active,
+.fbk-status-pill.fbk-s-approved:hover {
+    background: #d1fae5;
+    color: #065f46;
+    border-color: #10b981;
+}
+
+.fbk-status-pill.fbk-s-rejected.active,
+.fbk-status-pill.fbk-s-rejected:hover {
+    background: #fee2e2;
+    color: #991b1b;
+    border-color: #ef4444;
+}
+
+.fbk-status-pill.fbk-s-reviewed.active,
+.fbk-status-pill.fbk-s-reviewed:hover {
+    background: #dbeafe;
+    color: #1e40af;
+    border-color: #3b82f6;
+}
+
+.fbk-status-pill.fbk-s-resolved.active,
+.fbk-status-pill.fbk-s-resolved:hover {
+    background: #ede9fe;
+    color: #5b21b6;
+    border-color: #7c3aed;
+}
+
+/* ── Feedback action buttons ───────────────────────────────────── */
+.fbk-filter-row {
+    grid-template-columns: 1.4fr 1fr 1fr;
+}
+
+.fbk-actions-cell {
+    text-align: center;
+}
+
+.fbk-action-btns {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    align-items: center;
+}
+
+.fbk-act-btn {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    white-space: nowrap;
+    font-family: inherit;
+    transition: opacity 0.15s, transform 0.1s;
+}
+
+.fbk-act-btn:hover {
+    opacity: 0.82;
+    transform: scale(1.03);
+}
+
+.fbk-act-approve {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.fbk-act-reject {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.fbk-act-review {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.fbk-act-resolve {
+    background: #ede9fe;
+    color: #5b21b6;
+}
+
+.fbk-act-done {
+    color: var(--muted);
+    font-size: 1rem;
+}
+
+.fbk-detail-actions {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+}
+
+.fbk-detail-actions h4 {
+    font-family: 'Manrope', sans-serif;
+    color: var(--muted);
+    font-size: 0.8rem;
+    margin-bottom: 10px;
+}
+
+.fbk-detail-actions .fbk-action-btns {
+    justify-content: flex-start;
+}
+
+.fbk-detail-actions .fbk-act-btn {
+    padding: 8px 20px;
+    font-size: 0.85rem;
 }
 
 .detail-grid {
@@ -1025,7 +1257,7 @@ code {
 
 @media (max-width: 1100px) {
     .stats-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
     }
 }
 
