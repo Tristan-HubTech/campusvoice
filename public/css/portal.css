@@ -2491,6 +2491,7 @@ html[data-theme="dark"] .fb-anon-title {
 .ann-body-clamp.is-clamped {
     display: -webkit-box;
     -webkit-line-clamp: 4;
+    line-clamp: 4;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -3950,6 +3951,7 @@ html[data-theme="dark"] .ann-empty p {
     /* 1-line clamp so a giant wall of text doesn't blow the card */
     display: -webkit-box;
     -webkit-line-clamp: 1;
+    line-clamp: 1;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -3985,6 +3987,7 @@ html[data-theme="dark"] .ann-empty p {
 .h-ann-body-clamp {
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
