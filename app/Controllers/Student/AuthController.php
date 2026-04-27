@@ -218,9 +218,9 @@ class AuthController extends Controller
             'first_name'       => 'required|min_length[2]|max_length[100]',
             'last_name'        => 'required|min_length[2]|max_length[100]',
             'email'            => 'required|valid_email|max_length[150]',
-            'otp'              => 'required|numeric|exact_length[6]',
             'password'         => 'required|min_length[8]|max_length[255]',
             'password_confirm' => 'required|matches[password]',
+            'otp'              => 'required|numeric|exact_length[6]',
         ];
 
         if (! $this->validateData($post, $rules)) {
@@ -236,6 +236,12 @@ class AuthController extends Controller
         $userModel = new UserModel();
         $email = strtolower(trim((string) ($post['email'] ?? '')));
 
+        if (! $this->verifyRegisterOtp($email, trim((string) ($post['otp'] ?? '')))) {
+            return redirect()->to(site_url('users/login?mode=register'))
+                ->with('error', 'Invalid or expired OTP code. Please request a new one.')
+                ->withInput();
+        }
+
         // Check if the email is already registered (including deactivated accounts).
         $existingUser = $userModel->withDeleted()->where('email', $email)->first();
         if ($existingUser !== null) {
@@ -247,12 +253,6 @@ class AuthController extends Controller
 
             return redirect()->to(site_url('users/login?mode=login'))
                 ->with('error', 'Email already registered. Please log in instead.')
-                ->withInput();
-        }
-
-        if (! $this->verifyRegisterOtp($email, trim((string) ($post['otp'] ?? '')))) {
-            return redirect()->to(site_url('users/login?mode=register'))
-                ->with('error', 'Invalid or expired OTP code. Please request a new OTP.')
                 ->withInput();
         }
 
@@ -269,7 +269,21 @@ class AuthController extends Controller
             return redirect()->to(site_url('users/login?mode=register'))->with('error', 'Registration failed. Please try again.')->withInput();
         }
 
-        return redirect()->to(site_url('users/login?mode=login'))->with('success', 'Account created successfully. You can now log in.');
+        $newUser = $userModel
+            ->select('users.*, roles.name as role')
+            ->join('roles', 'roles.id = users.role_id', 'left')
+            ->find((int) $userId);
+
+        session()->remove('admin_auth');
+        session()->set('student_auth', [
+            'id'          => (int) $userId,
+            'name'        => trim((string) $post['first_name'] . ' ' . (string) $post['last_name']),
+            'email'       => $email,
+            'role'        => $newUser['role'] ?? 'student',
+            'is_new_user' => true,
+        ]);
+
+        return redirect()->to(site_url('users'))->with('success', 'Welcome to CampusVoice! Your account has been created.');
     }
 
     private function verifyRegisterOtp(string $email, string $otp): bool

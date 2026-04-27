@@ -2230,6 +2230,24 @@ html[data-theme="dark"] .fb-pill {
     color: #8aaad0;
 }
 
+html[data-theme="dark"] .fb-pill--complaint.fb-pill--active {
+    background: #3d1515;
+    border-color: #ef4444;
+    color: #fca5a5;
+}
+
+html[data-theme="dark"] .fb-pill--suggestion.fb-pill--active {
+    background: #3d2c0a;
+    border-color: #f59e0b;
+    color: #fcd34d;
+}
+
+html[data-theme="dark"] .fb-pill--praise.fb-pill--active {
+    background: #0d3320;
+    border-color: #22c55e;
+    color: #86efac;
+}
+
 html[data-theme="dark"] .fb-dropzone {
     background: #0f1a30;
     border-color: #1e2d4a;
