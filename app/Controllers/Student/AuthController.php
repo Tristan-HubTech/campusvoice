@@ -274,16 +274,7 @@ class AuthController extends Controller
             ->join('roles', 'roles.id = users.role_id', 'left')
             ->find((int) $userId);
 
-        session()->remove('admin_auth');
-        session()->set('student_auth', [
-            'id'          => (int) $userId,
-            'name'        => trim((string) $post['first_name'] . ' ' . (string) $post['last_name']),
-            'email'       => $email,
-            'role'        => $newUser['role'] ?? 'student',
-            'is_new_user' => true,
-        ]);
-
-        return redirect()->to(site_url('users'))->with('success', 'Welcome to CampusVoice! Your account has been created.');
+        return redirect()->to(site_url('users/login'))->with('success', 'Account created! Please log in to continue.');
     }
 
     private function verifyRegisterOtp(string $email, string $otp): bool

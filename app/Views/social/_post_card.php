@@ -1,4 +1,15 @@
 <?php
+/**
+ * POST CARD PARTIAL
+ * Displays a single feedback post with author, category, type, content, and reactions.
+ * 
+ * CONNECTS TO:
+ * - Controller: Student\PortalController, SocialController
+ * - CSS: public/css/social.css
+ * - JS: reactions_script.php
+ * - Database: feedback, comments, and reactions tables
+ */
+
 $emojiMap   = ['like' => "👍\u{FE0F}", 'love' => "❤\u{FE0F}", 'haha' => "😆\u{FE0F}", 'wow' => "😮\u{FE0F}", 'sad' => "😢\u{FE0F}", 'angry' => "😠\u{FE0F}"];
 $emojiLabel = ['like' => 'Like', 'love' => 'Love', 'haha' => 'Haha', 'wow' => 'Wow', 'sad' => 'Sad', 'angry' => 'Angry'];
 $rxColors   = ['like' => '#2078f4', 'love' => '#ed4956', 'haha' => '#f7b928', 'wow' => '#f7b928', 'sad' => '#f7b928', 'angry' => '#e9710f'];
@@ -17,6 +28,7 @@ if ($fbType !== '') {
 ?>
 <article class="feed-card" id="post-<?= (int) $post['id'] ?>">
 
+    <!-- ── Author & Meta ── Avatar, name, date, and status badges -->
     <div class="feed-head">
         <div class="avatar avatar-<?= esc((string) $post['avatar_color']) ?>"><?= esc((string) $post['initials']) ?></div>
         <div style="flex:1; min-width:0;">
@@ -57,6 +69,7 @@ if ($fbType !== '') {
     </div>
     <?php endif; ?>
 
+    <!-- ── Reactions Summary ── Shows total counts and top emojis -->
     <div class="post-summary-row">
         <div class="post-reaction-summary">
             <span class="reaction-content" data-counts="<?= esc(json_encode($post['reaction_breakdown'])) ?>"><?php if ((int) $post['reaction_total'] === 0): ?>No reactions yet<?php else:
@@ -92,6 +105,7 @@ if ($fbType !== '') {
         <?php endif; ?>
     </div>
 
+    <!-- ── Comment Section ── Shows list of comments and replies -->
     <div class="comment-stack">
         <?php if (! empty($post['comments'])): ?>
             <div class="comment-list">
@@ -210,6 +224,7 @@ if ($fbType !== '') {
             </div>
         <?php endif; ?>
 
+        <!-- ── Add Comment Form ── Input for new comments and images -->
         <?php if (! empty($currentUser['id'])): ?>
             <form method="post" action="<?= site_url('posts/' . (int) $post['id'] . '/comment') ?>" class="comment-form" enctype="multipart/form-data">
                 <input type="hidden" name="parent_id" value="0" class="comment-parent-id">

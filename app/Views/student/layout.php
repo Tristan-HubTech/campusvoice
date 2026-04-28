@@ -1,3 +1,14 @@
+<?php
+/**
+ * STUDENT PORTAL LAYOUT
+ * The main wrapper template for the student side. Includes header, navigation, and script tags.
+ * 
+ * CONNECTS TO:
+ * - Views: home.php, my_feedback.php, submit.php, etc.
+ * - Partials: portal_header_authed.php, reactions_script.php, theme_toggle.php
+ * - CSS: public/css/portal.css, public/css/social.css
+ */
+?>
 <!doctype html>
 <html lang="en">
 <head>

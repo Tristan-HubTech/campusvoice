@@ -1,4 +1,12 @@
 <?php
+/**
+ * PORTAL CONTROLLER
+ * Handles the main student dashboard pages (home, my feedback, announcements, and submitting posts).
+ * 
+ * CONNECTS TO:
+ * - Views: student/portal/home, my_feedback, submit, view_feedback
+ * - Models: FeedbackModel, AnnouncementModel, SocialPostModel, etc.
+ */
 
 namespace App\Controllers\Student;
 
@@ -18,11 +26,13 @@ class PortalController extends Controller
 {
     private array $avatarPalette = ['blue', 'teal', 'coral', 'violet', 'amber', 'rose'];
 
+    // Helper to get the current logged-in student user data
     private function studentUser(): array
     {
         return (array) (session()->get('student_auth') ?? []);
     }
 
+    // Helper to check if the current user has "Anonymous Mode" enabled
     private function anonViewData(int $userId): array
     {
         $profile = (new SocialProfileModel())->where('user_id', $userId)->first();
@@ -33,6 +43,7 @@ class PortalController extends Controller
         ];
     }
 
+    // HOME PAGE: Loads the latest announcements, user's feedback, and the community feed
     public function index(): string
     {
         $studentUser = $this->studentUser();
@@ -91,6 +102,7 @@ class PortalController extends Controller
         ], $this->anonViewData($userId)));
     }
 
+    // MY FEEDBACK PAGE: Shows a history of all feedback submitted by the student
     public function myFeedback(): string
     {
         $studentUser = $this->studentUser();
@@ -110,6 +122,7 @@ class PortalController extends Controller
         ], $this->anonViewData($userId)));
     }
 
+    // SUBMIT FEEDBACK PAGE: Handles rendering the form and processing the POST submission
     public function submitFeedback()
     {
         $studentUser = $this->studentUser();

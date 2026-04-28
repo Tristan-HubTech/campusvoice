@@ -1,4 +1,12 @@
 <?php
+/**
+ * FEEDBACK MODEL
+ * Maps to the `feedbacks` database table. Handles all queries for user complaints, suggestions, and praise.
+ * 
+ * CONNECTS TO:
+ * - Database Table: feedbacks
+ * - Controllers: Admin\FeedbackController, Student\PortalController
+ */
 
 namespace App\Models;
 

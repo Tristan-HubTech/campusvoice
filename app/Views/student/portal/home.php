@@ -1,9 +1,20 @@
+<?php
+/**
+ * HOME PAGE
+ * Shows welcome banner, announcements list, and recent community feed.
+ * 
+ * CONNECTS TO:
+ * - Controller: Student\PortalController
+ * - View Partials: social/_post_card.php, student/layout.php
+ * - CSS: portal.css, social.css
+ */
+?>
 <?= $this->extend('student/layout') ?>
 
 <?= $this->section('content') ?>
 <div class="home-feed">
 
-    <!-- Welcome hero -->
+    <!-- ── Welcome hero ── Shows user name and 'Share Feedback' button -->
     <div class="home-hero">
         <div class="home-hero__left">
             <div class="home-hero__avatar">

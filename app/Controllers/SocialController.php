@@ -1,4 +1,12 @@
 <?php
+/**
+ * SOCIAL CONTROLLER
+ * Handles community feed functionality: user profiles, creating posts, comments, reactions, and account settings.
+ * 
+ * CONNECTS TO:
+ * - Views: social/profile, social/settings
+ * - Models: SocialPostModel, SocialCommentModel, SocialReactionModel, UserModel, PasswordOtpModel
+ */
 
 namespace App\Controllers;
 
@@ -21,6 +29,7 @@ class SocialController extends BaseController
         return redirect()->to(site_url('users'));
     }
 
+    // PROFILE PAGE: Renders the public feed profile of a specific user
     public function profile(int $userId): string
     {
         $viewer = $this->viewer();
@@ -51,6 +60,7 @@ class SocialController extends BaseController
         ]);
     }
 
+    // ACCOUNT SETTINGS PAGE: Handles changing avatar, bio, name, and resetting password via OTP
     public function settings()
     {
         $guard = $this->requireUser();

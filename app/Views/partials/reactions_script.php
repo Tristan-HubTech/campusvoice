@@ -1,4 +1,14 @@
 <script>
+    /**
+     * REACTIONS SCRIPT
+     * Handles all reaction clicks, optimistic UI updates, and comment form toggles.
+     * 
+     * CONNECTS TO:
+     * - View: _post_card.php
+     * - Backend: POST /posts/{id}/react, POST /comments/{id}/react
+     * - CSS: .comment-reaction-picker, .comment-like-btn, .picker-emoji
+     */
+
     /* ── Persist anonymous checkbox state ── */
     document.querySelectorAll('.anon-check').forEach(function (cb) {
         cb.checked = localStorage.getItem('comment_anon') === '1';
@@ -8,10 +18,12 @@
     });
 
     /* ── Helper: find the parent .feed-card for any element ── */
+    // Finds the parent card container for any given element
     function findCard(el) {
         return el.closest('.feed-card');
     }
 
+    // Builds the HTML block for a new comment or reply after AJAX submission
     function buildCommentHTML(c, isReply) {
         var cls = 'comment-item' + (isReply ? ' reply-item' : '');
         var safeAuthor = (c.author_name || 'User').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -224,6 +236,7 @@
     var crColorMap = rxColorMap;
 
     /* ── Post Reactions ── */
+    // Updates the summary bar (emojis + total count) on a post
     function updatePostSummary(postEl, breakdown) {
         var summary = postEl.querySelector('.post-reaction-summary .reaction-content');
         if (!summary) return;
@@ -239,6 +252,7 @@
         }).join('') + '<span class="top-count">' + total + '</span>';
     }
 
+    // Updates the post's like button UI based on user's reaction
     function updatePostReactUI(card, data) {
         var btn   = card.querySelector('.post-action-bar .comment-like-btn');
         var icon  = btn ? btn.querySelector('.like-icon') : null;
@@ -263,12 +277,14 @@
         updatePostSummary(card, data.breakdown || data.reaction_breakdown || {});
     }
 
+    // Parses the current reaction breakdown data from the DOM
     function getPostBreakdown(card) {
         var summary = card.querySelector('.post-reaction-summary .reaction-content');
         if (!summary) return {};
         try { return JSON.parse(summary.dataset.counts || '{}'); } catch(e) { return {}; }
     }
 
+    // Immediately updates UI for a snappy feel before server response (optimistic update)
     function applyOptimisticPost(card, newRx, prevRx) {
         var breakdown = getPostBreakdown(card);
         if (prevRx) breakdown[prevRx] = Math.max(0, parseInt(breakdown[prevRx] || 0, 10) - 1);
@@ -277,11 +293,13 @@
     }
 
     /* ── Comment Reactions ── */
+    // Helper to find the reaction badge on a specific comment
     function getBadge(commentEl) {
         var bubble = commentEl.querySelector('.comment-bubble');
         return bubble ? bubble.querySelector('.comment-reaction-badge') : null;
     }
 
+    // Renders the mini emoji badge and count for a comment
     function renderBadge(badge, counts) {
         var entries = Object.keys(counts).map(function(k) { return [k, parseInt(counts[k] || 0, 10)]; })
             .filter(function(e) { return e[1] > 0; })
@@ -295,6 +313,7 @@
         badge.dataset.counts = JSON.stringify(counts);
     }
 
+    // Updates comment reaction button and badge optimistically
     function updateCommentUI(commentEl, likeBtn, newRx, prevRx) {
         var icon  = likeBtn.querySelector('.fb-like-icon');
         var label = likeBtn.querySelector('.fb-like-label');
@@ -321,6 +340,7 @@
         }
     }
 
+    // Finalizes comment UI using the real data from the server
     function renderCommentFromServer(commentEl, likeBtn, data) {
         var rx     = data.viewer_reaction;
         var counts = data.breakdown || data.reaction_breakdown || {};
@@ -335,6 +355,7 @@
         if (badge) renderBadge(badge, counts);
     }
 
+    // Sends the AJAX request to react to a comment
     function sendCommentReact(commentId, reactionType) {
         var fd = new FormData();
         fd.append('reaction_type', reactionType);

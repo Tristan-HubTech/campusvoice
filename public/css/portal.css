@@ -1,5 +1,10 @@
+/* ============================================================
+   PORTAL STYLES
+   Used across the student portal: home, feedback forms, layout
+   ============================================================ */
+
+/* Global CSS Variables — Colors, backgrounds, and shadows */
 :root {
-    --bg: #f4f8fb;
     --bg-alt: #e6f0f8;
     --surface: #ffffff;
     --ink: #17324a;
@@ -51,6 +56,7 @@ a:hover {
     text-decoration: underline;
 }
 
+/* Main Portal Header — dark navy sticky top navigation */
 .portal-header {
     position: sticky;
     top: 0;
@@ -3896,7 +3902,12 @@ html[data-theme="dark"] .ann-empty p {
     text-decoration: underline;
 }
 
-/* ─── Home Announcement Cards (h-ann-card) ─── */
+/* ============================================================
+   HOME ANNOUNCEMENT CARDS
+   Used in: student/portal/home.php
+   ============================================================ */
+
+/* Main card container — white bg, rounded, shadow */
 .h-ann-card {
     display: flex;
     background: #ffffff;

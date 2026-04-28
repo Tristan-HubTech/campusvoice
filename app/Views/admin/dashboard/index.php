@@ -1,3 +1,14 @@
+<?php
+/**
+ * ADMIN DASHBOARD
+ * Main control panel interface with tabs for Overview, Feedback, Announcements, Students, Categories, and Activity.
+ * 
+ * CONNECTS TO:
+ * - Controller: Admin\DashboardController, Admin\FeedbackController, Admin\AnnouncementController, Admin\UserManagementController, Admin\CategoryController
+ * - CSS: public/css/admin.css
+ * - Layout: app/Views/admin/layout.php
+ */
+?>
 <?= $this->extend('admin/layout') ?>
 
 <?= $this->section('content') ?>
@@ -25,6 +36,7 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
     <?php endif; ?>
 </div>
 
+<!-- ── Overview Tab ── Shows high-level stats and recent summaries -->
 <section class="tab-panel active" data-tab-panel="overview">
     <div class="stats-grid">
         <article class="stat-card">
@@ -137,6 +149,7 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
     </div>
 </section>
 
+<!-- ── Feedback Management Tab ── Interactive table for approving/rejecting posts -->
 <section class="tab-panel" data-tab-panel="feedback">
     <section class="panel">
         <?php
@@ -358,6 +371,7 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
 }());
 </script>
 
+<!-- ── Announcements Tab ── Form to create announcements and table to manage them -->
 <section class="tab-panel" data-tab-panel="announcements">
     <div class="panel-grid">
         <section class="panel">
@@ -569,6 +583,7 @@ $usersList = $usersList ?? [];
 $allCategories = $allCategories ?? [];
 ?>
 
+<!-- ── Student Management Tab ── Manage student accounts, activate/deactivate, and reset passwords -->
 <section class="tab-panel" data-tab-panel="users">
     <section class="panel">
         <div class="panel-head stack-mobile">

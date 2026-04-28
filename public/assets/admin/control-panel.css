@@ -41,6 +41,7 @@ a {
     text-decoration: none;
 }
 
+/* Main layout grid for the admin dashboard (sidebar + content) */
 .admin-shell {
     min-height: 100vh;
     display: grid;
@@ -244,9 +245,9 @@ a {
     border: 1px solid #efc5bf;
 }
 
+/* Grid container for stats and recent feedback panels */
 .admin-content {
     display: grid;
-    gap: 16px;
 }
 
 .tab-strip {
@@ -288,6 +289,7 @@ a {
     gap: 12px;
 }
 
+/* Number stat blocks at the top of the dashboard overview */
 .stat-card {
     border: 1px solid var(--line);
     border-radius: 15px;
@@ -519,6 +521,7 @@ a {
     overflow: auto;
 }
 
+/* Primary data table used across admin sections */
 .data-table {
     width: 100%;
     border-collapse: collapse;
@@ -577,6 +580,7 @@ a {
 .data-table tbody tr {
     transition: background 0.12s ease;
 }
+
 .data-table tbody tr:hover {
     background: #f4f7ff;
 }
@@ -595,10 +599,12 @@ a {
     line-height: 1.4;
     white-space: nowrap;
 }
+
 .fbk-badge-link,
 .fbk-badge-link:hover {
     text-decoration: none;
 }
+
 .fbk-badge-link:hover .fbk-badge {
     background: #E5E7EB;
     color: #374151;
@@ -614,6 +620,7 @@ a {
     justify-content: center;
 }
 
+/* Small colored status badges (Pending, Approved, Rejected) */
 .pill {
     display: inline-flex;
     align-items: center;

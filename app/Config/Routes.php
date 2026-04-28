@@ -1,5 +1,12 @@
 <?php
-
+/**
+ * ALL URL ROUTES
+ * Maps incoming URLs to the correct controllers and functions across the entire CampusVoice platform.
+ * 
+ * CONNECTS TO:
+ * - All Controllers (Admin, Student, Social, API)
+ * - Middleware Filters (adminauth, studentauth)
+ */
 use CodeIgniter\Router\RouteCollection;
 
 /**
