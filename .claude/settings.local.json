@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(Get-ChildItem -Path \"C:\\\\xampp\\\\htdocs\\\\campusvoice\" -Force)",
+      "Bash(Select-Object Name, Mode)",
+      "PowerShell(ls -Path \"C:\\\\xampp\\\\htdocs\\\\campusvoice\" | ForEach-Object { \"$\\($_.Name\\) [$\\($_.Mode\\)]\" })",
+      "Bash(php spark *)"
+    ]
+  }
+}

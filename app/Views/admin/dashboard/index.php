@@ -189,10 +189,19 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
             </div>
         </div>
 
+        <div class="fbk-bulk-bar" id="fbkBulkBar">
+            <span class="fbk-bulk-count" id="fbkBulkCount">0 selected</span>
+            <button type="button" class="fbk-bulk-approve-btn" id="fbkBulkApproveBtn" disabled>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Approve Selected
+            </button>
+        </div>
+
         <div class="table-wrap">
             <table class="data-table">
                 <thead>
                 <tr>
+                    <th class="fbk-check-col"><input type="checkbox" id="fbkSelectAll" title="Select all pending"></th>
                     <th>Ref #</th>
                     <th>Type</th>
                     <th>Category</th>
@@ -228,6 +237,11 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                             data-category="<?= (int) ($item['category_id'] ?? 0) ?>"
                             data-search="<?= esc($searchBlob, 'attr') ?>"
                         >
+                            <td class="fbk-check-col">
+                                <?php if ($currentStatus === 'pending'): ?>
+                                <input type="checkbox" class="fbk-row-check" value="<?= (int) $item['id'] ?>">
+                                <?php endif; ?>
+                            </td>
                             <td><a href="<?= site_url('admin/feedback/' . (int) $item['id']) ?>" class="fbk-badge-link"><span class="fbk-badge">#FBK-<?= $fbkPadded ?></span></a></td>
                             <td><span class="pill type-<?= esc((string) $item['type']) ?>"><?= esc(ucfirst((string) $item['type'])) ?></span></td>
                             <td><?= esc((string) ($item['category_name'] ?? 'N/A')) ?></td>
@@ -285,7 +299,7 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="8">No feedback available.</td>
+                        <td colspan="9">No feedback available.</td>
                     </tr>
                 <?php endif; ?>
                 </tbody>
@@ -367,6 +381,82 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
 
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape' && !modal.hasAttribute('hidden')) closeModal();
+    });
+}());
+</script>
+<script>
+(function () {
+    var selectAll  = document.getElementById('fbkSelectAll');
+    var bulkBtn    = document.getElementById('fbkBulkApproveBtn');
+    var countLabel = document.getElementById('fbkBulkCount');
+    var bulkBar    = document.getElementById('fbkBulkBar');
+    var bulkUrl    = '<?= site_url('admin/feedback/bulk-approve') ?>';
+
+    function visiblePendingChecks() {
+        return Array.from(document.querySelectorAll('.fbk-row-check')).filter(function (cb) {
+            return cb.closest('tr') && cb.closest('tr').style.display !== 'none';
+        });
+    }
+
+    function updateBar() {
+        var checked = visiblePendingChecks().filter(function (cb) { return cb.checked; });
+        var n = checked.length;
+        countLabel.textContent = n + ' selected';
+        bulkBtn.disabled = n === 0;
+        bulkBar.classList.toggle('has-selection', n > 0);
+        var all = visiblePendingChecks();
+        selectAll.indeterminate = n > 0 && n < all.length;
+        selectAll.checked = all.length > 0 && n === all.length;
+    }
+
+    selectAll.addEventListener('change', function () {
+        visiblePendingChecks().forEach(function (cb) { cb.checked = selectAll.checked; });
+        updateBar();
+    });
+
+    document.getElementById('feedback-table-body').addEventListener('change', function (e) {
+        if (e.target.classList.contains('fbk-row-check')) updateBar();
+    });
+
+    bulkBtn.addEventListener('click', function () {
+        var checked = visiblePendingChecks().filter(function (cb) { return cb.checked; });
+        if (checked.length === 0) return;
+        var ids = checked.map(function (cb) { return cb.value; });
+
+        bulkBtn.disabled = true;
+        bulkBtn.textContent = 'Approving…';
+
+        var form = new FormData();
+        ids.forEach(function (id) { form.append('ids[]', id); });
+
+        fetch(bulkUrl, { method: 'POST', body: form })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (data.ok && data.approved) {
+                    data.approved.forEach(function (id) {
+                        var row = document.querySelector('tr[data-id="' + id + '"]');
+                        if (!row) return;
+                        row.setAttribute('data-status', 'approved');
+                        var checkCell = row.querySelector('.fbk-check-col');
+                        if (checkCell) checkCell.innerHTML = '';
+                        var statusCell = row.querySelector('.pill[class*="status-"]');
+                        if (statusCell) { statusCell.className = 'pill status-approved'; statusCell.textContent = 'Approved'; }
+                        var actCell = row.querySelector('.fbk-actions-cell');
+                        if (actCell) {
+                            actCell.innerHTML = '<div class="fbk-action-btns">'
+                                + '<form method="post" action="<?= site_url('admin/feedback/') ?>' + id + '/status" class="inline-status-form"><input type="hidden" name="status" value="reviewed"><input type="hidden" name="admin_notes" value=""><button class="fbk-act-btn fbk-act-review" type="submit">Reviewed</button></form>'
+                                + '<form method="post" action="<?= site_url('admin/feedback/') ?>' + id + '/status" class="inline-status-form"><input type="hidden" name="status" value="resolved"><input type="hidden" name="admin_notes" value=""><button class="fbk-act-btn fbk-act-resolve" type="submit">Resolved</button></form>'
+                                + '</div>';
+                        }
+                    });
+                    selectAll.checked = false;
+                    selectAll.indeterminate = false;
+                }
+            })
+            .finally(function () {
+                bulkBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Approve Selected';
+                updateBar();
+            });
     });
 }());
 </script>
@@ -799,7 +889,7 @@ $allCategories = $allCategories ?? [];
                 <select name="activity_admin_id">
                     <option value="0">All Admins</option>
                     <?php foreach (($activityAdminOptions ?? []) as $adminOption): ?>
-                        <?php $adminName = trim(((string) ($adminOption['first_name'] ?? '')) . ' ' . ((string) ($adminOption['last_name'] ?? ''))); ?>
+                        <?php $adminName = (string) ($adminOption['full_name'] ?? ''); ?>
                         <option value="<?= (int) ($adminOption['id'] ?? 0) ?>" <?= ((int) ($activityFilters['admin_id'] ?? 0) === (int) ($adminOption['id'] ?? 0)) ? 'selected' : '' ?>>
                             <?= esc($adminName !== '' ? $adminName : ((string) ($adminOption['email'] ?? 'Unknown'))) ?>
                         </option>
@@ -838,7 +928,7 @@ $allCategories = $allCategories ?? [];
                     <?php if (! empty($activityLogs)): ?>
                         <?php foreach ($activityLogs as $log): ?>
                             <?php
-                            $fullName = trim(((string) ($log['first_name'] ?? '')) . ' ' . ((string) ($log['last_name'] ?? '')));
+                            $fullName = (string) ($log['admin_display'] ?? trim((string) ($log['full_name'] ?? '')));
                             $targetLabel = '-';
                             if (! empty($log['target_type']) && ! empty($log['target_id'])) {
                                 $targetLabel = (string) $log['target_type'] . ' #' . (int) $log['target_id'];
@@ -855,7 +945,7 @@ $allCategories = $allCategories ?? [];
                             $detailPayload = [
                                 'time'        => (string) ($log['created_at'] ?? ''),
                                 'admin_name'  => $fullName !== '' ? $fullName : 'System',
-                                'admin_email' => (string) ($log['email'] ?? ''),
+                                'admin_email' => (string) ($log['admin_email'] ?? ''),
                                 'action'      => (string) ($log['action'] ?? ''),
                                 'description' => (string) ($log['description'] ?? ''),
                                 'target'      => $targetLabel,
@@ -869,8 +959,8 @@ $allCategories = $allCategories ?? [];
                                 <td><?= esc((string) date('M d, Y H:i:s', strtotime((string) ($log['created_at'] ?? 'now')))) ?></td>
                                 <td>
                                     <?= esc($fullName !== '' ? $fullName : 'System') ?>
-                                    <?php if (! empty($log['email'])): ?>
-                                        <div class="muted"><?= esc((string) $log['email']) ?></div>
+                                    <?php if (! empty($log['admin_email'])): ?>
+                                        <div class="muted"><?= esc((string) $log['admin_email']) ?></div>
                                     <?php endif; ?>
                                 </td>
                                 <td><span class="pill status-reviewed"><?= esc((string) ($log['action'] ?? 'unknown')) ?></span></td>

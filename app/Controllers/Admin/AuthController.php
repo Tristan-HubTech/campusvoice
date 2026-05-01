@@ -2,8 +2,9 @@
 
 namespace App\Controllers\Admin;
 
-use App\Models\UserModel;
 use App\Models\AdminCredentialModel;
+use App\Models\AdminRoleModel;
+use App\Models\AdminUserModel;
 use CodeIgniter\Database\Exceptions\DatabaseException;
 
 class AuthController extends AdminBaseController
@@ -14,98 +15,57 @@ class AuthController extends AdminBaseController
             return redirect()->to(site_url('admin'));
         }
 
-        if (strtolower($this->request->getMethod()) === 'post') {
-            $payload = $this->request->getPost();
+        if (strtolower($this->request->getMethod()) !== 'post') {
+            return view('admin/auth/login', ['title' => 'Admin Login']);
+        }
 
-            $rules = [
-                'password' => 'required',
-            ];
+        $payload = $this->request->getPost();
 
-            if (! $this->validateData($payload, $rules)) {
-                return redirect()->back()->with('error', implode(' ', $this->validator->getErrors()));
+        $rules = [
+            'email'    => 'required|valid_email',
+            'password' => 'required',
+        ];
+
+        if (! $this->validateData($payload, $rules)) {
+            return redirect()->back()->with('error', implode(' ', $this->validator->getErrors()));
+        }
+
+        $email    = strtolower(trim((string) ($payload['email'] ?? '')));
+        $password = (string) ($payload['password'] ?? '');
+
+        // ── 1. RBAC login via admin_users ────────────────────────────────────
+        $rbacResult = $this->attemptRbacLogin($email, $password);
+
+        if ($rbacResult !== null) {
+            if (! $rbacResult['success']) {
+                return redirect()->back()->with('error', $rbacResult['error']);
             }
 
-            $inputPassword = (string) $payload['password'];
-            $passwordMatch = false;
-            $sessionAuth = [
-                'id'    => 1,
-                'name'  => 'System Administrator',
-                'email' => 'admin@campusvoice.local',
-                'role'  => 'system_admin',
-            ];
+            $this->finalizeLogin($rbacResult['session']);
+            return redirect()->to(site_url('admin'))->with('success', 'Welcome back, ' . $rbacResult['session']['name'] . '.');
+        }
 
-            try {
-                $adminCredentialModel = new AdminCredentialModel();
-                $credential = $adminCredentialModel->getMasterCredentials();
+        // ── 2. Legacy fallback: admin_credentials master password ────────────
+        // Runs only when no admin_users records exist yet.
+        $legacyResult = $this->attemptLegacyLogin($password);
 
-                if ($credential !== null) {
-                    $storedHash = (string) $credential['master_password_hash'];
-                    $passwordMatch = (strpos($storedHash, '$2y$') === 0)
-                        ? password_verify($inputPassword, $storedHash)
-                        : ($inputPassword === $storedHash);
-                }
-            } catch (DatabaseException $e) {
-                $passwordMatch = false;
+        if ($legacyResult !== null) {
+            if (! $legacyResult['success']) {
+                return redirect()->back()->with('error', $legacyResult['error']);
             }
 
-            // Fallback: authenticate against active admin users from users table.
-            if (! $passwordMatch) {
-                $userModel = new UserModel();
-                $adminUser = $userModel
-                    ->select('users.id, users.first_name, users.last_name, users.email, users.password_hash, roles.name as role')
-                    ->join('roles', 'roles.id = users.role_id', 'left')
-                    ->whereIn('roles.name', ['admin', 'system_admin'])
-                    ->where('users.is_active', 1)
-                    ->first();
-
-                if ($adminUser !== null) {
-                    $userPasswordHash = (string) ($adminUser['password_hash'] ?? '');
-                    $passwordMatch = $userPasswordHash !== '' && password_verify($inputPassword, $userPasswordHash);
-
-                    if ($passwordMatch) {
-                        $fullName = trim(((string) ($adminUser['first_name'] ?? '')) . ' ' . ((string) ($adminUser['last_name'] ?? '')));
-                        $sessionAuth = [
-                            'id'    => (int) $adminUser['id'],
-                            'name'  => $fullName !== '' ? $fullName : 'Administrator',
-                            'email' => (string) ($adminUser['email'] ?? 'admin@campusvoice.local'),
-                            'role'  => (string) ($adminUser['role'] ?? 'admin'),
-                        ];
-                    }
-                }
-            }
-
-            if (! $passwordMatch) {
-                return redirect()->back()->with('error', 'Invalid admin password.');
-            }
-
-            // Hard reset: never let an admin session coexist with a student session in the same browser.
-            session()->remove('student_auth');
-
-            session()->set('admin_auth', $sessionAuth);
-
-            $this->logActivity(
-                'auth.login',
-                'Admin logged into control panel via master password.',
-                [
-                    'target_type' => 'admin_user',
-                    'target_id'   => (int) $sessionAuth['id'],
-                    'email'       => (string) $sessionAuth['email'],
-                    'role'        => (string) $sessionAuth['role'],
-                ],
-                (int) $sessionAuth['id']
-            );
-
+            log_message('warning', '[AdminAuth] Legacy admin_credentials login used. Migrate to RBAC admin_users.');
+            $this->finalizeLogin($legacyResult['session']);
             return redirect()->to(site_url('admin'))->with('success', 'Welcome to the admin control panel.');
         }
 
-        return view('admin/auth/login', [
-            'title' => 'Admin Login',
-        ]);
+        return redirect()->back()->with('error', 'Invalid credentials.');
     }
 
     public function logout()
     {
         $auth = session('admin_auth');
+
         if (is_array($auth) && isset($auth['id'])) {
             $this->logActivity(
                 'auth.logout',
@@ -124,5 +84,114 @@ class AuthController extends AdminBaseController
         session()->regenerate(true);
 
         return redirect()->to(site_url('admin/login'))->with('success', 'Logged out successfully.');
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    /**
+     * Attempts login against admin_users + admin_roles.
+     * Returns null when admin_users table has no records (first-run / legacy env).
+     * Returns ['success' => bool, 'error' => string, 'session' => array] otherwise.
+     */
+    private function attemptRbacLogin(string $email, string $password): ?array
+    {
+        try {
+            $adminUserModel = new AdminUserModel();
+
+            if ($adminUserModel->countAllResults() === 0) {
+                return null;
+            }
+
+            $result = $adminUserModel->attemptLogin($email, $password);
+
+            if (! $result['success']) {
+                return ['success' => false, 'error' => $result['error'], 'session' => []];
+            }
+
+            $user = $result['user'];
+            $role = (new AdminRoleModel())->find((int) $user['role_id']);
+
+            $permissions = $role !== null
+                ? (new AdminRoleModel())->getPermissions($role)
+                : [];
+
+            $roleName = $role !== null ? (string) $role['name'] : 'Admin';
+
+            $sessionAuth = [
+                'id'          => (int) $user['id'],
+                'name'        => (string) $user['full_name'],
+                'email'       => (string) $user['email'],
+                'role'        => $roleName,
+                'role_id'     => (int) $user['role_id'],
+                'permissions' => $permissions,
+                'legacy'      => false,
+            ];
+
+            return ['success' => true, 'error' => '', 'session' => $sessionAuth];
+        } catch (DatabaseException $e) {
+            log_message('error', '[AdminAuth] RBAC login DB error: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Attempts login via the legacy admin_credentials master password.
+     * Returns null when the table is missing or empty.
+     */
+    private function attemptLegacyLogin(string $password): ?array
+    {
+        try {
+            $credModel  = new AdminCredentialModel();
+            $credential = $credModel->getMasterCredentials();
+
+            if ($credential === null) {
+                return null;
+            }
+
+            $storedHash    = (string) $credential['master_password_hash'];
+            $passwordMatch = (str_starts_with($storedHash, '$2y$'))
+                ? password_verify($password, $storedHash)
+                : ($password === $storedHash);
+
+            if (! $passwordMatch) {
+                return ['success' => false, 'error' => 'Invalid credentials.', 'session' => []];
+            }
+
+            $allPermissions = array_fill_keys(AdminRoleModel::ALL_PERMISSIONS, true);
+
+            $sessionAuth = [
+                'id'          => 0,
+                'name'        => 'System Administrator',
+                'email'       => 'admin@campusvoice.local',
+                'role'        => 'system_admin',
+                'role_id'     => 0,
+                'permissions' => $allPermissions,
+                'legacy'      => true,
+            ];
+
+            return ['success' => true, 'error' => '', 'session' => $sessionAuth];
+        } catch (DatabaseException $e) {
+            log_message('error', '[AdminAuth] Legacy login DB error: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    private function finalizeLogin(array $sessionAuth): void
+    {
+        session()->remove('student_auth');
+        session()->set('admin_auth', $sessionAuth);
+
+        $this->logActivity(
+            'auth.login',
+            'Admin logged into control panel.',
+            [
+                'target_type' => 'admin_user',
+                'target_id'   => (int) $sessionAuth['id'],
+                'email'       => (string) $sessionAuth['email'],
+                'role'        => (string) $sessionAuth['role'],
+                'legacy'      => (bool) ($sessionAuth['legacy'] ?? false),
+            ],
+            (int) $sessionAuth['id'] > 0 ? (int) $sessionAuth['id'] : null
+        );
     }
 }

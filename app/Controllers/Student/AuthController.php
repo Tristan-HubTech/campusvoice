@@ -155,6 +155,15 @@ class AuthController extends Controller
         return redirect()->to(site_url('users/login'))->with('success', 'You have been logged out.');
     }
 
+    // Shows the account deactivated notice page (no auth required).
+    public function deactivated()
+    {
+        return view('student/auth/deactivated', [
+            'title'        => 'Account Deactivated',
+            'isAuthScreen' => true,
+        ]);
+    }
+
     // Validates credentials and starts a session on success.
     private function handleLogin()
     {
@@ -190,7 +199,7 @@ class AuthController extends Controller
         }
 
         if ((int) ($user['is_active'] ?? 0) !== 1) {
-            return redirect()->to(site_url('users/login?mode=login'))->with('error', 'Your account is inactive. Please contact the administrator.')->withInput();
+            return redirect()->to(site_url('users/deactivated'));
         }
 
         $isNewUser = empty($user['last_login_at']);
@@ -325,12 +334,17 @@ class AuthController extends Controller
             return $this->processAdminReset($token);
         }
 
-        $record = $this->findAdminResetToken($token);
+        $claimResult = $this->findAdminResetToken($token, claim: true);
+
+        // $claimResult === 'stolen' means a different session already owns this link
+        $stolen = $claimResult === 'stolen';
+        $valid  = ! $stolen && $claimResult !== null;
 
         return view('student/auth/set-password', [
             'title'        => 'Set New Password',
             'isAuthScreen' => true,
-            'valid'        => $record !== null,
+            'valid'        => $valid,
+            'stolen'       => $stolen,
             'token'        => $token,
         ]);
     }
@@ -386,7 +400,7 @@ class AuthController extends Controller
             ->with('success', 'Password set successfully. You can now log in.');
     }
 
-    private function findAdminResetToken(string $token): ?array
+    private function findAdminResetToken(string $token, bool $claim = false): array|string|null
     {
         $now      = date('Y-m-d H:i:s');
         $otpModel = new PasswordOtpModel();
@@ -398,9 +412,26 @@ class AuthController extends Controller
             ->findAll();
 
         foreach ($records as $record) {
-            if (password_verify($token, (string) $record['otp_hash'])) {
-                return $record;
+            if (! password_verify($token, (string) $record['otp_hash'])) {
+                continue;
             }
+
+            $existingSession = (string) ($record['opened_session'] ?? '');
+            $currentSession  = session_id();
+
+            if ($existingSession !== '' && $existingSession !== $currentSession) {
+                // A different session already claimed this link
+                return 'stolen';
+            }
+
+            if ($claim && $existingSession === '') {
+                $otpModel->update((int) $record['id'], [
+                    'opened_session' => $currentSession,
+                    'opened_at'      => $now,
+                ]);
+            }
+
+            return $record;
         }
 
         return null;

@@ -461,6 +461,21 @@ html[data-theme="dark"] .data-table th {
     color: #9bb6ff;
 }
 
+/* Feedback bulk action bar — dark mode */
+html[data-theme="dark"] .fbk-bulk-bar {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: var(--line);
+}
+
+html[data-theme="dark"] .fbk-bulk-count {
+    color: var(--muted);
+}
+
+html[data-theme="dark"] .fbk-row-check,
+html[data-theme="dark"] .fbk-check-col input[type="checkbox"] {
+    accent-color: var(--ok);
+}
+
 /* Feedback Ref # badge — dark mode */
 html[data-theme="dark"] .fbk-badge {
     background: #374151;

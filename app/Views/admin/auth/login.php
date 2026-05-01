@@ -22,8 +22,8 @@
         </div>
 
         <div class="login-head">
-            <h1>Login to your account</h1>
-            <p>Enter your credentials to access the control panel.</p>
+            <h1>Admin Sign In</h1>
+            <p>Enter your admin credentials to access the control panel.</p>
         </div>
 
         <?php if (session()->getFlashdata('error')): ?>
@@ -36,8 +36,14 @@
 
         <form method="post" action="<?= site_url('admin/login') ?>" class="login-form">
             <div class="field-group">
-                <label for="password">Master Password</label>
-                <input id="password" name="password" type="password" required placeholder="Enter master password" autofocus>
+                <label for="email">Email Address</label>
+                <input id="email" name="email" type="email" required placeholder="admin@example.com" autocomplete="username" autofocus
+                       value="<?= esc((string) old('email', '')) ?>">
+            </div>
+
+            <div class="field-group">
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password" required placeholder="Your password" autocomplete="current-password">
             </div>
 
             <button type="submit">Sign In &rarr;</button>

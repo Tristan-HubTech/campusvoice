@@ -54,6 +54,7 @@ $routes->group('admin', ['filter' => 'adminauth'], static function (RouteCollect
 	$routes->post('users/(:num)/send-reset', 'Admin\\UserManagementController::sendPasswordReset/$1');
 
 	// Feedback approval workflow
+	$routes->post('feedback/bulk-approve',   'Admin\\FeedbackController::bulkApprove');
 	$routes->post('feedback/(:num)/approve', 'Admin\\FeedbackController::approve/$1');
 	$routes->post('feedback/(:num)/reject',  'Admin\\FeedbackController::reject/$1');
 
@@ -62,6 +63,24 @@ $routes->group('admin', ['filter' => 'adminauth'], static function (RouteCollect
 	$routes->post('categories/(:num)/update', 'Admin\\CategoryController::update/$1');
 	$routes->post('categories/(:num)/delete', 'Admin\\CategoryController::delete/$1');
 	$routes->post('categories/(:num)/toggle', 'Admin\\CategoryController::toggleStatus/$1');
+
+	// Admin Account Management (RBAC)
+	$routes->get('admins', 'Admin\\AdminUserController::index');
+	$routes->get('admins/create', 'Admin\\AdminUserController::create');
+	$routes->post('admins', 'Admin\\AdminUserController::store');
+	$routes->get('admins/(:num)/edit', 'Admin\\AdminUserController::edit/$1');
+	$routes->post('admins/(:num)/update', 'Admin\\AdminUserController::update/$1');
+	$routes->post('admins/(:num)/toggle-status', 'Admin\\AdminUserController::toggleStatus/$1');
+	$routes->post('admins/(:num)/delete', 'Admin\\AdminUserController::delete/$1');
+	$routes->post('admins/(:num)/unlock', 'Admin\\AdminUserController::unlock/$1');
+
+	// Role Management (RBAC)
+	$routes->get('roles', 'Admin\\RoleController::index');
+	$routes->get('roles/create', 'Admin\\RoleController::create');
+	$routes->post('roles', 'Admin\\RoleController::store');
+	$routes->get('roles/(:num)/edit', 'Admin\\RoleController::edit/$1');
+	$routes->post('roles/(:num)/update', 'Admin\\RoleController::update/$1');
+	$routes->post('roles/(:num)/delete', 'Admin\\RoleController::delete/$1');
 });
 
 // Student Portal
@@ -73,6 +92,7 @@ $routes->post('users/forgot-password/send-otp', 'Student\\AuthController::sendFo
 $routes->post('users/forgot-password/verify-otp', 'Student\\AuthController::verifyForgotOtp');
 $routes->match(['get', 'post'], 'users/set-password/(:segment)', 'Student\\AuthController::adminResetPassword/$1');
 $routes->get('users/logout', 'Student\\AuthController::logout');
+$routes->get('users/deactivated', 'Student\\AuthController::deactivated');
 
 // Legacy portal aliases (kept for old bookmarks/links)
 $routes->match(['get', 'post'], 'portal/login', 'Student\\AuthController::login');

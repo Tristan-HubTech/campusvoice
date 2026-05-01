@@ -20,6 +20,8 @@ class PasswordOtpModel extends Model
         'max_attempts',
         'expires_at',
         'used_at',
+        'opened_session',
+        'opened_at',
     ];
 
     protected bool $allowEmptyInserts = false;

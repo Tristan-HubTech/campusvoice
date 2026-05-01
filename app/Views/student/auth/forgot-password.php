@@ -16,6 +16,11 @@ $sessionOtp  = (string) ($forgotSessionOtp ?? '');
                 <span class="brand-hero-name">CampusVoice</span>
                 <span class="brand-hero-sub">Your campus, your voice</span>
             </div>
+        </div>
+        <div class="auth-topbar-end">
+            <?= $this->include('partials/theme_toggle') ?>
+        </div>
+    </header>
 
     <div class="auth-split auth-split--center">
         <section class="auth-panel fp-panel">
@@ -116,6 +121,13 @@ $sessionOtp  = (string) ($forgotSessionOtp ?? '');
                     </a>
                 </div>
                 <?php endif ?>
+
+                <div style="text-align:center;margin-top:14px;padding-top:14px;border-top:1px solid rgba(133,172,255,0.15);">
+                    <a href="<?= site_url('users/login') ?>" style="font-size:0.82rem;color:#6b8fd4;text-decoration:none;display:inline-flex;align-items:center;gap:5px;font-weight:600;transition:color 0.15s;">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                        Back to Login
+                    </a>
+                </div>
             </form>
 
         </section>

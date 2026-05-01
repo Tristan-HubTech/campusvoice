@@ -3,6 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Models\AdminActivityLogModel;
+use App\Models\AdminUserModel;
 use App\Models\AnnouncementModel;
 use App\Models\FeedbackCategoryModel;
 use App\Models\FeedbackModel;
@@ -16,7 +17,7 @@ class DashboardController extends AdminBaseController
     public function index(): string
     {
         $adminUser = $this->adminUser();
-        $canViewActivity = in_array($adminUser['role'] ?? '', ['system_admin', 'admin'], true);
+        $canViewActivity = $this->hasPermission('activity.view');
 
         $requestedTab = (string) ($this->request->getGet('tab') ?? 'overview');
         $allowedTabs = ['overview', 'feedback', 'announcements', 'users', 'categories'];
@@ -26,6 +27,7 @@ class DashboardController extends AdminBaseController
 
         $panelTab = in_array($requestedTab, $allowedTabs, true) ? $requestedTab : 'overview';
 
+        // ── Always load lightweight stats ──────────────────────────
         $stats = [
             'feedback_total'     => (new FeedbackModel())->countAllResults(),
             'feedback_pending'   => (new FeedbackModel())->where('status', 'pending')->countAllResults(),
@@ -40,12 +42,19 @@ class DashboardController extends AdminBaseController
             'announcement_total' => (new AnnouncementModel())->countAllResults(),
         ];
 
+        // ── Load all tab data upfront so hash-based tab switching always has data ───
         $latestFeedback = (new FeedbackModel())
             ->select('feedbacks.id, feedbacks.type, feedbacks.subject, feedbacks.status, feedbacks.created_at, feedback_categories.name as category_name, users.first_name, users.last_name, feedbacks.is_anonymous')
             ->join('feedback_categories', 'feedback_categories.id = feedbacks.category_id', 'left')
             ->join('users', 'users.id = feedbacks.user_id', 'left')
             ->orderBy('feedbacks.created_at', 'DESC')
             ->findAll(10);
+
+        $latestAnnouncements = (new AnnouncementModel())
+            ->select('announcements.id, announcements.title, announcements.audience, announcements.is_published, announcements.publish_at, announcements.created_at, users.first_name, users.last_name')
+            ->join('users', 'users.id = announcements.posted_by', 'left')
+            ->orderBy('announcements.created_at', 'DESC')
+            ->findAll(5);
 
         $feedbackList = (new FeedbackModel())
             ->select('feedbacks.*, feedback_categories.name as category_name, users.first_name, users.last_name, users.email')
@@ -54,22 +63,16 @@ class DashboardController extends AdminBaseController
             ->orderBy('feedbacks.created_at', 'DESC')
             ->findAll(200);
 
-        $latestAnnouncements = (new AnnouncementModel())
-            ->select('announcements.id, announcements.title, announcements.audience, announcements.is_published, announcements.publish_at, announcements.created_at, users.first_name, users.last_name')
-            ->join('users', 'users.id = announcements.posted_by', 'left')
-            ->orderBy('announcements.created_at', 'DESC')
-            ->findAll(5);
+        $categories = (new FeedbackCategoryModel())
+            ->where('is_active', 1)
+            ->orderBy('name', 'ASC')
+            ->findAll();
 
         $announcements = (new AnnouncementModel())
             ->select('announcements.*, users.first_name, users.last_name')
             ->join('users', 'users.id = announcements.posted_by', 'left')
             ->orderBy('announcements.created_at', 'DESC')
             ->findAll(200);
-
-        $categories = (new FeedbackCategoryModel())
-            ->where('is_active', 1)
-            ->orderBy('name', 'ASC')
-            ->findAll();
 
         $allCategories = (new FeedbackCategoryModel())
             ->orderBy('name', 'ASC')
@@ -107,8 +110,8 @@ class DashboardController extends AdminBaseController
             $activityPagination['page'] = max(1, (int) ($this->request->getGet('activity_page') ?? 1));
 
             $activityQuery = (new AdminActivityLogModel())
-                ->select('admin_activity_logs.*, users.first_name, users.last_name, users.email')
-                ->join('users', 'users.id = admin_activity_logs.admin_user_id', 'left');
+                ->select('admin_activity_logs.*, admin_users.full_name, admin_users.email as admin_email')
+                ->join('admin_users', 'admin_users.id = admin_activity_logs.admin_user_id', 'left');
 
             $this->applyActivityFilters($activityQuery, $activityFilters);
 
@@ -139,13 +142,10 @@ class DashboardController extends AdminBaseController
                 return (string) ($row['action'] ?? '');
             }, $activityActionRows)));
 
-            $activityAdminOptions = (new UserModel())
-                ->select('users.id, users.first_name, users.last_name, users.email')
-                ->join('roles', 'roles.id = users.role_id', 'left')
-                ->whereIn('roles.name', ['system_admin', 'admin'])
-                ->where('users.is_active', 1)
-                ->orderBy('users.first_name', 'ASC')
-                ->orderBy('users.last_name', 'ASC')
+            $activityAdminOptions = (new AdminUserModel())
+                ->select('id, full_name, email')
+                ->where('is_active', 1)
+                ->orderBy('full_name', 'ASC')
                 ->findAll();
         }
 
@@ -170,12 +170,14 @@ class DashboardController extends AdminBaseController
             'activityAdminOptions' => $activityAdminOptions,
             'activityPurgeRetentionOptions' => self::ACTIVITY_PURGE_RETENTION_OPTIONS,
             'panelTab'            => $panelTab,
+            'safePanelTab'        => $panelTab,
+            'allowedTabs'         => $allowedTabs,
         ]);
     }
 
     public function purgeActivity()
     {
-        if (! in_array($this->adminUser()['role'] ?? '', ['system_admin', 'admin'], true)) {
+        if (! $this->hasPermission('activity.purge')) {
             return redirect()->to(site_url('admin'))->with('error', 'You do not have permission to purge activity logs.');
         }
 
@@ -265,9 +267,9 @@ class DashboardController extends AdminBaseController
                 ->like('admin_activity_logs.action', $term)
                 ->orLike('admin_activity_logs.description', $term)
                 ->orLike('admin_activity_logs.target_type', $term)
-                ->orLike('users.email', $term)
-                ->orLike('users.first_name', $term)
-                ->orLike('users.last_name', $term)
+                ->orLike('admin_activity_logs.admin_display', $term)
+                ->orLike('admin_users.full_name', $term)
+                ->orLike('admin_users.email', $term)
                 ->groupEnd();
         }
 
@@ -299,8 +301,7 @@ class DashboardController extends AdminBaseController
         if ($sort === 'action') {
             $query->orderBy('admin_activity_logs.action', $dir);
         } elseif ($sort === 'admin') {
-            $query->orderBy('users.first_name', $dir)
-                ->orderBy('users.last_name', $dir);
+            $query->orderBy('admin_users.full_name', $dir);
         } elseif ($sort === 'target') {
             $query->orderBy('admin_activity_logs.target_type', $dir)
                 ->orderBy('admin_activity_logs.target_id', $dir);

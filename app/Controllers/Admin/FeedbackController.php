@@ -209,6 +209,45 @@ class FeedbackController extends AdminBaseController
         return redirect()->to(site_url('admin') . '#feedback')->with('success', 'Feedback approved.');
     }
 
+    public function bulkApprove()
+    {
+        $ids = $this->request->getPost('ids');
+
+        if (empty($ids) || ! is_array($ids)) {
+            return $this->response->setJSON(['ok' => false, 'message' => 'No items selected.']);
+        }
+
+        $feedbackModel = new FeedbackModel();
+        $adminId       = (int) ($this->adminUser()['id'] ?? 0);
+        $approved      = [];
+        $now           = date('Y-m-d H:i:s');
+
+        foreach ($ids as $rawId) {
+            $id       = (int) $rawId;
+            $feedback = $feedbackModel->find($id);
+            if ($feedback === null || ! in_array((string) $feedback['status'], ['pending', 'rejected'], true)) {
+                continue;
+            }
+
+            $feedbackModel->update($id, [
+                'status'           => 'approved',
+                'rejection_reason' => null,
+                'reviewed_by'      => $adminId,
+                'reviewed_at'      => $now,
+            ]);
+
+            $this->logActivity(
+                'feedback.approved',
+                'Bulk-approved feedback.',
+                ['target_type' => 'feedback', 'target_id' => $id, 'from_status' => (string) $feedback['status']]
+            );
+
+            $approved[] = $id;
+        }
+
+        return $this->response->setJSON(['ok' => true, 'approved' => $approved, 'count' => count($approved)]);
+    }
+
     public function reject(int $id)
     {
         $feedbackModel = new FeedbackModel();
