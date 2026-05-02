@@ -80,16 +80,16 @@
                     <input id="reg-email" name="email" type="email" required maxlength="150" autocomplete="off" placeholder="you@example.com">
                     <small id="reg-email-hint" class="otp-status-text" aria-live="polite"></small>
 
-                    <label for="reg-otp">OTP Code</label>
-                    <button type="button" class="auth-otp-btn" id="send-register-otp-btn">Send OTP to Email</button>
-                    <small id="register-otp-status" class="otp-status-text" aria-live="polite"></small>
-                    <input id="reg-otp" name="otp" type="text" inputmode="numeric" pattern="[0-9]*" required maxlength="6" placeholder="Send OTP first" disabled id="reg-otp">
-
                     <label for="reg-password">Password <small>(min 8 characters)</small></label>
                     <input id="reg-password" name="password" type="password" required minlength="8" maxlength="255" autocomplete="new-password" placeholder="Create a password">
 
                     <label for="reg-confirm">Confirm Password</label>
                     <input id="reg-confirm" name="password_confirm" type="password" required autocomplete="new-password" placeholder="Repeat password">
+
+                    <label for="reg-otp">OTP Code</label>
+                    <button type="button" class="auth-otp-btn" id="send-register-otp-btn">Send OTP to Email</button>
+                    <small id="register-otp-status" class="otp-status-text" aria-live="polite"></small>
+                    <input id="reg-otp" name="otp" type="text" inputmode="numeric" pattern="[0-9]*" required maxlength="6" placeholder="Send OTP first" disabled id="reg-otp">
 
                     <button type="submit" class="btn-primary">Create Account</button>
                 </form>
@@ -270,9 +270,6 @@
                 var noPassword = !values.password || values.password.length < 8;
                 var mismatch   = values.password && values.password.length >= 8 && values.password !== values.confirm;
 
-                if (noName && noPassword) {
-                    return '👆 Fill in your name and create a password first, then you can send the OTP.';
-                }
                 if (noName) {
                     return '👆 Please fill in your first and last name to continue.';
                 }

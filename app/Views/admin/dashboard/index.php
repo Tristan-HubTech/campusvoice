@@ -18,6 +18,7 @@ $canViewActivity = ! empty($canViewActivity);
 $allowedTabs = ['overview', 'feedback', 'announcements', 'users', 'categories'];
 if ($canViewActivity) {
     $allowedTabs[] = 'activity';
+    $allowedTabs[] = 'student-activity';
 }
 
 $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
@@ -32,7 +33,8 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
     <button class="tab-btn" type="button" data-tab-trigger="users">Students</button>
     <button class="tab-btn" type="button" data-tab-trigger="categories">Categories</button>
     <?php if ($canViewActivity): ?>
-        <button class="tab-btn" type="button" data-tab-trigger="activity">Activity</button>
+        <button class="tab-btn" type="button" data-tab-trigger="activity">Admin Activity</button>
+        <button class="tab-btn" type="button" data-tab-trigger="student-activity">Student Activity</button>
     <?php endif; ?>
 </div>
 
@@ -878,7 +880,7 @@ $allCategories = $allCategories ?? [];
             <form method="get" action="<?= site_url('admin') ?>" class="activity-filter-form">
                 <input type="hidden" name="tab" value="activity">
                 <input type="text" name="activity_q" value="<?= esc((string) ($activityFilters['q'] ?? '')) ?>" placeholder="Search action, description, admin...">
-                <select name="activity_action">
+                <select name="activity_action" onchange="this.form.submit()">
                     <option value="">All Actions</option>
                     <?php foreach (($activityActionOptions ?? []) as $actionOption): ?>
                         <option value="<?= esc((string) $actionOption) ?>" <?= ((string) ($activityFilters['action'] ?? '') === (string) $actionOption) ? 'selected' : '' ?>>
@@ -886,7 +888,7 @@ $allCategories = $allCategories ?? [];
                         </option>
                     <?php endforeach; ?>
                 </select>
-                <select name="activity_admin_id">
+                <select name="activity_admin_id" onchange="this.form.submit()">
                     <option value="0">All Admins</option>
                     <?php foreach (($activityAdminOptions ?? []) as $adminOption): ?>
                         <?php $adminName = (string) ($adminOption['full_name'] ?? ''); ?>
@@ -1043,6 +1045,157 @@ $allCategories = $allCategories ?? [];
                 <pre id="activity-detail-metadata" class="code-box activity-json">{}</pre>
             </div>
         </div>
+    </section>
+
+    <?php
+    $saFilters    = $studentActivityFilters    ?? [];
+    $saPagination = $studentActivityPagination ?? ['page' => 1, 'perPage' => 20, 'total' => 0, 'pages' => 1];
+    $saLogs       = $studentActivityLogs       ?? [];
+    $saActions    = $studentActivityActionOptions ?? [];
+
+    $saBaseUrl = site_url('admin') . '?tab=student-activity';
+    $saBuildPageUrl = static function (int $page) use ($saFilters, $saBaseUrl): string {
+        $q = http_build_query(array_filter([
+            'sa_q'      => $saFilters['q']      ?? '',
+            'sa_action' => $saFilters['action']  ?? '',
+            'sa_from'   => $saFilters['from']    ?? '',
+            'sa_to'     => $saFilters['to']      ?? '',
+            'sa_sort'   => $saFilters['sort']    ?? '',
+            'sa_dir'    => $saFilters['dir']     ?? '',
+            'sa_page'   => $page > 1 ? (string) $page : '',
+        ]));
+        return $saBaseUrl . ($q ? '&' . $q : '') . '#student-activity';
+    };
+    $saCurrentSort = (string) ($saFilters['sort'] ?? 'created_at');
+    $saCurrentDir  = (string) ($saFilters['dir']  ?? 'desc');
+    $saBuildSortUrl = static function (string $col) use ($saFilters, $saBaseUrl, $saCurrentSort, $saCurrentDir): string {
+        $dir = ($saCurrentSort === $col && $saCurrentDir === 'asc') ? 'desc' : 'asc';
+        $q = http_build_query(array_filter([
+            'sa_q'      => $saFilters['q']      ?? '',
+            'sa_action' => $saFilters['action']  ?? '',
+            'sa_from'   => $saFilters['from']    ?? '',
+            'sa_to'     => $saFilters['to']      ?? '',
+            'sa_sort'   => $col,
+            'sa_dir'    => $dir,
+        ]));
+        return $saBaseUrl . ($q ? '&' . $q : '') . '#student-activity';
+    };
+    $saSortIndicator = static function (string $col) use ($saCurrentSort, $saCurrentDir): string {
+        if ($saCurrentSort !== $col) { return ''; }
+        return ' <span class="sort-indicator">' . ($saCurrentDir === 'asc' ? '^' : 'v') . '</span>';
+    };
+    ?>
+    <section class="tab-panel" data-tab-panel="student-activity">
+        <section class="panel">
+            <div class="panel-head stack-mobile">
+                <h2>Student Activity Log</h2>
+                <div class="activity-toolbar">
+                    <span class="muted"><?= esc((string) $saPagination['total']) ?> matching records</span>
+                </div>
+            </div>
+
+            <form method="get" action="<?= site_url('admin') ?>" class="cv-table-toolbar" id="sa-filter-form">
+                <input type="hidden" name="tab" value="student-activity">
+                <div class="cv-search-wrap">
+                    <input type="text" name="sa_q" id="sa-search" class="cv-search cv-input"
+                           placeholder="Search name, email, action…"
+                           value="<?= esc((string) ($saFilters['q'] ?? '')) ?>">
+                </div>
+                <select name="sa_action" class="cv-input" onchange="this.form.submit()">
+                    <option value="">All Actions</option>
+                    <?php foreach ($saActions as $act): ?>
+                        <option value="<?= esc($act) ?>" <?= ($saFilters['action'] ?? '') === $act ? 'selected' : '' ?>>
+                            <?= esc($act) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <input type="date" name="sa_from" class="cv-input" value="<?= esc((string) ($saFilters['from'] ?? '')) ?>" title="From date">
+                <input type="date" name="sa_to"   class="cv-input" value="<?= esc((string) ($saFilters['to']   ?? '')) ?>" title="To date">
+                <button type="submit" class="cv-btn-navy">Filter</button>
+                <?php if (($saFilters['q'] ?? '') !== '' || ($saFilters['action'] ?? '') !== '' || ($saFilters['from'] ?? '') !== '' || ($saFilters['to'] ?? '') !== ''): ?>
+                    <a href="<?= site_url('admin') ?>?tab=student-activity#student-activity" class="btn-link secondary">Clear</a>
+                <?php endif; ?>
+            </form>
+
+            <div class="cv-table-card">
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                        <tr>
+                            <th><a href="<?= $saBuildSortUrl('created_at') ?>">Time<?= $saSortIndicator('created_at') ?></a></th>
+                            <th><a href="<?= $saBuildSortUrl('student_name') ?>">Student<?= $saSortIndicator('student_name') ?></a></th>
+                            <th><a href="<?= $saBuildSortUrl('action') ?>">Action<?= $saSortIndicator('action') ?></a></th>
+                            <th>Description</th>
+                            <th>Target</th>
+                            <th>IP</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <?php if (! empty($saLogs)): ?>
+                            <?php foreach ($saLogs as $saRow): ?>
+                                <tr>
+                                    <td class="nowrap muted" style="font-size:.8rem;">
+                                        <?= esc(date('M d, Y H:i', strtotime((string) ($saRow['created_at'] ?? '')))) ?>
+                                    </td>
+                                    <td>
+                                        <?php if (! empty($saRow['student_name'])): ?>
+                                            <strong><?= esc((string) $saRow['student_name']) ?></strong>
+                                            <?php if (! empty($saRow['student_email'])): ?>
+                                                <br><small class="muted"><?= esc((string) $saRow['student_email']) ?></small>
+                                            <?php endif; ?>
+                                        <?php else: ?>
+                                            <span class="muted">—</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <span class="pill status-reviewed" style="font-size:.75rem;">
+                                            <?= esc((string) ($saRow['action'] ?? '')) ?>
+                                        </span>
+                                    </td>
+                                    <td style="max-width:260px;word-break:break-word;">
+                                        <?= esc((string) ($saRow['description'] ?? '')) ?>
+                                    </td>
+                                    <td class="muted" style="font-size:.8rem;">
+                                        <?php if (! empty($saRow['target_type'])): ?>
+                                            <?= esc((string) $saRow['target_type']) ?>
+                                            <?php if (! empty($saRow['target_id'])): ?>
+                                                #<?= esc((string) $saRow['target_id']) ?>
+                                            <?php endif; ?>
+                                        <?php else: ?>
+                                            —
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="muted" style="font-size:.8rem;">
+                                        <?= esc((string) ($saRow['ip_address'] ?? '—')) ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="6" class="muted" style="text-align:center;padding:2rem;">
+                                    No student activity records found.
+                                </td>
+                            </tr>
+                        <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+
+                <?php if ($saPagination['pages'] > 1): ?>
+                    <div class="pagination-bar">
+                        <?php if ($saPagination['page'] > 1): ?>
+                            <a class="btn-link" href="<?= $saBuildPageUrl($saPagination['page'] - 1) ?>">&#8592; Prev</a>
+                        <?php endif; ?>
+                        <span class="muted" style="font-size:.85rem;">
+                            Page <?= esc((string) $saPagination['page']) ?> of <?= esc((string) $saPagination['pages']) ?>
+                        </span>
+                        <?php if ($saPagination['page'] < $saPagination['pages']): ?>
+                            <a class="btn-link" href="<?= $saBuildPageUrl($saPagination['page'] + 1) ?>">Next &#8594;</a>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </section>
     </section>
 <?php endif; ?>
 

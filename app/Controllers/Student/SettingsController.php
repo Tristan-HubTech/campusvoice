@@ -108,6 +108,11 @@ class SettingsController extends StudentBaseController
                 'role'  => (string) ($viewer['role'] ?? 'user'),
             ]);
 
+            if ($password !== '') {
+                $this->logStudentActivity('password.changed', 'Changed account password');
+            }
+            $this->logStudentActivity('profile.updated', 'Updated account settings');
+
             return redirect()->to(site_url('settings'))->with('success', 'Your account settings were updated.');
         }
 
@@ -142,6 +147,8 @@ class SettingsController extends StudentBaseController
             $profile = $this->ensureProfile($viewerId);
             (new SocialProfileModel())->update((int) $profile['id'], ['is_anonymous' => $value]);
         }
+
+        $this->logStudentActivity('settings.anonymous_toggled', $value === 1 ? 'Enabled anonymous mode' : 'Disabled anonymous mode', null, null, ['is_anonymous' => $value]);
 
         return $this->response->setJSON(['ok' => true, 'is_anonymous' => $value]);
     }
@@ -275,6 +282,8 @@ HTML;
 
         $parts = explode('@', $email);
         $masked = substr($parts[0], 0, 2) . str_repeat('*', max(strlen($parts[0]) - 2, 1)) . '@' . $parts[1];
+
+        $this->logStudentActivity('password.change_requested', 'Requested a password change OTP');
 
         return $this->response->setJSON([
             'ok'      => true,

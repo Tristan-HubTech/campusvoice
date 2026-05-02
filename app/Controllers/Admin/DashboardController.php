@@ -7,6 +7,7 @@ use App\Models\AdminUserModel;
 use App\Models\AnnouncementModel;
 use App\Models\FeedbackCategoryModel;
 use App\Models\FeedbackModel;
+use App\Models\StudentActivityLogModel;
 use App\Models\UserModel;
 
 class DashboardController extends AdminBaseController
@@ -23,6 +24,7 @@ class DashboardController extends AdminBaseController
         $allowedTabs = ['overview', 'feedback', 'announcements', 'users', 'categories'];
         if ($canViewActivity) {
             $allowedTabs[] = 'activity';
+            $allowedTabs[] = 'student-activity';
         }
 
         $panelTab = in_array($requestedTab, $allowedTabs, true) ? $requestedTab : 'overview';
@@ -105,6 +107,23 @@ class DashboardController extends AdminBaseController
         $activityActionOptions = [];
         $activityAdminOptions = [];
 
+        $studentActivityLogs = [];
+        $studentActivityFilters = [
+            'q'      => '',
+            'action' => '',
+            'from'   => '',
+            'to'     => '',
+            'sort'   => 'created_at',
+            'dir'    => 'desc',
+        ];
+        $studentActivityPagination = [
+            'page'    => 1,
+            'perPage' => 20,
+            'total'   => 0,
+            'pages'   => 1,
+        ];
+        $studentActivityActionOptions = [];
+
         if ($canViewActivity) {
             $activityFilters = $this->readActivityFilters();
             $activityPagination['page'] = max(1, (int) ($this->request->getGet('activity_page') ?? 1));
@@ -144,9 +163,78 @@ class DashboardController extends AdminBaseController
 
             $activityAdminOptions = (new AdminUserModel())
                 ->select('id, full_name, email')
-                ->where('is_active', 1)
                 ->orderBy('full_name', 'ASC')
                 ->findAll();
+
+            // ── Student Activity ────────────────────────────────────
+            $saQ      = trim((string) ($this->request->getGet('sa_q') ?? ''));
+            $saAction = trim((string) ($this->request->getGet('sa_action') ?? ''));
+            $saFrom   = $this->normalizeDate((string) ($this->request->getGet('sa_from') ?? ''));
+            $saTo     = $this->normalizeDate((string) ($this->request->getGet('sa_to') ?? ''));
+            $saSortIn = trim((string) ($this->request->getGet('sa_sort') ?? ''));
+            $saSort   = in_array($saSortIn, ['created_at', 'student_name', 'action'], true) ? $saSortIn : 'created_at';
+            $saDirIn  = strtolower(trim((string) ($this->request->getGet('sa_dir') ?? '')));
+            $saDir    = in_array($saDirIn, ['asc', 'desc'], true) ? $saDirIn : 'desc';
+
+            $studentActivityFilters = [
+                'q'      => $saQ,
+                'action' => $saAction,
+                'from'   => $saFrom,
+                'to'     => $saTo,
+                'sort'   => $saSort,
+                'dir'    => $saDir,
+            ];
+
+            $studentActivityPagination['page'] = max(1, (int) ($this->request->getGet('sa_page') ?? 1));
+
+            $saQuery = (new StudentActivityLogModel())->select('student_activity_logs.*');
+
+            if ($saQ !== '') {
+                $saQuery->groupStart()
+                    ->like('student_activity_logs.action', $saQ)
+                    ->orLike('student_activity_logs.description', $saQ)
+                    ->orLike('student_activity_logs.student_name', $saQ)
+                    ->orLike('student_activity_logs.student_email', $saQ)
+                    ->groupEnd();
+            }
+            if ($saAction !== '') {
+                $saQuery->where('student_activity_logs.action', $saAction);
+            }
+            if ($saFrom !== '') {
+                $saQuery->where('student_activity_logs.created_at >=', $saFrom . ' 00:00:00');
+            }
+            if ($saTo !== '') {
+                $saQuery->where('student_activity_logs.created_at <=', $saTo . ' 23:59:59');
+            }
+
+            $studentActivityPagination['total'] = (int) $saQuery->countAllResults(false);
+            if ($studentActivityPagination['total'] > 0) {
+                $studentActivityPagination['pages'] = (int) ceil($studentActivityPagination['total'] / $studentActivityPagination['perPage']);
+                if ($studentActivityPagination['page'] > $studentActivityPagination['pages']) {
+                    $studentActivityPagination['page'] = $studentActivityPagination['pages'];
+                }
+                $saOffset = ($studentActivityPagination['page'] - 1) * $studentActivityPagination['perPage'];
+
+                if ($saSort === 'student_name') {
+                    $saQuery->orderBy('student_activity_logs.student_name', $saDir);
+                } elseif ($saSort === 'action') {
+                    $saQuery->orderBy('student_activity_logs.action', $saDir);
+                } else {
+                    $saQuery->orderBy('student_activity_logs.created_at', $saDir);
+                }
+                $saQuery->orderBy('student_activity_logs.id', 'DESC');
+
+                $studentActivityLogs = $saQuery->findAll($studentActivityPagination['perPage'], $saOffset);
+            }
+
+            $saActionRows = (new StudentActivityLogModel())
+                ->select('action')
+                ->groupBy('action')
+                ->orderBy('action', 'ASC')
+                ->findAll();
+            $studentActivityActionOptions = array_values(array_filter(array_map(static function (array $row): string {
+                return (string) ($row['action'] ?? '');
+            }, $saActionRows)));
         }
 
         return view('admin/dashboard/index', [
@@ -169,6 +257,10 @@ class DashboardController extends AdminBaseController
             'activityActionOptions' => $activityActionOptions,
             'activityAdminOptions' => $activityAdminOptions,
             'activityPurgeRetentionOptions' => self::ACTIVITY_PURGE_RETENTION_OPTIONS,
+            'studentActivityLogs'          => $studentActivityLogs,
+            'studentActivityFilters'       => $studentActivityFilters,
+            'studentActivityPagination'    => $studentActivityPagination,
+            'studentActivityActionOptions' => $studentActivityActionOptions,
             'panelTab'            => $panelTab,
             'safePanelTab'        => $panelTab,
             'allowedTabs'         => $allowedTabs,

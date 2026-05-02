@@ -4,6 +4,7 @@ namespace App\Controllers\Student;
 
 use App\Models\PasswordOtpModel;
 use App\Models\RoleModel;
+use App\Models\StudentActivityLogModel;
 use App\Models\UserModel;
 use CodeIgniter\Controller;
 
@@ -151,6 +152,15 @@ class AuthController extends Controller
     // Clears the session and redirects back to login.
     public function logout()
     {
+        $auth = session()->get('student_auth');
+        if (is_array($auth) && ! empty($auth['id'])) {
+            (new StudentActivityLogModel())->log(
+                (int) $auth['id'], 'auth.logout', 'Logged out',
+                null, null, null,
+                (string) ($auth['name'] ?? ''), (string) ($auth['email'] ?? ''),
+                (string) $this->request->getIPAddress()
+            );
+        }
         session()->remove('student_auth');
         return redirect()->to(site_url('users/login'))->with('success', 'You have been logged out.');
     }
@@ -215,6 +225,14 @@ class AuthController extends Controller
             'role'       => $user['role'],
             'is_new_user' => $isNewUser,
         ]);
+
+        (new StudentActivityLogModel())->log(
+            (int) $user['id'], 'auth.login', 'Logged in',
+            null, null, null,
+            trim(((string) ($user['first_name'] ?? '')) . ' ' . ((string) ($user['last_name'] ?? ''))),
+            (string) $user['email'],
+            (string) $this->request->getIPAddress()
+        );
 
         return redirect()->to(site_url('users'));
     }

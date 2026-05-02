@@ -175,6 +175,8 @@ class PortalController extends StudentBaseController
                 'is_anonymous' => $isAnonymous,
             ]);
 
+            $this->logStudentActivity('feedback.submitted', 'Submitted feedback', 'feedback', (int) $feedbackId, ['type' => $post['type']]);
+
             return redirect()->to(site_url('users/feedback'))->with('success', 'Your feedback has been submitted and is pending admin review.');
         }
 

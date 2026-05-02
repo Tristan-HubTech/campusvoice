@@ -8,11 +8,6 @@ $canEdit        = ! empty($me['permissions']['admin.edit']);
 $canDelete      = ! empty($me['permissions']['admin.delete']);
 ?>
 
-<!-- Page Header -->
-<div class="cv-page-header">
-    <h2>Admin Accounts</h2>
-    <p>Manage administrator accounts and permissions.</p>
-</div>
 
 <!-- Content Card -->
 <div class="cv-table-card">

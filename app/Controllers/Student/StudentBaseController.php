@@ -8,6 +8,8 @@ use App\Models\SocialPostModel;
 use App\Models\SocialProfileModel;
 use App\Models\SocialReactionModel;
 use App\Models\SocialShareModel;
+use App\Models\StudentActivityLogModel;
+use Throwable;
 
 abstract class StudentBaseController extends BaseController
 {
@@ -31,6 +33,32 @@ abstract class StudentBaseController extends BaseController
     {
         $number = str_pad((string) (($userId * 31 + 7) % 100), 2, '0', STR_PAD_LEFT);
         return 'Versace' . $number;
+    }
+
+    protected function logStudentActivity(
+        string $action,
+        string $description,
+        ?string $targetType = null,
+        ?int $targetId = null,
+        ?array $metadata = null
+    ): void {
+        try {
+            $viewer = $this->viewer();
+            $userId = (int) ($viewer['id'] ?? 0);
+            (new StudentActivityLogModel())->log(
+                $userId > 0 ? $userId : null,
+                $action,
+                $description,
+                $targetType,
+                $targetId,
+                $metadata,
+                (string) ($viewer['name'] ?? ''),
+                (string) ($viewer['email'] ?? ''),
+                method_exists($this->request, 'getIPAddress') ? (string) $this->request->getIPAddress() : ''
+            );
+        } catch (Throwable $e) {
+            log_message('error', 'Student activity logging failed: {message}', ['message' => $e->getMessage()]);
+        }
     }
 
     protected function redirectToReferrer(string $fallback, string $anchor = '')

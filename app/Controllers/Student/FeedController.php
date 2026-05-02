@@ -42,7 +42,9 @@ class FeedController extends StudentBaseController
             $postPayload['is_anonymous'] = $isAnonymous === 1 ? 1 : 0;
         }
 
-        (new SocialPostModel())->insert($postPayload);
+        $postModel = new SocialPostModel();
+        $postModel->insert($postPayload);
+        $this->logStudentActivity('post.created', 'Created a post', 'post', (int) $postModel->getInsertID());
 
         return redirect()->to(site_url('users'))->with('success', 'Your post is now live.');
     }
@@ -62,6 +64,7 @@ class FeedController extends StudentBaseController
         }
 
         $postModel->delete($postId);
+        $this->logStudentActivity('post.deleted', 'Deleted a post', 'post', $postId);
 
         if ($this->request->isAJAX()) {
             return $this->response->setJSON(['ok' => true]);
@@ -125,6 +128,8 @@ class FeedController extends StudentBaseController
             ->where('post_id', $postId)
             ->where('user_id', $viewerId)
             ->first();
+
+        $this->logStudentActivity('reaction.added', "Reacted with '{$reactionType}' on a post", 'post', $postId, ['reaction_type' => $reactionType]);
 
         return $this->response->setJSON([
             'ok'                 => true,
@@ -239,6 +244,8 @@ class FeedController extends StudentBaseController
             return $this->redirectToReferrer('posts/' . $postId, 'post-' . $postId)->with('error', 'Could not save comment.');
         }
 
+        $this->logStudentActivity('comment.added', 'Added a comment on a post', 'post', $postId, ['comment_id' => (int) $commentModel->getInsertID()]);
+
         if ($this->request->isAJAX()) {
             $viewer = $this->viewer();
             $profile = $this->ensureProfile((int) $viewer['id']);
@@ -322,6 +329,8 @@ class FeedController extends StudentBaseController
             $reactionBreakdown[(string) $br['reaction_type']] = (int) $br['total'];
         }
 
+        $this->logStudentActivity('reaction.added', "Reacted with '{$reactionType}' on a comment", 'comment', $commentId, ['reaction_type' => $reactionType]);
+
         return $this->response->setJSON([
             'ok'                 => true,
             'viewer_reaction'    => $viewerReaction,
@@ -361,6 +370,7 @@ class FeedController extends StudentBaseController
         }
 
         $shareTotal = (new SocialShareModel())->where('post_id', $postId)->countAllResults();
+        $this->logStudentActivity('post.shared', 'Shared a post', 'post', $postId);
 
         if ($this->request->isAJAX()) {
             return $this->response->setJSON([

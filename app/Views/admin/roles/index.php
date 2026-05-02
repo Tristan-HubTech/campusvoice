@@ -8,11 +8,6 @@ $canEdit   = ! empty($me['permissions']['roles.edit']);
 $canDelete = ! empty($me['permissions']['roles.delete']);
 ?>
 
-<!-- Page Header -->
-<div class="cv-page-header">
-    <h2>Roles &amp; Permissions</h2>
-    <p>Define access levels for your administration team.</p>
-</div>
 
 <div class="cv-card" style="margin-bottom:20px;">
     <div class="cv-card-header">

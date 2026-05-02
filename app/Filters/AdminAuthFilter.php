@@ -17,12 +17,6 @@ class AdminAuthFilter implements FilterInterface
             return redirect()->to(site_url('admin/login'))->with('error', 'Please login to continue.');
         }
 
-        // Legacy fallback admins (admin_credentials table) do not have an
-        // admin_users record, so we trust the session without a DB check.
-        if (! empty($auth['legacy'])) {
-            return null;
-        }
-
         // Re-verify the admin account is still active on every request.
         $user = (new AdminUserModel())->select('id, is_active')->find((int) $auth['id']);
 
