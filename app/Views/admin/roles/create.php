@@ -1,6 +1,20 @@
 <?= $this->extend('admin/layout') ?>
 
 <?= $this->section('content') ?>
+<?php
+$permGroupColors = [
+    'Dashboard'        => '#3b82f6',
+    'Feedback'         => '#10b981',
+    'Announcements'    => '#f59e0b',
+    'Students'         => '#8b5cf6',
+    'Categories'       => '#ec4899',
+    'Activity Log'     => '#14b8a6',
+    'Student Activity' => '#6366f1',
+    'Admin Accounts'   => '#ef4444',
+    'Roles'            => '#f97316',
+    'Tools'            => '#6b7280',
+];
+?>
 
 <div class="cv-form-card cv-form-card-wide">
     <div class="cv-form-head">
@@ -40,16 +54,18 @@
                 </div>
 
                 <?php $oldPerms = (array) old('permissions', []); ?>
+                <div class="cv-perm-grid">
                 <?php foreach ($permissionGroups as $groupName => $keys): ?>
-                    <div class="cv-card" style="margin-bottom:10px;overflow:visible;">
+                    <?php $permColor = $permGroupColors[$groupName] ?? '#6b7280'; ?>
+                    <div class="cv-card perm-card" style="--perm-color:<?= $permColor ?>;overflow:visible;">
                         <div class="perm-section-header">
                             <span class="perm-group-name"><?= esc($groupName) ?></span>
                             <span class="perm-group-counter" data-group-counter="<?= esc($groupName) ?>">0/<?= count($keys) ?></span>
                             <div class="perm-section-actions">
                                 <button type="button" class="perm-toggle-btn"
-                                        onclick="toggleGroup('<?= esc($groupName, 'attr') ?>',true)">All</button>
+                                        onclick="toggleGroup('<?= esc($groupName, 'attr') ?>',true)">Check All</button>
                                 <button type="button" class="perm-toggle-btn"
-                                        onclick="toggleGroup('<?= esc($groupName, 'attr') ?>',false)">None</button>
+                                        onclick="toggleGroup('<?= esc($groupName, 'attr') ?>',false)">Uncheck All</button>
                             </div>
                         </div>
                         <div class="perm-items" data-group="<?= esc($groupName, 'attr') ?>">
@@ -60,17 +76,18 @@
                                            <?= $checked ? 'checked' : '' ?>
                                            onchange="updatePermCounters()">
                                     <span class="cv-track"></span>
-                                    <span class="cv-toggle-label"><?= esc(substr($key, strpos($key, '.') + 1)) ?></span>
+                                    <span class="cv-toggle-label"><?= esc(ucwords(str_replace('_', ' ', substr($key, strpos($key, '.') + 1)))) ?></span>
                                 </label>
                             <?php endforeach; ?>
                         </div>
                     </div>
                 <?php endforeach; ?>
+                </div>
             </div>
 
         </div>
 
-        <div class="cv-form-footer">
+        <div class="cv-form-footer cv-form-footer-sticky">
             <button type="submit" class="cv-btn-navy">Create Role</button>
             <a href="<?= site_url('admin/roles') ?>" class="cv-btn-outline">Cancel</a>
         </div>

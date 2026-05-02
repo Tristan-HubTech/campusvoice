@@ -112,6 +112,7 @@ h4 {
 
 /* ── Shell Layout ──────────────────────────────────────────────── */
 .admin-shell {
+  display: grid !important;
   grid-template-columns: var(--cv-sidebar-w) 1fr !important;
 }
 
@@ -120,7 +121,6 @@ h4 {
   position: sticky !important;
   top: 0 !important;
   background: linear-gradient(180deg, #0b1e3d 0%, #0f2a50 55%, #0d2244 100%) !important;
-  background-image: none !important;
   border-right: 1px solid rgba(99, 140, 255, .18) !important;
   padding: 0 !important;
   gap: 0 !important;
@@ -514,6 +514,16 @@ h4 {
   border-color: var(--cv-navy-800);
 }
 
+[data-theme="dark"] .cv-btn-outline {
+  color: var(--cv-ink) !important;
+  border-color: var(--cv-border-2);
+}
+
+[data-theme="dark"] .cv-btn-outline:hover {
+  background: var(--cv-surface-2);
+  border-color: var(--cv-ink-2);
+}
+
 /* ── Admin Accounts Table ─────────────────────────────────────── */
 
 /* Card wrapper */
@@ -539,6 +549,7 @@ h4 {
 .cv-admin-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: auto !important;
   font-size: .875rem;
 }
 
@@ -1168,7 +1179,7 @@ h4 {
 }
 
 .cv-form-card-wide {
-  max-width: 800px;
+  max-width: 100% !important;
 }
 
 .cv-form-head {
@@ -1245,6 +1256,13 @@ h4 {
 .cv-input:disabled {
   opacity: .55;
   cursor: not-allowed;
+}
+
+.cv-input[readonly] {
+  background: var(--cv-surface-3);
+  color: var(--cv-muted);
+  cursor: default;
+  border-color: var(--cv-border);
 }
 
 .cv-select {
@@ -1502,9 +1520,9 @@ h4 {
 
 .perm-items {
   padding: 12px 18px 14px;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
-  gap: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 /* Toggle switch */
@@ -1565,9 +1583,9 @@ h4 {
   font-size: .8rem;
   font-weight: 600;
   color: var(--cv-ink-2);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.35;
 }
 
 /* Grand total counter */
@@ -1836,62 +1854,40 @@ h4 {
   font-size: 1.02rem !important;
 }
 
-/* Table enhancements */
-.data-table {
-  font-size: .875rem !important;
-  width: 100%;
-  border-collapse: collapse;
+/* Table utility helpers */
+.data-table td.nowrap,
+.data-table th.nowrap,
+.cv-admin-table td.nowrap,
+.cv-admin-table th.nowrap,
+.student-mgmt-table td.nowrap,
+.student-mgmt-table th.nowrap {
+  white-space: nowrap;
 }
 
-.data-table thead tr {
-  background: var(--cv-surface-2) !important;
-  border-bottom: 2px solid var(--cv-border) !important;
+.data-table td.wrap-cell,
+.cv-admin-table td.wrap-cell,
+.student-mgmt-table td.wrap-cell {
+  word-break: break-word;
+  white-space: normal;
+  min-width: 120px;
 }
 
-.data-table th {
-  font-size: .72rem !important;
-  font-weight: 800 !important;
-  text-transform: uppercase !important;
-  letter-spacing: .08em !important;
-  color: #6b7280 !important;
-  border-bottom: none !important;
-  padding: 10px 16px !important;
-  text-align: left !important;
-  white-space: nowrap !important;
+.data-table td.action-cell,
+.cv-admin-table td.action-cell,
+.student-mgmt-table td.action-cell {
+  white-space: nowrap;
 }
 
-.data-table td {
-  padding: 14px 16px !important;
-  vertical-align: middle !important;
-  border-bottom: 1px solid var(--cv-border) !important;
-  color: var(--cv-ink) !important;
-}
-
-.data-table tbody tr:last-child td {
-  border-bottom: none !important;
-}
-
-.data-table tbody tr:hover td {
-  background: #f0f7ff !important;
-}
-
-/* data-table dark mode */
-[data-theme="dark"] .data-table thead tr {
-  background: var(--cv-surface-2) !important;
-  border-bottom-color: var(--cv-border-2) !important;
-}
-
-[data-theme="dark"] .data-table th {
-  color: #fff !important;
-}
-
-[data-theme="dark"] .data-table td {
-  color: var(--cv-ink) !important;
-  border-bottom-color: var(--cv-border) !important;
-}
-
-[data-theme="dark"] .data-table tbody tr:hover td {
-  background: var(--cv-surface-hover) !important;
+.data-table td.action-cell .action-btns,
+.data-table td.action-cell .cv-icon-btns,
+.cv-admin-table td.action-cell .action-btns,
+.cv-admin-table td.action-cell .cv-icon-btns,
+.student-mgmt-table td.action-cell .action-btns {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  gap: 6px !important;
+  align-items: center !important;
 }
 
 /* Existing pill/status classes enhanced */
@@ -2414,4 +2410,471 @@ h4 {
   font-weight: 800 !important;
   color: var(--cv-ink) !important;
   font-family: 'Playfair Display', serif !important;
+}
+
+/* ── Permission Toggles — green when checked ─────────────────────── */
+.cv-toggle input:checked ~ .cv-track {
+  background: #10b981 !important;
+}
+
+/* Larger toggle track for better touch targets */
+.cv-track {
+  width: 42px !important;
+  height: 24px !important;
+}
+
+.cv-track::after {
+  width: 18px !important;
+  height: 18px !important;
+  top: 3px !important;
+  left: 3px !important;
+}
+
+.cv-toggle input:checked ~ .cv-track::after {
+  transform: translateX(18px) !important;
+}
+
+.cv-toggle {
+  min-height: 44px !important;
+  padding: 8px 10px !important;
+}
+
+/* ── Permission Cards — 2-column landscape grid ──────────────────── */
+.cv-perm-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+@media (max-width: 640px) {
+  .cv-perm-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Colored accent border via CSS custom property */
+.cv-card.perm-card {
+  border-top: 4px solid var(--perm-color, var(--cv-border-2)) !important;
+  margin-bottom: 0 !important;
+}
+
+.cv-card.perm-card .perm-group-name {
+  color: var(--perm-color, var(--cv-ink-2)) !important;
+}
+
+
+/* ── Form card size variants ─────────────────────────────────────── */
+.cv-form-card-roles {
+  max-width: 700px;
+}
+
+.cv-form-card-sm {
+  max-width: 550px;
+}
+
+/* ── Sticky form footer ──────────────────────────────────────────── */
+.cv-form-footer-sticky {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  box-shadow: 0 -4px 20px rgba(10, 30, 70, .08);
+}
+
+/* ── System role notice banner ───────────────────────────────────── */
+.cv-system-role-notice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 26px 0;
+  padding: 12px 16px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-left: 4px solid #3b82f6;
+  border-radius: var(--cv-r-md);
+  font-size: .85rem;
+  font-weight: 600;
+  color: #1d4ed8;
+}
+
+.cv-system-role-notice svg {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  color: #3b82f6;
+}
+
+[data-theme="dark"] .cv-system-role-notice {
+  background: #1e3a5f;
+  border-color: #2563eb55;
+  border-left-color: #60a5fa;
+  color: #93c5fd;
+}
+
+[data-theme="dark"] .cv-system-role-notice svg {
+  color: #60a5fa;
+}
+
+/* ── Unified Table Styles (all admin tables) ─────────────────────── */
+.student-mgmt-table,
+.data-table,
+.cv-admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.student-mgmt-table th,
+.data-table th,
+.cv-admin-table th {
+  padding: 10px 14px !important;
+  text-align: left !important;
+  font-size: 0.72rem !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  color: #6b7280 !important;
+  background: var(--cv-surface-2) !important;
+  border-bottom: 2px solid var(--cv-border) !important;
+  white-space: nowrap !important;
+}
+
+.student-mgmt-table td,
+.data-table td,
+.cv-admin-table td {
+  padding: 12px 14px !important;
+  vertical-align: middle !important;
+  border-bottom: 1px solid var(--cv-border) !important;
+  font-size: 0.875rem !important;
+  color: var(--cv-ink) !important;
+}
+
+.student-mgmt-table tbody tr:hover td,
+.data-table tbody tr:hover td,
+.cv-admin-table tbody tr:hover td {
+  background: #f0f7ff !important;
+}
+
+.student-mgmt-table tbody tr:last-child td,
+.data-table tbody tr:last-child td,
+.cv-admin-table tbody tr:last-child td {
+  border-bottom: none !important;
+}
+
+/* Column helpers */
+.student-mgmt-table .email-col {
+  min-width: 200px;
+}
+
+.student-mgmt-table .status-col,
+.data-table .status-col,
+.cv-admin-table .status-col,
+.cv-admin-table .col-status {
+  text-align: center !important;
+}
+
+.student-mgmt-table .actions-col,
+.data-table .actions-col,
+.cv-admin-table .actions-col {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.student-mgmt-table .actions-col .action-btns,
+.data-table .actions-col .action-btns,
+.cv-admin-table .actions-col .action-btns {
+  display: inline-flex;
+  gap: 6px;
+}
+
+/* ── Table Row Color Bug Fixes ────────────────────────────────────── */
+
+/* Sort links in headers — match header gray, not browser blue */
+.data-table th .sort-link,
+.data-table th a,
+.cv-admin-table th .sort-link,
+.cv-admin-table th a,
+.student-mgmt-table th .sort-link,
+.student-mgmt-table th a {
+  color: #6b7280 !important;
+  text-decoration: none !important;
+}
+
+.data-table th .sort-link:hover,
+.cv-admin-table th .sort-link:hover {
+  color: var(--cv-navy-700) !important;
+}
+
+/* Plain <a> inside table cells — neutral, no underline */
+.data-table td a:not(.act-btn):not(.fbk-act-btn):not(.fbk-badge-link):not(.text-link),
+.cv-admin-table td a:not(.act-btn),
+.student-mgmt-table td a:not(.act-btn) {
+  color: var(--cv-ink);
+  text-decoration: none;
+}
+
+/* text-link inside table cells — navy, not bright browser blue */
+.data-table td .text-link,
+.cv-admin-table td .text-link,
+.student-mgmt-table td .text-link {
+  color: var(--cv-navy-700) !important;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* text-btn in cells — neutral navy, not bright blue */
+.data-table td .text-btn,
+.cv-admin-table td .text-btn,
+.student-mgmt-table td .text-btn {
+  color: var(--cv-navy-700) !important;
+  background: transparent;
+  border: none;
+  font-weight: 600;
+  font-size: .82rem;
+  cursor: pointer;
+  padding: 0;
+}
+
+.data-table td .text-btn.danger,
+.cv-admin-table td .text-btn.danger {
+  color: #b91c1c !important;
+}
+
+/* ── Status & type pill colors — immune to inheritance ────────────── */
+.status-active,
+.status-pill.status-active,
+.pill.status-active {
+  background: #10b981 !important;
+  color: #fff !important;
+  display: inline-block !important;
+  padding: 4px 12px !important;
+  border-radius: 999px !important;
+  font-size: 0.76rem !important;
+  font-weight: 700 !important;
+  white-space: nowrap !important;
+}
+
+.status-inactive,
+.status-pill.status-inactive,
+.pill.status-inactive {
+  background: #6b7280 !important;
+  color: #fff !important;
+  display: inline-block !important;
+  padding: 4px 12px !important;
+  border-radius: 999px !important;
+  font-size: 0.76rem !important;
+  font-weight: 700 !important;
+  white-space: nowrap !important;
+}
+
+.status-pill {
+  display: inline-block !important;
+  padding: 4px 14px !important;
+  border-radius: 999px !important;
+  font-size: 0.76rem !important;
+  font-weight: 700 !important;
+  white-space: nowrap !important;
+}
+
+/* status-* pill colors with !important so td color overrides can't bleed in */
+.pill.status-new,
+span.status-new {
+  background: #f1f6ff !important;
+  color: #2f569f !important;
+}
+
+.pill.status-pending,
+span.status-pending {
+  background: #fff8e1 !important;
+  color: #92400e !important;
+}
+
+.pill.status-approved,
+span.status-approved {
+  background: #d1fae5 !important;
+  color: #065f46 !important;
+}
+
+.pill.status-rejected,
+span.status-rejected {
+  background: #fee2e2 !important;
+  color: #991b1b !important;
+}
+
+.pill.status-reviewed,
+span.status-reviewed {
+  background: #dbeafe !important;
+  color: #1e40af !important;
+}
+
+.pill.status-resolved,
+span.status-resolved {
+  background: #ede9fe !important;
+  color: #5b21b6 !important;
+}
+
+/* type pill colors */
+.pill.type-complaint,
+span.type-complaint {
+  background: #ffe9e9 !important;
+  color: #8d2c2c !important;
+}
+
+.pill.type-suggestion,
+span.type-suggestion {
+  background: #e8f1ff !important;
+  color: #1d4ca3 !important;
+}
+
+.pill.type-praise,
+span.type-praise {
+  background: #d1fae5 !important;
+  color: #065f46 !important;
+}
+
+/* Dark mode pill overrides */
+[data-theme="dark"] .pill.status-new,
+[data-theme="dark"] span.status-new { background: #1e2d4a !important; color: #93c5fd !important; }
+[data-theme="dark"] .pill.status-pending,
+[data-theme="dark"] span.status-pending { background: #3a2e0d !important; color: #fbbf24 !important; }
+[data-theme="dark"] .pill.status-approved,
+[data-theme="dark"] span.status-approved { background: #1f3a2a !important; color: #6ee7b7 !important; }
+[data-theme="dark"] .pill.status-rejected,
+[data-theme="dark"] span.status-rejected { background: #3a1818 !important; color: #fca5a5 !important; }
+[data-theme="dark"] .pill.status-reviewed,
+[data-theme="dark"] span.status-reviewed { background: #1e2d4a !important; color: #93c5fd !important; }
+[data-theme="dark"] .pill.status-resolved,
+[data-theme="dark"] span.status-resolved { background: #2d1f4a !important; color: #c4b5fd !important; }
+[data-theme="dark"] .pill.type-complaint,
+[data-theme="dark"] span.type-complaint { background: #3a1818 !important; color: #fca5a5 !important; }
+[data-theme="dark"] .pill.type-suggestion,
+[data-theme="dark"] span.type-suggestion { background: #1e2d4a !important; color: #93c5fd !important; }
+[data-theme="dark"] .pill.type-praise,
+[data-theme="dark"] span.type-praise { background: #1f3a2a !important; color: #6ee7b7 !important; }
+
+/* ── Table action group helper ────────────────────────────────────── */
+.tbl-actions {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-wrap: nowrap !important;
+}
+
+/* ── Student management action cell ─────────────────────────────── */
+.smgmt-actions {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 6px !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+}
+
+.smgmt-actions form {
+  display: contents !important;
+}
+
+/* mini-btn — consistent look across all tables */
+.mini-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 6px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: .78rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 150ms ease;
+  background: var(--cv-surface-3);
+  color: var(--cv-ink) !important;
+  border: 1px solid var(--cv-border);
+}
+
+.mini-btn:hover {
+  background: var(--cv-surface-2);
+  border-color: var(--cv-border-2);
+}
+
+.mini-btn.secondary {
+  background: transparent;
+  color: var(--cv-ink-2) !important;
+  border-color: var(--cv-border);
+}
+
+.mini-btn.secondary:hover {
+  background: var(--cv-surface-2);
+}
+
+/* Table description/subject cells — always wrap */
+.data-table td.desc-col,
+.cv-admin-table td.desc-col,
+.student-mgmt-table td.desc-col {
+  word-break: break-word !important;
+  white-space: normal !important;
+  min-width: 150px;
+}
+
+/* Name + email stacked cell */
+.data-table td .cell-name,
+.cv-admin-table td .cell-name,
+.student-mgmt-table td .cell-name {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.data-table td .cell-name strong,
+.cv-admin-table td .cell-name strong,
+.student-mgmt-table td .cell-name strong {
+  font-weight: 600;
+  color: var(--cv-ink);
+}
+
+.data-table td .cell-name small,
+.cv-admin-table td .cell-name small,
+.student-mgmt-table td .cell-name small {
+  font-size: .75rem;
+  color: var(--cv-muted);
+}
+
+/* Centered action cell */
+.data-table td.center-col,
+.cv-admin-table td.center-col,
+.student-mgmt-table td.center-col {
+  text-align: center !important;
+}
+
+/* Dark mode unified table */
+[data-theme="dark"] .student-mgmt-table th,
+[data-theme="dark"] .data-table th,
+[data-theme="dark"] .cv-admin-table th {
+  color: var(--cv-ink-2) !important;
+  background: var(--cv-surface-2) !important;
+  border-bottom-color: var(--cv-border-2) !important;
+}
+
+[data-theme="dark"] .student-mgmt-table td,
+[data-theme="dark"] .data-table td,
+[data-theme="dark"] .cv-admin-table td {
+  color: var(--cv-ink) !important;
+  border-bottom-color: var(--cv-border) !important;
+}
+
+[data-theme="dark"] .student-mgmt-table tbody tr:hover td,
+[data-theme="dark"] .data-table tbody tr:hover td,
+[data-theme="dark"] .cv-admin-table tbody tr:hover td {
+  background: var(--cv-surface-hover) !important;
+}
+
+[data-theme="dark"] .mini-btn {
+  background: var(--cv-surface-3) !important;
+  color: var(--cv-ink) !important;
+  border-color: var(--cv-border) !important;
+}
+
+[data-theme="dark"] .mini-btn.secondary {
+  background: transparent !important;
+  color: var(--cv-ink-2) !important;
 }

@@ -7,7 +7,7 @@ $isSelf    = (int) ($me['id'] ?? 0) === (int) ($editUser['id'] ?? 0);
 $canAssign = ! empty($me['permissions']['admin.assign_roles']) && ! $isSelf;
 ?>
 
-<div class="cv-form-card">
+<div class="cv-form-card cv-form-card-sm">
     <div class="cv-form-head">
         <h2>Edit Admin Account</h2>
         <a href="<?= site_url('admin/admins') ?>" class="cv-btn-outline" style="padding:7px 16px;font-size:.82rem;">
@@ -28,6 +28,7 @@ $canAssign = ! empty($me['permissions']['admin.assign_roles']) && ! $isSelf;
             <div class="cv-field">
                 <label for="email">Email Address</label>
                 <input id="email" name="email" type="email" class="cv-input" required maxlength="150"
+                       readonly
                        value="<?= esc((string) old('email', (string) ($editUser['email'] ?? ''))) ?>">
             </div>
 
@@ -65,7 +66,7 @@ $canAssign = ! empty($me['permissions']['admin.assign_roles']) && ! $isSelf;
                 <div class="cv-pw-wrap">
                     <input id="password" name="password" type="password" class="cv-input"
                            minlength="8" maxlength="100"
-                           placeholder="Leave blank to keep current" autocomplete="new-password">
+                           placeholder="Min. 8 characters" autocomplete="new-password">
                     <button type="button" class="cv-pw-toggle" onclick="togglePw('password',this)" tabindex="-1">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                     </button>

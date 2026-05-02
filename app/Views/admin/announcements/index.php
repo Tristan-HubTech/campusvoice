@@ -13,7 +13,7 @@
             <tr>
                 <th>Title</th>
                 <th>Audience</th>
-                <th>Status</th>
+                <th class="status-col">Status</th>
                 <th>Publish</th>
                 <th>Expires</th>
                 <th>Actions</th>
@@ -30,18 +30,20 @@
                         <td><?= esc(ucfirst((string) $item['audience'])) ?></td>
                         <td>
                             <?php if ((int) ($item['is_published'] ?? 0) === 1): ?>
-                                <span class="pill status-reviewed">Published</span>
+                                <span class="pill status-active">Published</span>
                             <?php else: ?>
-                                <span class="pill status-new">Draft</span>
+                                <span class="pill status-inactive">Draft</span>
                             <?php endif; ?>
                         </td>
                         <td><?= $item['publish_at'] ? esc((string) date('M d, Y H:i', strtotime((string) $item['publish_at']))) : '-' ?></td>
                         <td><?= $item['expires_at'] ? esc((string) date('M d, Y H:i', strtotime((string) $item['expires_at']))) : '-' ?></td>
                         <td>
-                            <a class="text-link" href="<?= site_url('admin/announcements/' . (int) $item['id'] . '/edit') ?>">Edit</a>
-                            <form method="post" action="<?= site_url('admin/announcements/' . (int) $item['id'] . '/delete') ?>" class="inline-form" onsubmit="return confirm('Delete this announcement?');">
-                                <button class="text-btn danger" type="submit">Delete</button>
-                            </form>
+                            <div class="tbl-actions">
+                                <a class="text-link" href="<?= site_url('admin/announcements/' . (int) $item['id'] . '/edit') ?>">Edit</a>
+                                <form method="post" action="<?= site_url('admin/announcements/' . (int) $item['id'] . '/delete') ?>" class="inline-form" onsubmit="return confirm('Delete this announcement?');">
+                                    <button class="text-btn danger" type="submit">Delete</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 <?php endforeach; ?>

@@ -43,7 +43,7 @@
                 <th>Category</th>
                 <th>Subject</th>
                 <th>Author</th>
-                <th>Status</th>
+                <th class="status-col">Status</th>
                 <th>Date</th>
                 <th></th>
             </tr>

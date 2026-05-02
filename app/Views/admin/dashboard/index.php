@@ -92,7 +92,7 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                         <th>Category</th>
                         <th>Type</th>
                         <th>Author</th>
-                        <th>Status</th>
+                        <th class="status-col">Status</th>
                         <th>Time</th>
                     </tr>
                     </thead>
@@ -209,7 +209,7 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                     <th>Category</th>
                     <th>Subject</th>
                     <th>Author</th>
-                    <th>Status</th>
+                    <th class="status-col">Status</th>
                     <th>Date</th>
                     <th>Action</th>
                 </tr>
@@ -533,7 +533,7 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                     <thead>
                     <tr>
                         <th>Title</th>
-                        <th>Status</th>
+                        <th class="status-col">Status</th>
                         <th>Publishes</th>
                         <th>Expires</th>
                         <th>Actions</th>
@@ -691,12 +691,12 @@ $allCategories = $allCategories ?? [];
         </div>
 
         <div class="table-wrap">
-            <table class="data-table">
+            <table class="student-mgmt-table">
                 <thead>
                 <tr>
                     <th>Name</th>
                     <th>Email</th>
-                    <th>Status</th>
+                    <th class="status-col">Status</th>
                     <th>Last Login</th>
                     <th>Actions</th>
                 </tr>
@@ -715,22 +715,26 @@ $allCategories = $allCategories ?? [];
                             data-search="<?= esc($uSearchBlob, 'attr') ?>"
                         >
                             <td><?= esc($uName !== '' ? $uName : 'Unknown') ?></td>
-                            <td><?= esc((string) ($u['email'] ?? '')) ?></td>
-                            <td>
+                            <td class="email-col"><?= esc((string) ($u['email'] ?? '')) ?></td>
+                            <td class="status-col">
                                 <?php if ($uActive === 1): ?>
-                                    <span class="pill status-reviewed">Active</span>
+                                    <span class="pill status-active">Active</span>
                                 <?php else: ?>
-                                    <span class="pill status-new">Inactive</span>
+                                    <span class="pill status-inactive">Inactive</span>
                                 <?php endif; ?>
                             </td>
                             <td><?= ! empty($u['last_login_at']) ? esc(date('M d, Y H:i', strtotime((string) $u['last_login_at']))) : '<span class="muted">Never</span>' ?></td>
-                            <td>
-                                <form method="post" action="<?= site_url('admin/users/' . (int) $u['id'] . '/toggle-status') ?>" class="inline-form">
-                                    <button class="mini-btn" type="submit"><?= $uActive === 1 ? 'Deactivate' : 'Activate' ?></button>
-                                </form>
-                                <form method="post" action="<?= site_url('admin/users/' . (int) $u['id'] . '/send-reset') ?>" class="inline-form" onsubmit="return confirm('Reset password for <?= esc($uName, 'attr') ?>?');">
-                                    <button class="mini-btn secondary" type="submit">Reset PW</button>
-                                </form>
+                            <td class="actions-col">
+                                <div class="smgmt-actions">
+                                    <form method="post" action="<?= site_url('admin/users/' . (int) $u['id'] . '/toggle-status') ?>">
+                                        <button class="act-btn <?= $uActive === 1 ? 'act-deactivate' : 'act-activate' ?>" type="submit">
+                                            <?= $uActive === 1 ? 'Deactivate' : 'Activate' ?>
+                                        </button>
+                                    </form>
+                                    <form method="post" action="<?= site_url('admin/users/' . (int) $u['id'] . '/send-reset') ?>" onsubmit="return confirm('Reset password for <?= esc($uName, 'attr') ?>?');">
+                                        <button class="act-btn act-edit" type="submit">Reset PW</button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -775,8 +779,8 @@ $allCategories = $allCategories ?? [];
                     <tr>
                         <th>Name</th>
                         <th>Description</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+                        <th class="status-col">Status</th>
+                        <th class="center-col">Actions</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -792,19 +796,23 @@ $allCategories = $allCategories ?? [];
                                 <td><?= esc(strlen((string) ($cat['description'] ?? '')) > 60 ? substr((string) $cat['description'], 0, 60) . '...' : (string) ($cat['description'] ?? '—')) ?></td>
                                 <td>
                                     <?php if ((int) ($cat['is_active'] ?? 1) === 1): ?>
-                                        <span class="pill status-reviewed">Active</span>
+                                        <span class="pill status-active">Active</span>
                                     <?php else: ?>
-                                        <span class="pill status-new">Inactive</span>
+                                        <span class="pill status-inactive">Inactive</span>
                                     <?php endif; ?>
                                 </td>
-                                <td>
-                                    <button type="button" class="text-btn" data-edit-category="<?= (int) $cat['id'] ?>">Edit</button>
-                                    <form method="post" action="<?= site_url('admin/categories/' . (int) $cat['id'] . '/toggle') ?>" class="inline-form">
-                                        <button class="text-btn" type="submit"><?= (int) ($cat['is_active'] ?? 1) === 1 ? 'Disable' : 'Enable' ?></button>
-                                    </form>
-                                    <form method="post" action="<?= site_url('admin/categories/' . (int) $cat['id'] . '/delete') ?>" class="inline-form" onsubmit="return confirm('Delete category &quot;<?= esc((string) $cat['name'], 'attr') ?>&quot;?');">
-                                        <button class="text-btn danger" type="submit">Delete</button>
-                                    </form>
+                                <td class="center-col">
+                                    <div class="smgmt-actions" style="justify-content:center;">
+                                        <button type="button" class="act-btn act-edit" data-edit-category="<?= (int) $cat['id'] ?>">Edit</button>
+                                        <form method="post" action="<?= site_url('admin/categories/' . (int) $cat['id'] . '/toggle') ?>" style="display:contents;">
+                                            <button class="act-btn <?= (int) ($cat['is_active'] ?? 1) === 1 ? 'act-deactivate' : 'act-activate' ?>" type="submit">
+                                                <?= (int) ($cat['is_active'] ?? 1) === 1 ? 'Disable' : 'Enable' ?>
+                                            </button>
+                                        </form>
+                                        <form method="post" action="<?= site_url('admin/categories/' . (int) $cat['id'] . '/delete') ?>" style="display:contents;" onsubmit="return confirm('Delete category &quot;<?= esc((string) $cat['name'], 'attr') ?>&quot;?');">
+                                            <button class="act-btn act-delete" type="submit">Delete</button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -966,9 +974,9 @@ $allCategories = $allCategories ?? [];
                                     <?php endif; ?>
                                 </td>
                                 <td><span class="pill status-reviewed"><?= esc((string) ($log['action'] ?? 'unknown')) ?></span></td>
-                                <td><?= esc((string) ($log['description'] ?? 'No description')) ?></td>
+                                <td class="desc-col"><?= esc((string) ($log['description'] ?? 'No description')) ?></td>
                                 <td><?= esc($targetLabel) ?></td>
-                                <td>
+                                <td class="center-col">
                                     <button
                                         type="button"
                                         class="text-btn"
@@ -1122,19 +1130,30 @@ $allCategories = $allCategories ?? [];
                     <table class="data-table">
                         <thead>
                         <tr>
-                            <th><a href="<?= $saBuildSortUrl('created_at') ?>">Time<?= $saSortIndicator('created_at') ?></a></th>
+                            <th><a href="<?= $saBuildSortUrl('created_at') ?>">Date &amp; Time<?= $saSortIndicator('created_at') ?></a></th>
                             <th><a href="<?= $saBuildSortUrl('student_name') ?>">Student<?= $saSortIndicator('student_name') ?></a></th>
                             <th><a href="<?= $saBuildSortUrl('action') ?>">Action<?= $saSortIndicator('action') ?></a></th>
                             <th>Description</th>
                             <th>Target</th>
-                            <th>IP</th>
                         </tr>
                         </thead>
                         <tbody>
+                        <?php
+                        $saActionLabels = [
+                            'feedback.submitted'  => 'Feedback Submitted',
+                            'reaction.added'      => 'Reaction Added',
+                            'comment.added'       => 'Comment Added',
+                            'auth.login'          => 'Logged In',
+                            'auth.logout'         => 'Logged Out',
+                            'post.created'        => 'Post Created',
+                            'profile.updated'     => 'Profile Updated',
+                            'password.changed'    => 'Password Changed',
+                        ];
+                        ?>
                         <?php if (! empty($saLogs)): ?>
                             <?php foreach ($saLogs as $saRow): ?>
                                 <tr>
-                                    <td class="nowrap muted" style="font-size:.8rem;">
+                                    <td class="nowrap">
                                         <?= esc(date('M d, Y H:i', strtotime((string) ($saRow['created_at'] ?? '')))) ?>
                                     </td>
                                     <td>
@@ -1148,11 +1167,12 @@ $allCategories = $allCategories ?? [];
                                         <?php endif; ?>
                                     </td>
                                     <td>
+                                        <?php $saRawAction = (string) ($saRow['action'] ?? ''); ?>
                                         <span class="pill status-reviewed" style="font-size:.75rem;">
-                                            <?= esc((string) ($saRow['action'] ?? '')) ?>
+                                            <?= esc($saActionLabels[$saRawAction] ?? ucwords(str_replace(['.', '_'], ' ', $saRawAction))) ?>
                                         </span>
                                     </td>
-                                    <td style="max-width:260px;word-break:break-word;">
+                                    <td class="desc-col">
                                         <?= esc((string) ($saRow['description'] ?? '')) ?>
                                     </td>
                                     <td class="muted" style="font-size:.8rem;">
@@ -1165,14 +1185,11 @@ $allCategories = $allCategories ?? [];
                                             —
                                         <?php endif; ?>
                                     </td>
-                                    <td class="muted" style="font-size:.8rem;">
-                                        <?= esc((string) ($saRow['ip_address'] ?? '—')) ?>
-                                    </td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="6" class="muted" style="text-align:center;padding:2rem;">
+                                <td colspan="5" class="muted" style="text-align:center;padding:2rem;">
                                     No student activity records found.
                                 </td>
                             </tr>

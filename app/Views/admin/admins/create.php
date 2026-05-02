@@ -2,7 +2,7 @@
 
 <?= $this->section('content') ?>
 
-<div class="cv-form-card">
+<div class="cv-form-card cv-form-card-sm">
     <div class="cv-form-head">
         <h2>Add Admin Account</h2>
         <a href="<?= site_url('admin/admins') ?>" class="cv-btn-outline" style="padding:7px 16px;font-size:.82rem;">
