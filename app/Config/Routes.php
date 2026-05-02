@@ -15,16 +15,16 @@ use CodeIgniter\Router\RouteCollection;
 $routes->get('/', static function () { return redirect()->to(site_url('users')); });
 
 $routes->get('feed', static function () { return redirect()->to(site_url('users')); });
-$routes->post('feed/post', 'SocialController::createPost');
-$routes->post('posts/(:num)/react', 'SocialController::react/$1');
-$routes->post('posts/(:num)/comment', 'SocialController::comment/$1');
-$routes->post('comments/(:num)/react', 'SocialController::commentReact/$1');
-$routes->post('posts/(:num)/delete', 'SocialController::deletePost/$1');
-$routes->post('posts/(:num)/share', 'SocialController::share/$1');
-$routes->get('profile/(:num)', 'SocialController::profile/$1');
-$routes->match(['get', 'post'], 'settings', 'SocialController::settings');
-$routes->post('settings/anonymous', 'SocialController::toggleAnonymous');
-$routes->post('settings/send-password-otp', 'SocialController::sendPasswordOtp');
+$routes->post('feed/post', 'Student\\FeedController::createPost');
+$routes->post('posts/(:num)/react', 'Student\\FeedController::react/$1');
+$routes->post('posts/(:num)/comment', 'Student\\FeedController::comment/$1');
+$routes->post('comments/(:num)/react', 'Student\\FeedController::commentReact/$1');
+$routes->post('posts/(:num)/delete', 'Student\\FeedController::deletePost/$1');
+$routes->post('posts/(:num)/share', 'Student\\FeedController::share/$1');
+$routes->get('profile/(:num)', 'Student\\ProfileController::view/$1');
+$routes->match(['get', 'post'], 'settings', 'Student\\SettingsController::index');
+$routes->post('settings/anonymous', 'Student\\SettingsController::toggleAnonymous');
+$routes->post('settings/send-password-otp', 'Student\\SettingsController::sendPasswordOtp');
 
 $routes->match(['get', 'post'], 'admin/login', 'Admin\\AuthController::login');
 $routes->get('admin/logout', 'Admin\\AuthController::logout', ['filter' => 'adminauth']);

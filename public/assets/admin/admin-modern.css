@@ -67,6 +67,15 @@
   --cv-sidebar-w: 278px;
 }
 
+/* ── Legacy variable bridge (so old control-panel.css rules inherit the new theme) ── */
+:root {
+  --ink: var(--cv-ink);
+  --muted: var(--cv-muted);
+  --surface: var(--cv-surface);
+  --surface-2: var(--cv-surface-2);
+  --line: var(--cv-border);
+}
+
 /* ── Dark Mode ─────────────────────────────────────────────────── */
 [data-theme="dark"] {
   --cv-bg: #080f22;
@@ -153,7 +162,6 @@ h4 {
   flex: 1 1 auto !important;
   overflow-y: auto !important;
   min-height: 0 !important;
-  max-height: calc(100vh - 180px) !important;
 }
 
 .sidebar-nav a {
@@ -2332,4 +2340,74 @@ h4 {
   .perm-items {
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   }
+}
+
+/* ── Tab Strip ─────────────────────────────────────────────────── */
+.tab-strip {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+  padding: 4px 0 12px !important;
+  margin-bottom: 0 !important;
+}
+
+.tab-btn {
+  border: 1.5px solid var(--cv-border-2) !important;
+  background: var(--cv-surface) !important;
+  color: var(--cv-ink-2) !important;
+  border-radius: var(--cv-r-pill) !important;
+  padding: 7px 16px !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-size: .83rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 180ms ease !important;
+}
+
+.tab-btn:hover {
+  background: var(--cv-surface-hover) !important;
+  border-color: var(--cv-navy-700) !important;
+  color: var(--cv-navy-800) !important;
+}
+
+.tab-btn.active {
+  background: var(--cv-navy-800) !important;
+  border-color: transparent !important;
+  color: #fff !important;
+  box-shadow: 0 2px 10px rgba(10, 30, 70, .2) !important;
+}
+
+/* ── Stat Cards ────────────────────────────────────────────────── */
+.stat-card {
+  background: var(--cv-surface) !important;
+  border: 1px solid var(--cv-border) !important;
+  border-radius: var(--cv-r-lg) !important;
+  padding: 16px !important;
+  box-shadow: var(--cv-shadow-sm) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.stat-card::after {
+  content: '' !important;
+  position: absolute !important;
+  inset: auto -20% -42% 45% !important;
+  height: 120% !important;
+  background: radial-gradient(circle at center, var(--cv-gold-glow), transparent 58%) !important;
+  pointer-events: none !important;
+}
+
+.stat-card span {
+  color: var(--cv-muted) !important;
+  font-size: .82rem !important;
+  font-weight: 500 !important;
+}
+
+.stat-card strong {
+  display: block !important;
+  margin-top: 4px !important;
+  font-size: 1.5rem !important;
+  font-weight: 800 !important;
+  color: var(--cv-ink) !important;
+  font-family: 'Playfair Display', serif !important;
 }

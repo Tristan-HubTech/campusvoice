@@ -15,24 +15,12 @@ use App\Models\AnnouncementModel;
 use App\Models\FeedbackCategoryModel;
 use App\Models\FeedbackModel;
 use App\Models\FeedbackReplyModel;
-use App\Models\SocialCommentModel;
 use App\Models\SocialPostModel;
 use App\Models\SocialProfileModel;
-use App\Models\SocialReactionModel;
-use App\Models\SocialShareModel;
-use CodeIgniter\Controller;
 
-class PortalController extends Controller
+class PortalController extends StudentBaseController
 {
-    private array $avatarPalette = ['blue', 'teal', 'coral', 'violet', 'amber', 'rose'];
 
-    // Helper to get the current logged-in student user data
-    private function studentUser(): array
-    {
-        return (array) (session()->get('student_auth') ?? []);
-    }
-
-    // Helper to check if the current user has "Anonymous Mode" enabled
     private function anonViewData(int $userId): array
     {
         $profile = (new SocialProfileModel())->where('user_id', $userId)->first();
@@ -46,7 +34,7 @@ class PortalController extends Controller
     // HOME PAGE: Loads the latest announcements, user's feedback, and the community feed
     public function index(): string
     {
-        $studentUser = $this->studentUser();
+        $studentUser = $this->viewer();
         $userId = (int) ($studentUser['id'] ?? 0);
 
         $myFeedback = (new FeedbackModel())
@@ -95,7 +83,7 @@ class PortalController extends Controller
             'title'              => 'My Portal',
             'studentUser'        => $studentUser,
             'currentUser'        => $studentUser,
-            'posts'              => $this->buildCommunityPosts($userId),
+            'posts'              => $this->buildPosts($userId, null, 12),
             'myFeedback'         => $myFeedback,
             'announcements'      => $announcements,
             'showAnnouncements'  => true,
@@ -105,7 +93,7 @@ class PortalController extends Controller
     // MY FEEDBACK PAGE: Shows a history of all feedback submitted by the student
     public function myFeedback(): string
     {
-        $studentUser = $this->studentUser();
+        $studentUser = $this->viewer();
         $userId = (int) ($studentUser['id'] ?? 0);
 
         $feedbackList = (new FeedbackModel())
@@ -125,7 +113,7 @@ class PortalController extends Controller
     // SUBMIT FEEDBACK PAGE: Handles rendering the form and processing the POST submission
     public function submitFeedback()
     {
-        $studentUser = $this->studentUser();
+        $studentUser = $this->viewer();
         $userId = (int) ($studentUser['id'] ?? 0);
 
         $categories = (new FeedbackCategoryModel())
@@ -199,7 +187,7 @@ class PortalController extends Controller
 
     public function viewFeedback(int $id): string
     {
-        $studentUser = $this->studentUser();
+        $studentUser = $this->viewer();
         $userId = (int) ($studentUser['id'] ?? 0);
 
         $feedback = (new FeedbackModel())
@@ -230,7 +218,7 @@ class PortalController extends Controller
 
     public function deleteFeedback(int $id)
     {
-        $studentUser = $this->studentUser();
+        $studentUser = $this->viewer();
         $userId = (int) ($studentUser['id'] ?? 0);
 
         $feedbackModel = new FeedbackModel();
@@ -260,7 +248,7 @@ class PortalController extends Controller
 
     public function announcements(): string
     {
-        $studentUser = $this->studentUser();
+        $studentUser = $this->viewer();
 
         $userId = (int) ($studentUser['id'] ?? 0);
 
@@ -287,199 +275,4 @@ class PortalController extends Controller
         ], $this->anonViewData($userId)));
     }
 
-    private function anonymousAlias(int $userId): string
-    {
-        $number = str_pad((string) (($userId * 31 + 7) % 100), 2, '0', STR_PAD_LEFT);
-        return 'Versace' . $number;
-    }
-
-    private function buildCommunityPosts(int $viewerId): array
-    {
-        $posts = (new SocialPostModel())
-            ->select('social_posts.*, users.first_name, users.last_name, social_profiles.avatar_color, social_profiles.is_anonymous as profile_is_anonymous, feedbacks.status as feedback_status, feedbacks.type as feedback_type, feedbacks.image_path as feedback_image_path')
-            ->join('users', 'users.id = social_posts.user_id', 'inner')
-            ->join('social_profiles', 'social_profiles.user_id = users.id', 'left')
-            ->join('feedbacks', 'feedbacks.id = social_posts.feedback_id', 'left')
-            ->where('users.is_active', 1)
-            ->where('social_posts.is_public', 1)
-            // Feedback-linked posts must be in [approved, reviewed, resolved]; non-feedback community posts always show
-            ->groupStart()
-                ->where('social_posts.feedback_id IS NULL')
-                ->orWhereIn('feedbacks.status', ['approved', 'reviewed', 'resolved'])
-            ->groupEnd()
-            ->orderBy('social_posts.created_at', 'DESC')
-            ->findAll(12);
-
-        if ($posts === []) {
-            return [];
-        }
-
-        $postIds = array_map(static fn (array $post): int => (int) $post['id'], $posts);
-        $db = db_connect();
-
-        $feedbackIds = array_values(array_unique(array_filter(array_map(
-            static fn (array $p): int => (int) ($p['feedback_id'] ?? 0),
-            $posts
-        ))));
-        $feedbackImageById = [];
-        if ($feedbackIds !== []) {
-            foreach ($db->table('feedbacks')->select('id, image_path')->whereIn('id', $feedbackIds)->get()->getResultArray() as $fr) {
-                $feedbackImageById[(int) $fr['id']] = $fr['image_path'] ?? null;
-            }
-        }
-
-        $reactionRows = $db->table('social_post_reactions')
-            ->select('post_id, reaction_type, COUNT(*) as total')
-            ->whereIn('post_id', $postIds)
-            ->groupBy('post_id, reaction_type')
-            ->get()
-            ->getResultArray();
-
-        $reactionTotals = [];
-        $reactionBreakdown = [];
-        foreach ($reactionRows as $row) {
-            $rowPostId = (int) $row['post_id'];
-            $total = (int) $row['total'];
-            $type = (string) $row['reaction_type'];
-            $reactionTotals[$rowPostId] = ($reactionTotals[$rowPostId] ?? 0) + $total;
-            $reactionBreakdown[$rowPostId][$type] = $total;
-        }
-
-        $viewerReactions = [];
-        $viewerReactionRows = $db->table('social_post_reactions')
-            ->select('post_id, reaction_type')
-            ->where('user_id', $viewerId)
-            ->whereIn('post_id', $postIds)
-            ->get()
-            ->getResultArray();
-
-        foreach ($viewerReactionRows as $row) {
-            $viewerReactions[(int) $row['post_id']] = (string) $row['reaction_type'];
-        }
-
-        $commentRows = $db->table('social_post_comments')
-            ->select('social_post_comments.*, users.first_name, users.last_name, social_profiles.avatar_color, social_profiles.is_anonymous as profile_is_anonymous')
-            ->join('users', 'users.id = social_post_comments.user_id', 'inner')
-            ->join('social_profiles', 'social_profiles.user_id = users.id', 'left')
-            ->whereIn('social_post_comments.post_id', $postIds)
-            ->where('social_post_comments.deleted_at', null)
-            ->orderBy('social_post_comments.created_at', 'DESC')
-            ->get()
-            ->getResultArray();
-
-        $commentsByPost = [];
-        $repliesByComment = [];
-        foreach ($commentRows as $row) {
-            $commentIsAnonymous = (int) ($row['is_anonymous'] ?? 0) === 1 || (int) ($row['profile_is_anonymous'] ?? 0) === 1;
-            $row['author_name'] = $commentIsAnonymous
-                ? $this->anonymousAlias((int) $row['user_id'])
-                : trim((string) $row['first_name'] . ' ' . (string) $row['last_name']);
-            $row['avatar_color'] = $commentIsAnonymous
-                ? 'violet'
-                : (string) ($row['avatar_color'] ?? 'blue');
-
-            $parentId = !empty($row['parent_id']) ? (int) $row['parent_id'] : 0;
-            if ($parentId > 0) {
-                $repliesByComment[$parentId][] = $row;
-            } else {
-                $commentsByPost[(int) $row['post_id']][] = $row;
-            }
-        }
-
-        // Attach replies to their parent comments
-        foreach ($commentsByPost as &$comments) {
-            foreach ($comments as &$c) {
-                $cid = (int) $c['id'];
-                $c['replies'] = array_reverse($repliesByComment[$cid] ?? []);
-            }
-            unset($c);
-        }
-        unset($comments);
-
-        // Fetch comment reaction counts and viewer reactions
-        $allCommentIds = [];
-        foreach ($commentsByPost as $comments) {
-            foreach ($comments as $c) {
-                $allCommentIds[] = (int) $c['id'];
-                foreach ($c['replies'] as $reply) {
-                    $allCommentIds[] = (int) $reply['id'];
-                }
-            }
-        }
-
-        $commentReactionBreakdown = [];
-        $commentViewerReactions = [];
-        if ($allCommentIds !== []) {
-            $crRows = $db->table('comment_reactions')
-                ->select('comment_id, reaction_type, COUNT(*) as total')
-                ->whereIn('comment_id', $allCommentIds)
-                ->groupBy('comment_id, reaction_type')
-                ->get()->getResultArray();
-            foreach ($crRows as $cr) {
-                $commentReactionBreakdown[(int) $cr['comment_id']][(string) $cr['reaction_type']] = (int) $cr['total'];
-            }
-
-            if ($viewerId > 0) {
-                $crViewerRows = $db->table('comment_reactions')
-                    ->select('comment_id, reaction_type')
-                    ->where('user_id', $viewerId)
-                    ->whereIn('comment_id', $allCommentIds)
-                    ->get()->getResultArray();
-                foreach ($crViewerRows as $cr) {
-                    $commentViewerReactions[(int) $cr['comment_id']] = (string) $cr['reaction_type'];
-                }
-            }
-        }
-
-        foreach ($commentsByPost as &$comments) {
-            foreach ($comments as &$c) {
-                $cid = (int) $c['id'];
-                $c['reaction_breakdown'] = $commentReactionBreakdown[$cid] ?? [];
-                $c['reaction_total'] = array_sum($commentReactionBreakdown[$cid] ?? []);
-                $c['viewer_reaction'] = $commentViewerReactions[$cid] ?? null;
-                foreach ($c['replies'] as &$reply) {
-                    $rid = (int) $reply['id'];
-                    $reply['reaction_breakdown'] = $commentReactionBreakdown[$rid] ?? [];
-                    $reply['reaction_total'] = array_sum($commentReactionBreakdown[$rid] ?? []);
-                    $reply['viewer_reaction'] = $commentViewerReactions[$rid] ?? null;
-                }
-                unset($reply);
-            }
-            unset($c);
-        }
-        unset($comments);
-
-        foreach ($posts as &$post) {
-            $feedbackId = (int) ($post['feedback_id'] ?? 0);
-            if ($feedbackId > 0) {
-                $post['feedback_image_path'] = $feedbackImageById[$feedbackId]
-                    ?? $post['feedback_image_path']
-                    ?? null;
-            }
-            $postUserId = (int) $post['user_id'];
-            $postIsAnonymous = (int) ($post['is_anonymous'] ?? 0) === 1 || (int) ($post['profile_is_anonymous'] ?? 0) === 1;
-            $post['author_name'] = $postIsAnonymous
-                ? $this->anonymousAlias($postUserId)
-                : trim((string) $post['first_name'] . ' ' . (string) $post['last_name']);
-            $post['avatar_color'] = $postIsAnonymous
-                ? 'violet'
-                : (string) ($post['avatar_color'] ?? $this->avatarPalette[$postUserId % count($this->avatarPalette)]);
-            $post['initials'] = $postIsAnonymous
-                ? 'AN'
-                : strtoupper(substr((string) $post['first_name'], 0, 1) . substr((string) $post['last_name'], 0, 1));
-            $post['reaction_total'] = (int) ($reactionTotals[(int) $post['id']] ?? 0);
-            $post['reaction_breakdown'] = $reactionBreakdown[(int) $post['id']] ?? [];
-            $post['viewer_reaction'] = $viewerReactions[(int) $post['id']] ?? null;
-            $post['comments'] = $commentsByPost[(int) $post['id']] ?? [];
-            $postComments = $commentsByPost[(int) $post['id']] ?? [];
-            $replyCount = 0;
-            foreach ($postComments as $pc) { $replyCount += count($pc['replies'] ?? []); }
-            $post['comment_total'] = count($postComments) + $replyCount;
-            $post['profile_url'] = $postIsAnonymous ? '' : site_url('profile/' . $postUserId);
-            $post['is_anonymous'] = $postIsAnonymous ? 1 : 0;
-        }
-        unset($post);
-
-        return $posts;
-    }
 }
