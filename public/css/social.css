@@ -983,6 +983,10 @@ select:focus {
     z-index: 1;
 }
 
+.comment-reaction-badge:empty {
+    display: none;
+}
+
 .badge-emoji {
     font-size: 0.8rem;
     font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'EmojiOne Color', sans-serif;

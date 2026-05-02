@@ -445,6 +445,15 @@ html[data-theme="dark"] .top-count {
     color: #8a9bb8;
 }
 
+html[data-theme="dark"] .comment-reaction-badge {
+    background: #eef2ff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+html[data-theme="dark"] .badge-count {
+    color: #4a5580;
+}
+
 /* Admin data-table — dark-mode row hover (avoid the blinding white) */
 html[data-theme="dark"] .data-table tbody tr:hover {
     background: rgba(255, 255, 255, 0.05);

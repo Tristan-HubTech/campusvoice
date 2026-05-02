@@ -44,7 +44,13 @@ class FeedController extends StudentBaseController
 
         $postModel = new SocialPostModel();
         $postModel->insert($postPayload);
-        $this->logStudentActivity('post.created', 'Created a post', 'post', (int) $postModel->getInsertID());
+        $this->logStudentActivity(
+            'post.created',
+            $isAnonymous === 1 ? '[Anonymous] Created a post' : 'Created a post',
+            'post',
+            (int) $postModel->getInsertID(),
+            $isAnonymous === 1 ? ['anonymous' => true] : null
+        );
 
         return redirect()->to(site_url('users'))->with('success', 'Your post is now live.');
     }
@@ -129,7 +135,15 @@ class FeedController extends StudentBaseController
             ->where('user_id', $viewerId)
             ->first();
 
-        $this->logStudentActivity('reaction.added', "Reacted with '{$reactionType}' on a post", 'post', $postId, ['reaction_type' => $reactionType]);
+        $profile = $this->ensureProfile($viewerId);
+        $isAnonymous = (int) ($profile['is_anonymous'] ?? 0);
+        $this->logStudentActivity(
+            'reaction.added',
+            ($isAnonymous === 1 ? '[Anonymous] ' : '') . "Reacted with '{$reactionType}' on a post",
+            'post',
+            $postId,
+            array_filter(['reaction_type' => $reactionType, 'anonymous' => $isAnonymous === 1 ? true : null])
+        );
 
         return $this->response->setJSON([
             'ok'                 => true,
@@ -244,7 +258,13 @@ class FeedController extends StudentBaseController
             return $this->redirectToReferrer('posts/' . $postId, 'post-' . $postId)->with('error', 'Could not save comment.');
         }
 
-        $this->logStudentActivity('comment.added', 'Added a comment on a post', 'post', $postId, ['comment_id' => (int) $commentModel->getInsertID()]);
+        $this->logStudentActivity(
+            'comment.added',
+            $isAnonymous === 1 ? '[Anonymous] Added a comment on a post' : 'Added a comment on a post',
+            'post',
+            $postId,
+            array_filter(['comment_id' => (int) $commentModel->getInsertID(), 'anonymous' => $isAnonymous === 1 ? true : null])
+        );
 
         if ($this->request->isAJAX()) {
             $viewer = $this->viewer();
@@ -329,7 +349,15 @@ class FeedController extends StudentBaseController
             $reactionBreakdown[(string) $br['reaction_type']] = (int) $br['total'];
         }
 
-        $this->logStudentActivity('reaction.added', "Reacted with '{$reactionType}' on a comment", 'comment', $commentId, ['reaction_type' => $reactionType]);
+        $profile = $this->ensureProfile($viewerId);
+        $isAnonymous = (int) ($profile['is_anonymous'] ?? 0);
+        $this->logStudentActivity(
+            'reaction.added',
+            ($isAnonymous === 1 ? '[Anonymous] ' : '') . "Reacted with '{$reactionType}' on a comment",
+            'comment',
+            $commentId,
+            array_filter(['reaction_type' => $reactionType, 'anonymous' => $isAnonymous === 1 ? true : null])
+        );
 
         return $this->response->setJSON([
             'ok'                 => true,
@@ -370,7 +398,15 @@ class FeedController extends StudentBaseController
         }
 
         $shareTotal = (new SocialShareModel())->where('post_id', $postId)->countAllResults();
-        $this->logStudentActivity('post.shared', 'Shared a post', 'post', $postId);
+        $shareProfile = $this->ensureProfile($viewerId);
+        $isAnonymous = (int) ($shareProfile['is_anonymous'] ?? 0);
+        $this->logStudentActivity(
+            'post.shared',
+            $isAnonymous === 1 ? '[Anonymous] Shared a post' : 'Shared a post',
+            'post',
+            $postId,
+            $isAnonymous === 1 ? ['anonymous' => true] : null
+        );
 
         if ($this->request->isAJAX()) {
             return $this->response->setJSON([

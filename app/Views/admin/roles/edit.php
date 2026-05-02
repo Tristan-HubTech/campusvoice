@@ -68,7 +68,7 @@ $permGroupColors = [
                 <div class="cv-perm-grid">
                 <?php foreach ($permissionGroups as $groupName => $keys): ?>
                     <?php $permColor = $permGroupColors[$groupName] ?? '#6b7280'; ?>
-                    <div class="cv-card perm-card" style="--perm-color:<?= $permColor ?>;overflow:visible;">
+                    <div class="cv-card perm-card" style="--perm-color:<?= $permColor ?>">
                         <div class="perm-section-header">
                             <span class="perm-group-name"><?= esc($groupName) ?></span>
                             <span class="perm-group-counter" data-group-counter="<?= esc($groupName) ?>">0/<?= count($keys) ?></span>

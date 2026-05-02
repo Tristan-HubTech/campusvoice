@@ -84,15 +84,15 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                 <button class="btn-link" type="button" data-tab-trigger="feedback">Open Feedback</button>
             </div>
 
-            <div class="table-wrap">
-                <table class="data-table">
+            <div class="cv-table-card"><div class="table-wrap">
+                <table class="cv-admin-table">
                     <thead>
                     <tr>
-                        <th style="cursor:pointer" onclick="sortTableById()">#</th>
+                        <th>#</th>
                         <th>Category</th>
                         <th>Type</th>
                         <th>Author</th>
-                        <th class="status-col">Status</th>
+                        <th>Status</th>
                         <th>Time</th>
                     </tr>
                     </thead>
@@ -121,7 +121,7 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                     <?php endif; ?>
                     </tbody>
                 </table>
-            </div>
+            </div></div>
         </section>
 
         <section class="panel">
@@ -199,8 +199,8 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
             </button>
         </div>
 
-        <div class="table-wrap">
-            <table class="data-table">
+        <div class="cv-table-card"><div class="table-wrap">
+            <table class="cv-admin-table">
                 <thead>
                 <tr>
                     <th class="fbk-check-col"><input type="checkbox" id="fbkSelectAll" title="Select all pending"></th>
@@ -209,7 +209,7 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                     <th>Category</th>
                     <th>Subject</th>
                     <th>Author</th>
-                    <th class="status-col">Status</th>
+                    <th>Status</th>
                     <th>Date</th>
                     <th>Action</th>
                 </tr>
@@ -306,7 +306,7 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                 <?php endif; ?>
                 </tbody>
             </table>
-        </div>
+        </div></div>
     </section>
 </section>
 
@@ -507,6 +507,16 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                     <input type="time" id="ann-expires-time" class="ann-dt-time" value="23:59">
                     <button type="button" class="ann-dt-clear" data-dt-clear="expires" title="Clear">✕</button>
                 </div>
+                <script>
+                (function () {
+                    var now = new Date();
+                    var today = now.getFullYear() + '-' +
+                        String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                        String(now.getDate()).padStart(2, '0');
+                    document.getElementById('ann-publish-date').min = today;
+                    document.getElementById('ann-expires-date').min = today;
+                })();
+                </script>
                 <div class="ann-dt-quick">
                     <button type="button" class="ann-quick-btn" data-quick-expires="week">+1 Week</button>
                     <button type="button" class="ann-quick-btn" data-quick-expires="month">+1 Month</button>
@@ -528,12 +538,12 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                 <h2>Announcement List</h2>
             </div>
 
-            <div class="table-wrap">
-                <table class="data-table">
+            <div class="cv-table-card"><div class="table-wrap">
+                <table class="cv-admin-table">
                     <thead>
                     <tr>
                         <th>Title</th>
-                        <th class="status-col">Status</th>
+                        <th>Status</th>
                         <th>Publishes</th>
                         <th>Expires</th>
                         <th>Actions</th>
@@ -573,14 +583,16 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                                 $annTitleShort = mb_strlen($annTitle) > 42 ? mb_substr($annTitle, 0, 42) . '…' : $annTitle;
                                 $annBodyShort  = mb_strlen($annBody)  > 60 ? mb_substr($annBody,  0, 60) . '…' : $annBody;
                                 ?>
-                                <td style="max-width:220px;">
+                                <td>
                                     <?php if ((int)($item['pinned'] ?? 0) === 1): ?>
-                                        <span style="font-size:0.75rem; margin-right:4px;" title="Pinned">📍</span>
+                                        <span title="Pinned">📍</span>
                                     <?php endif; ?>
-                                    <strong style="display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px;" title="<?= esc($annTitle, 'attr') ?>"><?= esc($annTitleShort) ?></strong>
-                                    <div class="muted" style="font-size:0.78rem; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px;" title="<?= esc($annBody, 'attr') ?>"><?= esc($annBodyShort) ?></div>
+                                    <div class="cell-name">
+                                        <strong title="<?= esc($annTitle, 'attr') ?>"><?= esc($annTitleShort) ?></strong>
+                                        <small class="muted" title="<?= esc($annBody, 'attr') ?>"><?= esc($annBodyShort) ?></small>
+                                    </div>
                                 </td>
-                                <td style="text-align:center;">
+                                <td>
                                     <?php if ($annIsExpired): ?>
                                         <span class="pill status-rejected">Expired</span>
                                     <?php elseif ($annIsScheduled): ?>
@@ -591,12 +603,12 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                                         <span class="pill status-new">Draft</span>
                                     <?php endif; ?>
                                 </td>
-                                <td style="font-size:0.8rem; white-space:nowrap; color:var(--muted);">
+                                <td>
                                     <?= $annPublishTs !== null ? esc(date('M d, Y H:i', $annPublishTs)) : '<em>Immediate</em>' ?>
                                 </td>
-                                <td style="font-size:0.8rem; white-space:nowrap;">
+                                <td>
                                     <?php if ($annExpiresTs !== null): ?>
-                                        <span style="color:<?= $annIsExpired ? '#991b1b' : 'var(--muted)' ?>;">
+                                        <span class="<?= $annIsExpired ? 'cv-expired' : 'muted' ?>">
                                             <?= esc(date('M d, Y H:i', $annExpiresTs)) ?>
                                         </span>
                                     <?php else: ?>
@@ -605,13 +617,18 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                                 </td>
                                 <td>
                                     <?php $isPinned = (int)($item['pinned'] ?? 0); ?>
-                                    <button type="button" class="text-btn pin-btn" data-announcement-id="<?= (int) $item['id'] ?>" title="<?= $isPinned ? 'Unpin' : 'Pin' ?>">
-                                        <?= $isPinned ? '📍 Unpin' : '📌 Pin' ?>
-                                    </button>
-                                    <button type="button" class="text-btn" data-edit-announcement="<?= (int) $item['id'] ?>">Edit</button>
-                                    <form method="post" action="<?= site_url('admin/announcements/' . (int) $item['id'] . '/delete') ?>" class="inline-form" onsubmit="return confirm('Delete this announcement?');">
-                                        <button class="text-btn danger" type="submit">Delete</button>
-                                    </form>
+                                    <div class="smgmt-actions">
+                                        <button type="button"
+                                                class="act-btn act-pin pin-btn <?= $isPinned ? 'is-pinned' : '' ?>"
+                                                data-announcement-id="<?= (int) $item['id'] ?>"
+                                                title="<?= $isPinned ? 'Unpin' : 'Pin' ?>">
+                                            <?= $isPinned ? '📍 Unpin' : '📌 Pin' ?>
+                                        </button>
+                                        <button type="button" class="act-btn act-edit" data-edit-announcement="<?= (int) $item['id'] ?>">✏️ Edit</button>
+                                        <form method="post" action="<?= site_url('admin/announcements/' . (int) $item['id'] . '/delete') ?>" style="display:contents;" onsubmit="return confirm('Delete this announcement?');">
+                                            <button class="act-btn act-delete" type="submit">🗑️ Delete</button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -622,7 +639,7 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                     <?php endif; ?>
                     </tbody>
                 </table>
-            </div>
+            </div></div>
         </section>
     </div>
 </section>
@@ -690,8 +707,8 @@ $allCategories = $allCategories ?? [];
             </div>
         </div>
 
-        <div class="table-wrap">
-            <table class="student-mgmt-table">
+        <div class="cv-table-card"><div class="table-wrap">
+            <table class="cv-admin-table">
                 <thead>
                 <tr>
                     <th>Name</th>
@@ -724,7 +741,7 @@ $allCategories = $allCategories ?? [];
                                 <?php endif; ?>
                             </td>
                             <td><?= ! empty($u['last_login_at']) ? esc(date('M d, Y H:i', strtotime((string) $u['last_login_at']))) : '<span class="muted">Never</span>' ?></td>
-                            <td class="actions-col">
+                            <td>
                                 <div class="smgmt-actions">
                                     <form method="post" action="<?= site_url('admin/users/' . (int) $u['id'] . '/toggle-status') ?>">
                                         <button class="act-btn <?= $uActive === 1 ? 'act-deactivate' : 'act-activate' ?>" type="submit">
@@ -739,11 +756,11 @@ $allCategories = $allCategories ?? [];
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
-                    <tr><td colspan="6">No student records found.</td></tr>
+                    <tr><td colspan="5">No student records found.</td></tr>
                 <?php endif; ?>
                 </tbody>
             </table>
-        </div>
+        </div></div>
     </section>
 </section>
 
@@ -773,14 +790,14 @@ $allCategories = $allCategories ?? [];
                 <h2>Category List</h2>
             </div>
 
-            <div class="table-wrap">
-                <table class="data-table">
+            <div class="cv-table-card"><div class="table-wrap">
+                <table class="cv-admin-table">
                     <thead>
                     <tr>
                         <th>Name</th>
                         <th>Description</th>
-                        <th class="status-col">Status</th>
-                        <th class="center-col">Actions</th>
+                        <th>Status</th>
+                        <th>Actions</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -802,7 +819,7 @@ $allCategories = $allCategories ?? [];
                                     <?php endif; ?>
                                 </td>
                                 <td class="center-col">
-                                    <div class="smgmt-actions" style="justify-content:center;">
+                                    <div class="smgmt-actions">
                                         <button type="button" class="act-btn act-edit" data-edit-category="<?= (int) $cat['id'] ?>">Edit</button>
                                         <form method="post" action="<?= site_url('admin/categories/' . (int) $cat['id'] . '/toggle') ?>" style="display:contents;">
                                             <button class="act-btn <?= (int) ($cat['is_active'] ?? 1) === 1 ? 'act-deactivate' : 'act-activate' ?>" type="submit">
@@ -821,7 +838,7 @@ $allCategories = $allCategories ?? [];
                     <?php endif; ?>
                     </tbody>
                 </table>
-            </div>
+            </div></div>
         </section>
     </div>
 </section>
@@ -922,8 +939,8 @@ $allCategories = $allCategories ?? [];
                 <button type="submit" class="danger-action">Purge Old Logs</button>
             </form>
 
-            <div class="table-wrap">
-                <table class="data-table">
+            <div class="cv-table-card"><div class="table-wrap">
+                <table class="cv-admin-table">
                     <thead>
                     <tr>
                         <th><a class="sort-link" href="<?= site_url('admin?' . $buildSortQuery('created_at')) ?>#activity">Time<?= $sortIndicator('created_at') ?></a></th>
@@ -931,7 +948,6 @@ $allCategories = $allCategories ?? [];
                         <th><a class="sort-link" href="<?= site_url('admin?' . $buildSortQuery('action')) ?>#activity">Action<?= $sortIndicator('action') ?></a></th>
                         <th>Description</th>
                         <th><a class="sort-link" href="<?= site_url('admin?' . $buildSortQuery('target')) ?>#activity">Target<?= $sortIndicator('target') ?></a></th>
-                        <th>Details</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -945,56 +961,32 @@ $allCategories = $allCategories ?? [];
                             } elseif (! empty($log['target_type'])) {
                                 $targetLabel = (string) $log['target_type'];
                             }
-
-                            $metadataRaw = (string) ($log['metadata'] ?? '');
-                            $metadataDecoded = null;
-                            if ($metadataRaw !== '') {
-                                $metadataDecoded = json_decode($metadataRaw, true);
-                            }
-
-                            $detailPayload = [
-                                'time'        => (string) ($log['created_at'] ?? ''),
-                                'admin_name'  => $fullName !== '' ? $fullName : 'System',
-                                'admin_email' => (string) ($log['admin_email'] ?? ''),
-                                'action'      => (string) ($log['action'] ?? ''),
-                                'description' => (string) ($log['description'] ?? ''),
-                                'target'      => $targetLabel,
-                                'ip_address'  => (string) ($log['ip_address'] ?? ''),
-                                'user_agent'  => (string) ($log['user_agent'] ?? ''),
-                                'metadata'    => is_array($metadataDecoded) ? $metadataDecoded : ($metadataRaw !== '' ? ['raw' => $metadataRaw] : []),
-                            ];
-                            $detailPayloadJson = json_encode($detailPayload, JSON_UNESCAPED_SLASHES);
+                            $actionText = (string) ($log['action'] ?? 'unknown');
+                            $descText   = trim((string) ($log['description'] ?? ''));
                             ?>
                             <tr>
-                                <td><?= esc((string) date('M d, Y H:i:s', strtotime((string) ($log['created_at'] ?? 'now')))) ?></td>
+                                <td class="nowrap"><?= esc(date('M d, Y H:i', strtotime((string) ($log['created_at'] ?? 'now')))) ?></td>
                                 <td>
-                                    <?= esc($fullName !== '' ? $fullName : 'System') ?>
-                                    <?php if (! empty($log['admin_email'])): ?>
-                                        <div class="muted"><?= esc((string) $log['admin_email']) ?></div>
-                                    <?php endif; ?>
+                                    <div class="cell-name">
+                                        <strong><?= esc($fullName !== '' ? $fullName : 'System') ?></strong>
+                                        <?php if (! empty($log['admin_email'])): ?>
+                                            <small class="muted"><?= esc((string) $log['admin_email']) ?></small>
+                                        <?php endif; ?>
+                                    </div>
                                 </td>
-                                <td><span class="pill status-reviewed"><?= esc((string) ($log['action'] ?? 'unknown')) ?></span></td>
-                                <td class="desc-col"><?= esc((string) ($log['description'] ?? 'No description')) ?></td>
-                                <td><?= esc($targetLabel) ?></td>
-                                <td class="center-col">
-                                    <button
-                                        type="button"
-                                        class="text-btn"
-                                        data-activity-details="<?= esc((string) ($detailPayloadJson ?: '{}'), 'attr') ?>"
-                                    >
-                                        View
-                                    </button>
-                                </td>
+                                <td><span class="pill act-pill"><?= esc($actionText) ?></span></td>
+                                <td class="desc-col"><?= esc($descText !== '' ? $descText : '—') ?></td>
+                                <td class="nowrap muted"><?= esc($targetLabel) ?></td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="6">No activity logs yet.</td>
+                            <td colspan="5">No activity logs yet.</td>
                         </tr>
                     <?php endif; ?>
                     </tbody>
                 </table>
-            </div>
+            </div></div>
 
             <?php if ($totalPages > 1): ?>
                 <nav class="activity-pagination" aria-label="Activity pages">
@@ -1016,43 +1008,6 @@ $allCategories = $allCategories ?? [];
             <?php endif; ?>
         </section>
 
-        <div class="modal-overlay" id="activity-detail-modal" hidden>
-            <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="activity-detail-title">
-                <div class="modal-head">
-                    <h3 id="activity-detail-title">Activity Details</h3>
-                    <button type="button" class="text-btn" id="activity-detail-close">Close</button>
-                </div>
-                <div class="detail-grid single-column-mobile">
-                    <div>
-                        <h4>Time</h4>
-                        <p id="activity-detail-time">-</p>
-                    </div>
-                    <div>
-                        <h4>Admin</h4>
-                        <p id="activity-detail-admin">-</p>
-                    </div>
-                    <div>
-                        <h4>Action</h4>
-                        <p id="activity-detail-action">-</p>
-                    </div>
-                    <div>
-                        <h4>Target</h4>
-                        <p id="activity-detail-target">-</p>
-                    </div>
-
-                    <div>
-                        <h4>User Agent</h4>
-                        <p id="activity-detail-user-agent">-</p>
-                    </div>
-                </div>
-
-                <h4>Description</h4>
-                <p id="activity-detail-description" class="message-box">-</p>
-
-                <h4>Metadata</h4>
-                <pre id="activity-detail-metadata" class="code-box activity-json">{}</pre>
-            </div>
-        </div>
     </section>
 
     <?php
@@ -1106,7 +1061,7 @@ $allCategories = $allCategories ?? [];
                 <input type="hidden" name="tab" value="student-activity">
                 <div class="cv-search-wrap">
                     <input type="text" name="sa_q" id="sa-search" class="cv-search cv-input"
-                           placeholder="Search name, email, action…"
+                           placeholder="Search name, email, action — anonymous users searchable by real name"
                            value="<?= esc((string) ($saFilters['q'] ?? '')) ?>">
                 </div>
                 <select name="sa_action" class="cv-input" onchange="this.form.submit()">
@@ -1119,6 +1074,11 @@ $allCategories = $allCategories ?? [];
                 </select>
                 <input type="date" name="sa_from" class="cv-input" value="<?= esc((string) ($saFilters['from'] ?? '')) ?>" title="From date">
                 <input type="date" name="sa_to"   class="cv-input" value="<?= esc((string) ($saFilters['to']   ?? '')) ?>" title="To date">
+                <select id="sa-anon-filter" class="cv-input" title="Filter by anonymous">
+                    <option value="">All</option>
+                    <option value="1">Anonymous Only</option>
+                    <option value="0">Non-Anonymous Only</option>
+                </select>
                 <button type="submit" class="cv-btn-navy">Filter</button>
                 <?php if (($saFilters['q'] ?? '') !== '' || ($saFilters['action'] ?? '') !== '' || ($saFilters['from'] ?? '') !== '' || ($saFilters['to'] ?? '') !== ''): ?>
                     <a href="<?= site_url('admin') ?>?tab=student-activity#student-activity" class="btn-link secondary">Clear</a>
@@ -1127,12 +1087,12 @@ $allCategories = $allCategories ?? [];
 
             <div class="cv-table-card">
                 <div class="table-wrap">
-                    <table class="data-table">
+                    <table class="cv-admin-table">
                         <thead>
                         <tr>
-                            <th><a href="<?= $saBuildSortUrl('created_at') ?>">Date &amp; Time<?= $saSortIndicator('created_at') ?></a></th>
-                            <th><a href="<?= $saBuildSortUrl('student_name') ?>">Student<?= $saSortIndicator('student_name') ?></a></th>
-                            <th><a href="<?= $saBuildSortUrl('action') ?>">Action<?= $saSortIndicator('action') ?></a></th>
+                            <th><a class="sort-link sort-block" href="<?= $saBuildSortUrl('created_at') ?>">Date &amp; Time<?= $saSortIndicator('created_at') ?></a></th>
+                            <th><a class="sort-link sort-block" href="<?= $saBuildSortUrl('student_name') ?>">Student<?= $saSortIndicator('student_name') ?></a></th>
+                            <th><a class="sort-link sort-block" href="<?= $saBuildSortUrl('action') ?>">Action<?= $saSortIndicator('action') ?></a></th>
                             <th>Description</th>
                             <th>Target</th>
                         </tr>
@@ -1152,16 +1112,30 @@ $allCategories = $allCategories ?? [];
                         ?>
                         <?php if (! empty($saLogs)): ?>
                             <?php foreach ($saLogs as $saRow): ?>
-                                <tr>
+                                <?php
+                                $saMeta = [];
+                                if (! empty($saRow['metadata'])) {
+                                    $saMeta = json_decode((string) $saRow['metadata'], true) ?? [];
+                                }
+                                $saIsAnon = ! empty($saMeta['anonymous']);
+                                ?>
+                                <tr data-sa-anonymous="<?= $saIsAnon ? '1' : '0' ?>">
                                     <td class="nowrap">
                                         <?= esc(date('M d, Y H:i', strtotime((string) ($saRow['created_at'] ?? '')))) ?>
                                     </td>
                                     <td>
                                         <?php if (! empty($saRow['student_name'])): ?>
-                                            <strong><?= esc((string) $saRow['student_name']) ?></strong>
-                                            <?php if (! empty($saRow['student_email'])): ?>
-                                                <br><small class="muted"><?= esc((string) $saRow['student_email']) ?></small>
-                                            <?php endif; ?>
+                                            <div class="cell-name">
+                                                <strong>
+                                                    <?= esc((string) $saRow['student_name']) ?>
+                                                    <?php if ($saIsAnon): ?>
+                                                        <span class="sa-anon-badge" title="Posted anonymously">&#128100; Anon</span>
+                                                    <?php endif; ?>
+                                                </strong>
+                                                <?php if (! empty($saRow['student_email'])): ?>
+                                                    <small class="muted"><?= esc((string) $saRow['student_email']) ?></small>
+                                                <?php endif; ?>
+                                            </div>
                                         <?php else: ?>
                                             <span class="muted">—</span>
                                         <?php endif; ?>
@@ -1175,7 +1149,7 @@ $allCategories = $allCategories ?? [];
                                     <td class="desc-col">
                                         <?= esc((string) ($saRow['description'] ?? '')) ?>
                                     </td>
-                                    <td class="muted" style="font-size:.8rem;">
+                                    <td class="nowrap muted">
                                         <?php if (! empty($saRow['target_type'])): ?>
                                             <?= esc((string) $saRow['target_type']) ?>
                                             <?php if (! empty($saRow['target_id'])): ?>
@@ -1322,6 +1296,22 @@ $allCategories = $allCategories ?? [];
                 filterFeedbackRows();
             });
         });
+
+        // Student activity anonymous filter
+        var saAnonFilter = document.getElementById('sa-anon-filter');
+        if (saAnonFilter) {
+            saAnonFilter.addEventListener('change', function () {
+                var val = saAnonFilter.value;
+                document.querySelectorAll('[data-sa-anonymous]').forEach(function (row) {
+                    var rowAnon = row.getAttribute('data-sa-anonymous');
+                    if (val === '') {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = rowAnon === val ? '' : 'none';
+                    }
+                });
+            });
+        }
 
         async function postJson(url, payload, statusEl, resultEl) {
             statusEl.className = 'status-text';
@@ -1579,80 +1569,6 @@ $allCategories = $allCategories ?? [];
                 resetResult
             );
         });
-
-        const activityModal = document.getElementById('activity-detail-modal');
-        const activityCloseBtn = document.getElementById('activity-detail-close');
-        const activityTimeEl = document.getElementById('activity-detail-time');
-        const activityAdminEl = document.getElementById('activity-detail-admin');
-        const activityActionEl = document.getElementById('activity-detail-action');
-        const activityTargetEl = document.getElementById('activity-detail-target');
-        const activityIpEl = document.getElementById('activity-detail-ip');
-        const activityUaEl = document.getElementById('activity-detail-user-agent');
-        const activityDescriptionEl = document.getElementById('activity-detail-description');
-        const activityMetadataEl = document.getElementById('activity-detail-metadata');
-
-        function closeActivityModal() {
-            if (!activityModal) {
-                return;
-            }
-
-            activityModal.setAttribute('hidden', 'hidden');
-        }
-
-        function openActivityModal(payload) {
-            if (!activityModal) {
-                return;
-            }
-
-            activityTimeEl.textContent = payload.time || '-';
-            const adminLine = payload.admin_email
-                ? (payload.admin_name || 'System') + ' (' + payload.admin_email + ')'
-                : (payload.admin_name || 'System');
-            activityAdminEl.textContent = adminLine;
-            activityActionEl.textContent = payload.action || '-';
-            activityTargetEl.textContent = payload.target || '-';
-            activityIpEl.textContent = payload.ip_address || '-';
-            activityUaEl.textContent = payload.user_agent || '-';
-            activityDescriptionEl.textContent = payload.description || '-';
-
-            const metadata = (payload.metadata && typeof payload.metadata === 'object') ? payload.metadata : {};
-            activityMetadataEl.textContent = JSON.stringify(metadata, null, 2);
-
-            activityModal.removeAttribute('hidden');
-        }
-
-        document.querySelectorAll('[data-activity-details]').forEach(function (button) {
-            button.addEventListener('click', function () {
-                const raw = button.getAttribute('data-activity-details') || '{}';
-                let payload = {};
-
-                try {
-                    payload = JSON.parse(raw);
-                } catch (error) {
-                    payload = { metadata: { raw: raw } };
-                }
-
-                openActivityModal(payload);
-            });
-        });
-
-        if (activityCloseBtn) {
-            activityCloseBtn.addEventListener('click', closeActivityModal);
-        }
-
-        if (activityModal) {
-            activityModal.addEventListener('click', function (event) {
-                if (event.target === activityModal) {
-                    closeActivityModal();
-                }
-            });
-
-            document.addEventListener('keydown', function (event) {
-                if (event.key === 'Escape' && !activityModal.hasAttribute('hidden')) {
-                    closeActivityModal();
-                }
-            });
-        }
 
         var purgeForm = document.getElementById('activity-purge-form');
         var purgeModal = document.getElementById('purge-confirm-modal');

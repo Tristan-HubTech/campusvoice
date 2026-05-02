@@ -588,27 +588,6 @@ h4 {
   background: var(--cv-surface-hover);
 }
 
-/* Column widths */
-.col-admin {
-  width: 35%;
-}
-
-.col-role {
-  width: 14%;
-}
-
-.col-status {
-  width: 10%;
-}
-
-.col-login {
-  width: 14%;
-}
-
-.col-actions {
-  width: 27%;
-}
-
 /* Admin cell: avatar + name + email inline */
 .admin-cell {
   display: flex;
@@ -725,8 +704,9 @@ h4 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 4px;
   height: 32px;
-  padding: 0 14px;
+  padding: 4px 12px;
   border-radius: 6px;
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: .78rem;
@@ -741,7 +721,7 @@ h4 {
 .act-edit {
   background: #eff6ff;
   color: #1d4ed8;
-  border-color: #bfdbfe;
+  border: 1px solid #bfdbfe;
 }
 
 .act-edit:hover {
@@ -774,12 +754,35 @@ h4 {
 .act-delete {
   background: #fef2f2;
   color: #b91c1c;
-  border-color: #fecaca;
+  border: 1px solid #fecaca;
 }
 
 .act-delete:hover {
   background: #fee2e2;
   border-color: #fca5a5;
+}
+
+.act-pin {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+
+.act-pin:hover {
+  background: #fde68a;
+  border-color: #f59e0b;
+}
+
+.act-pin.is-pinned {
+  background: #f59e0b;
+  color: #fff;
+  border: 1px solid #d97706;
+  font-weight: 700;
+}
+
+.act-pin.is-pinned:hover {
+  background: #d97706;
+  border-color: #b45309;
 }
 
 /* Empty state */
@@ -1516,6 +1519,16 @@ h4 {
 .perm-toggle-btn:hover {
   background: var(--cv-navy-50);
   border-color: var(--cv-navy-800);
+}
+
+[data-theme="dark"] .perm-toggle-btn {
+  color: var(--cv-ink) !important;
+  border-color: var(--cv-border-2) !important;
+}
+
+[data-theme="dark"] .perm-toggle-btn:hover {
+  background: var(--cv-surface-3) !important;
+  border-color: var(--cv-ink-2) !important;
 }
 
 .perm-items {
@@ -2457,6 +2470,7 @@ h4 {
 .cv-card.perm-card {
   border-top: 4px solid var(--perm-color, var(--cv-border-2)) !important;
   margin-bottom: 0 !important;
+  overflow: hidden !important;
 }
 
 .cv-card.perm-card .perm-group-name {
@@ -2561,7 +2575,8 @@ h4 {
 }
 
 /* Column helpers */
-.student-mgmt-table .email-col {
+.student-mgmt-table .email-col,
+.cv-admin-table .email-col {
   min-width: 200px;
 }
 
@@ -2597,6 +2612,20 @@ h4 {
 .student-mgmt-table th a {
   color: #6b7280 !important;
   text-decoration: none !important;
+}
+
+[data-theme="dark"] .data-table th .sort-link,
+[data-theme="dark"] .data-table th a,
+[data-theme="dark"] .cv-admin-table th .sort-link,
+[data-theme="dark"] .cv-admin-table th a,
+[data-theme="dark"] .student-mgmt-table th .sort-link,
+[data-theme="dark"] .student-mgmt-table th a {
+  color: var(--cv-ink) !important;
+}
+
+/* sort-block: fill the full th so header text is flush with data below */
+.sort-block {
+  display: block !important;
 }
 
 .data-table th .sort-link:hover,
@@ -2760,9 +2789,9 @@ span.type-praise {
   flex-wrap: nowrap !important;
 }
 
-/* ── Student management action cell ─────────────────────────────── */
+/* ── Inline action row (student mgmt, categories, etc.) ─────────── */
 .smgmt-actions {
-  display: flex !important;
+  display: inline-flex !important;
   flex-direction: row !important;
   gap: 6px !important;
   align-items: center !important;
@@ -2813,7 +2842,45 @@ span.type-praise {
 .student-mgmt-table td.desc-col {
   word-break: break-word !important;
   white-space: normal !important;
-  min-width: 150px;
+  min-width: 150px !important;
+}
+
+.cv-expired { color: var(--cv-red); }
+
+.sa-anon-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: .68rem;
+  font-weight: 700;
+  color: var(--cv-purple);
+  background: var(--cv-purple-bg);
+  border-radius: var(--cv-r-pill);
+  padding: 1px 7px;
+  margin-left: 6px;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+[data-theme="dark"] .sa-anon-badge {
+  color: #c4b5fd;
+  background: rgba(114, 24, 184, .25);
+}
+
+/* Action pill */
+.act-pill {
+  display: inline-block !important;
+  max-width: 96px;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  vertical-align: middle;
+  background: #dbeafe !important;
+  color: #1e40af !important;
+  padding: 3px 10px !important;
+  border-radius: 999px !important;
+  font-size: .72rem !important;
+  font-weight: 700 !important;
 }
 
 /* Name + email stacked cell */
@@ -2850,7 +2917,7 @@ span.type-praise {
 [data-theme="dark"] .student-mgmt-table th,
 [data-theme="dark"] .data-table th,
 [data-theme="dark"] .cv-admin-table th {
-  color: var(--cv-ink-2) !important;
+  color: var(--cv-ink) !important;
   background: var(--cv-surface-2) !important;
   border-bottom-color: var(--cv-border-2) !important;
 }
