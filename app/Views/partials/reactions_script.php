@@ -27,8 +27,8 @@
     function buildCommentHTML(c, isReply) {
         var cls = 'comment-item' + (isReply ? ' reply-item' : '');
         var safeAuthor = (c.author_name || 'User').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-        var replyBtn = isReply ? '' :
-            '<button type="button" class="comment-reply-btn" data-comment-id="' + c.id + '" data-author="' + safeAuthor + '">↩ Reply</button>';
+        var replyParentId = isReply ? (c.parent_id || c.id) : c.id;
+        var replyBtn = '<button type="button" class="comment-reply-btn" data-comment-id="' + replyParentId + '" data-author="' + safeAuthor + '">↩ Reply</button>';
         var bodyText = (c.body != null) ? String(c.body) : '';
         var hasBody = bodyText.replace(/^\s+|\s+$/g, '') !== '';
         var bodyHtml = hasBody ? ('<p>' + bodyText.replace(/\n/g, '<br>') + '</p>') : '';
@@ -108,27 +108,23 @@
                             replyList.insertAdjacentHTML('beforeend', buildCommentHTML(c, true));
                             newEl = replyList.lastElementChild;
                             var replyCount = replyList.querySelectorAll(':scope > .comment-item').length;
-                            var countLabel = '↩ ' + replyCount + ' ' + (replyCount === 1 ? 'reply' : 'replies');
-                            var existingToggle = parentItem.querySelector('.reply-count-btn');
+                            var existingToggle = parentItem.querySelector('.reply-toggle-btn');
                             if (existingToggle) {
-                                existingToggle.textContent = countLabel;
+                                existingToggle.setAttribute('data-count', replyCount);
                                 existingToggle.setAttribute('data-expanded', '1');
+                                existingToggle.textContent = '—— Hide replies';
                             } else {
                                 var newToggle = document.createElement('button');
                                 newToggle.type = 'button';
-                                newToggle.className = 'reply-count-btn';
+                                newToggle.className = 'reply-toggle-btn';
+                                newToggle.setAttribute('data-count', replyCount);
                                 newToggle.setAttribute('data-expanded', '1');
-                                newToggle.textContent = countLabel;
+                                newToggle.textContent = '—— Hide replies';
                                 bodyWrap.insertBefore(newToggle, replyList);
                             }
                         }
-                        var parentInput = form.querySelector('.comment-parent-id');
-                        if (parentInput) parentInput.value = '0';
-                        var indicator = form.querySelector('.reply-indicator');
-                        if (indicator) indicator.style.display = 'none';
                         var ta = form.querySelector('textarea');
-                        if (ta) { ta.placeholder = 'Write a comment...'; ta.value = ''; }
-                        form.classList.remove('replying');
+                        if (ta) ta.value = '';
                     } else {
                         let commentList = stack.querySelector('.comment-list');
                         if (!commentList) {
@@ -215,9 +211,9 @@
         form.classList.remove('replying');
     });
 
-    /* ── Reply Count Toggle ── */
+    /* ── Reply Toggle (Facebook-style) ── */
     document.addEventListener('click', function (e) {
-        var toggleBtn = e.target.closest('.reply-count-btn');
+        var toggleBtn = e.target.closest('.reply-toggle-btn');
         if (!toggleBtn) return;
         var commentItem = toggleBtn.closest('.comment-item');
         if (!commentItem) return;
@@ -226,6 +222,10 @@
         var expanded = toggleBtn.getAttribute('data-expanded') === '1';
         replyList.style.display = expanded ? 'none' : '';
         toggleBtn.setAttribute('data-expanded', expanded ? '0' : '1');
+        var count = parseInt(toggleBtn.getAttribute('data-count') || '0', 10);
+        toggleBtn.textContent = expanded
+            ? '—— View ' + count + ' ' + (count === 1 ? 'reply' : 'replies')
+            : '—— Hide replies';
     });
 
     /* ── Emoji maps ── */

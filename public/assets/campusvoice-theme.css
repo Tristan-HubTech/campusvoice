@@ -445,13 +445,43 @@ html[data-theme="dark"] .top-count {
     color: #8a9bb8;
 }
 
-html[data-theme="dark"] .comment-reaction-badge {
-    background: #eef2ff;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+html[data-theme="dark"] .badge-count {
+    color: #8a9bb8;
 }
 
-html[data-theme="dark"] .badge-count {
-    color: #4a5580;
+html[data-theme="dark"] .reply-list {
+    border-left-color: #2e3a4e;
+}
+
+html[data-theme="dark"] .reply-toggle-btn {
+    color: #8a9bb8;
+}
+
+html[data-theme="dark"] .reply-toggle-btn:hover {
+    color: #a8bbf0;
+}
+
+html[data-theme="dark"] .pill-category {
+    background: #2a3444;
+    color: #9aa8bf;
+}
+
+html[data-theme="dark"] .pill-type-suggestion {
+    background: #1a2d4a;
+    color: #93c5fd;
+    border-color: #1e3a5f;
+}
+
+html[data-theme="dark"] .pill-type-complaint {
+    background: #2d1a1a;
+    color: #fca5a5;
+    border-color: #4a1a1a;
+}
+
+html[data-theme="dark"] .pill-type-praise {
+    background: #1a2d1e;
+    color: #86efac;
+    border-color: #1a3d20;
 }
 
 /* Admin data-table — dark-mode row hover (avoid the blinding white) */

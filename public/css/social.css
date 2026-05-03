@@ -668,9 +668,38 @@ select:focus {
 
 .feed-head {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 12px;
     margin-bottom: 14px;
+}
+
+.feed-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.feed-info-text {
+    min-width: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.feed-pills-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.feed-date {
+    font-size: 0.84rem;
+    color: var(--muted);
 }
 
 .avatar {
@@ -725,6 +754,9 @@ select:focus {
 .feed-author {
     font-weight: 800;
     color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .feed-meta {
@@ -971,13 +1003,9 @@ select:focus {
     position: absolute;
     bottom: -10px;
     right: 8px;
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-    padding: 1px 6px;
     display: inline-flex;
     align-items: center;
-    gap: 2px;
+    gap: 1px;
     font-size: 0.72rem;
     line-height: 1;
     z-index: 1;
@@ -988,8 +1016,9 @@ select:focus {
 }
 
 .badge-emoji {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'EmojiOne Color', sans-serif;
+    image-rendering: auto;
 }
 
 .badge-count {
@@ -1030,25 +1059,23 @@ select:focus {
     color: #1a5dc4;
 }
 
-/* Reply count toggle */
-.reply-count-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
+/* Reply toggle (Facebook-style) */
+.reply-toggle-btn {
+    display: inline-block;
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #2078f4;
-    padding: 3px 0 3px 12px;
-    margin-top: 2px;
+    font-size: 0.8rem;
+    color: #65676b;
+    padding: 2px 0;
+    margin-top: 4px;
+    line-height: 1.4;
     transition: color 0.15s;
 }
 
-.reply-count-btn:hover {
+.reply-toggle-btn:hover {
     text-decoration: underline;
-    color: #1a5dc4;
+    color: #1877f2;
 }
 
 /* New comment/reply entrance animation */
@@ -1071,8 +1098,8 @@ select:focus {
 /* Reply list (nested under parent comment) */
 .reply-list {
     margin-top: 4px;
-    padding-left: 8px;
-    border-left: 2px solid #e4e6eb;
+    padding-left: 22px;
+    border-left: 1px solid #e5e7eb;
 }
 
 .reply-item {

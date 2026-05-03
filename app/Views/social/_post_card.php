@@ -29,28 +29,33 @@ if ($fbType !== '') {
 <article class="feed-card" id="post-<?= (int) $post['id'] ?>">
 
     <!-- ── Author & Meta ── Avatar, name, date, and status badges -->
+    <?php $fbCategory = trim((string) ($post['category_name'] ?? '')); ?>
+    <?php
+    $statusLabelMap = [
+        'reviewed'    => ['label' => 'Under Review', 'icon' => '🔍', 'cls' => 'fb-status-badge--reviewed'],
+        'in_progress' => ['label' => 'In Progress',  'icon' => '🔧', 'cls' => 'fb-status-badge--progress'],
+        'resolved'    => ['label' => 'Resolved',     'icon' => '✅', 'cls' => 'fb-status-badge--resolved'],
+    ];
+    ?>
     <div class="feed-head">
         <div class="avatar avatar-<?= esc((string) $post['avatar_color']) ?>"><?= esc((string) $post['initials']) ?></div>
-        <div style="flex:1; min-width:0;">
-            <?php if ($postIsAnon || empty($post['profile_url']) || empty($currentUser['id'])): ?>
-                <span class="feed-author"><?= esc((string) $post['author_name']) ?></span>
-            <?php else: ?>
-                <a href="<?= esc((string) $post['profile_url']) ?>" class="feed-author"><?= esc((string) $post['author_name']) ?></a>
-            <?php endif; ?>
-            <div class="feed-meta">
-                <span><?= esc(date('M d, Y h:i A', strtotime((string) $post['created_at']))) ?></span>
-                <?php if ($fbType !== ''): ?>
-                    <span class="pill type-<?= esc($fbType) ?>" style="font-size:0.7rem; padding:2px 9px; margin-left:2px;"><?= esc(ucfirst($fbType)) ?></span>
+        <div class="feed-info">
+            <div class="feed-info-text">
+                <?php if ($postIsAnon || empty($post['profile_url']) || empty($currentUser['id'])): ?>
+                    <span class="feed-author"><?= esc((string) $post['author_name']) ?></span>
+                <?php else: ?>
+                    <a href="<?= esc((string) $post['profile_url']) ?>" class="feed-author"><?= esc((string) $post['author_name']) ?></a>
                 <?php endif; ?>
-                <?php
-                $statusLabelMap = [
-                    'reviewed'    => ['label' => 'Under Review', 'icon' => '🔍', 'cls' => 'fb-status-badge--reviewed'],
-                    'in_progress' => ['label' => 'In Progress',  'icon' => '🔧', 'cls' => 'fb-status-badge--progress'],
-                    'resolved'    => ['label' => 'Resolved',     'icon' => '✅', 'cls' => 'fb-status-badge--resolved'],
-                ];
-                if (isset($statusLabelMap[$fbStatus])):
-                    $sb = $statusLabelMap[$fbStatus];
-                ?>
+                <span class="feed-date"><?= esc(date('M d, Y', strtotime((string) $post['created_at']))) ?></span>
+            </div>
+            <div class="feed-pills-col">
+                <?php if ($fbCategory !== ''): ?>
+                    <span class="pill pill-category"><?= esc($fbCategory) ?></span>
+                <?php endif; ?>
+                <?php if ($fbType !== ''): ?>
+                    <span class="pill pill-type-<?= esc($fbType) ?>"><?= esc(ucfirst($fbType)) ?></span>
+                <?php endif; ?>
+                <?php if (isset($statusLabelMap[$fbStatus])): $sb = $statusLabelMap[$fbStatus]; ?>
                     <span class="fb-status-badge <?= $sb['cls'] ?>"><?= $sb['icon'] ?> <?= esc($sb['label']) ?></span>
                 <?php endif; ?>
             </div>
@@ -163,8 +168,8 @@ if ($fbType !== '') {
 
                             <?php if (! empty($comment['replies'])): ?>
                                 <?php $rCount = count($comment['replies']); ?>
-                                <button type="button" class="reply-count-btn" data-expanded="1">↩ <?= $rCount ?> <?= $rCount === 1 ? 'reply' : 'replies' ?></button>
-                                <div class="reply-list">
+                                <button type="button" class="reply-toggle-btn" data-count="<?= $rCount ?>" data-expanded="0">&mdash;&mdash; View <?= $rCount ?> <?= $rCount === 1 ? 'reply' : 'replies' ?></button>
+                                <div class="reply-list" style="display:none">
                                     <?php foreach ($comment['replies'] as $reply): ?>
                                         <?php
                                         $rrBreakdown = $reply['reaction_breakdown'] ?? [];
@@ -211,6 +216,7 @@ if ($fbType !== '') {
                                                                 <?php endif; ?>
                                                             ><span class="fb-like-icon"><?= $rrViewerRx ? ($crEmojiMap[$rrViewerRx] ?? '👍') : '👍' ?></span><span class="fb-like-label"><?= $rrViewerRx ? esc(ucfirst((string) $rrViewerRx)) : 'Like' ?></span></button>
                                                         </span>
+                                                        <button type="button" class="comment-reply-btn" data-comment-id="<?= (int) $comment['id'] ?>" data-author="<?= esc((string) $reply['author_name']) ?>">↩ Reply</button>
                                                     <?php endif; ?>
                                                 </div>
                                             </div>

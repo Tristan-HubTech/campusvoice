@@ -2682,6 +2682,64 @@ html[data-theme="dark"] .ann-empty p {
     line-height: 1.4;
 }
 
+/* Post label container — stacks category + type pills beside the date */
+.post-labels {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+}
+
+/* Category pill — neutral gray */
+.pill-category {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    padding: 2px 8px;
+    font-weight: 500;
+    background: #f3f4f6;
+    color: #374151;
+}
+
+/* Type pills */
+.pill-type-suggestion {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    padding: 2px 8px;
+    font-weight: 500;
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+}
+
+.pill-type-complaint {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    padding: 2px 8px;
+    font-weight: 500;
+    background: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+}
+
+.pill-type-praise {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    padding: 2px 8px;
+    font-weight: 500;
+    background: #f0fdf4;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+}
+
+/* Legacy type classes (kept for non-feed use) */
 .type-complaint {
     background: #ffeceb;
     color: var(--danger);
@@ -2747,10 +2805,11 @@ html[data-theme="dark"] .ann-empty p {
 .feed-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    align-items: center;
+    gap: 6px;
     font-size: 0.84rem;
     color: var(--ink-soft);
-    margin-top: 4px;
+    margin-bottom: 2px;
 }
 
 .feed-attachment {
@@ -2975,20 +3034,17 @@ html[data-theme="dark"] .ann-empty p {
     position: absolute;
     bottom: -10px;
     right: 8px;
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-    padding: 1px 6px;
     display: inline-flex;
     align-items: center;
-    gap: 2px;
+    gap: 1px;
     font-size: 0.72rem;
     line-height: 1;
     z-index: 1;
 }
 
 .badge-emoji {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
+    font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'EmojiOne Color', sans-serif;
 }
 
 .badge-count {
