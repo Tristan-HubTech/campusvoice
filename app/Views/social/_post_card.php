@@ -29,7 +29,14 @@ if ($fbType !== '') {
 <article class="feed-card" id="post-<?= (int) $post['id'] ?>">
 
     <!-- ── Author & Meta ── Avatar, name, date, and status badges -->
-    <?php $fbCategory = trim((string) ($post['category_name'] ?? '')); ?>
+    <?php
+    $fbCategory  = trim((string) ($post['category_name'] ?? ''));
+    $fbCatSlug   = 'cat--' . (preg_replace('/[^a-z0-9]/', '', strtolower($fbCategory)) ?: 'general');
+    $fbCatColor  = trim((string) ($post['category_color'] ?? ''));
+    $fbCatStyle  = ($fbCatColor !== '' && preg_match('/^#[0-9a-fA-F]{6}$/i', $fbCatColor))
+        ? ' style="background:' . $fbCatColor . '1a;color:' . $fbCatColor . ';border:1px solid ' . $fbCatColor . '4d;"'
+        : '';
+    ?>
     <?php
     $statusLabelMap = [
         'reviewed'    => ['label' => 'Under Review', 'icon' => '🔍', 'cls' => 'fb-status-badge--reviewed'],
@@ -47,7 +54,7 @@ if ($fbType !== '') {
             <?php endif; ?>
             <div class="feed-pill-slot">
                 <?php if ($fbCategory !== ''): ?>
-                    <span class="pill pill-category"><?= esc($fbCategory) ?></span>
+                    <span class="pill <?= esc($fbCatSlug) ?>"<?= $fbCatStyle ?>><?= esc($fbCategory) ?></span>
                 <?php endif; ?>
             </div>
             <span class="feed-date"><?= esc(date('M d, Y', strtotime((string) $post['created_at']))) ?></span>

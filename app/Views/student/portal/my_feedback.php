@@ -38,6 +38,13 @@
                 $typeMap   = ['complaint' => ['⚡','myfb-pill--complaint'], 'suggestion' => ['💡','myfb-pill--suggestion'], 'praise' => ['⭐','myfb-pill--praise']];
                 $typeKey   = (string) ($item['type'] ?? 'suggestion');
                 [$typeIcon, $typeClass] = $typeMap[$typeKey] ?? ['📝',''];
+                $catName   = strtolower(trim((string) ($item['category_name'] ?? 'general')));
+                $catSlug   = preg_replace('/[^a-z0-9]/', '', $catName) ?: 'general';
+                $catClass  = 'myfb-cat--' . $catSlug;
+                $catColor  = trim((string) ($item['category_color'] ?? ''));
+                $catStyle  = ($catColor !== '' && preg_match('/^#[0-9a-fA-F]{6}$/i', $catColor))
+                    ? ' style="background:' . $catColor . '1a;color:' . $catColor . ';border:1px solid ' . $catColor . '4d;"'
+                    : '';
                 $statusMap = [
                     'pending'  => ['Pending',      'myfb-status--pending'],
                     'approved' => ['Approved',     'myfb-status--approved'],
@@ -57,10 +64,12 @@
                     <div class="myfb-card__top">
                         <div class="myfb-card__meta">
                             <span class="myfb-ref"><?= esc($refNum) ?></span>
-                            <span class="myfb-pill <?= $typeClass ?>">
-                                <?= $typeIcon ?> <?= esc(ucfirst($typeKey)) ?>
+                            <span class="myfb-pill-group">
+                                <span class="myfb-category <?= esc($catClass) ?>"<?= $catStyle ?>><?= esc((string) ($item['category_name'] ?? 'General')) ?></span>
+                                <span class="myfb-pill <?= $typeClass ?>">
+                                    <?= $typeIcon ?> <?= esc(ucfirst($typeKey)) ?>
+                                </span>
                             </span>
-                            <span class="myfb-category"><?= esc((string) ($item['category_name'] ?? 'General')) ?></span>
                         </div>
                         <div class="myfb-card__right">
                             <span class="myfb-status <?= $statusClass ?>"><?= esc($statusLabel) ?></span>

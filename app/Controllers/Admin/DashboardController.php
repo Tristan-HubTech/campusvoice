@@ -46,7 +46,7 @@ class DashboardController extends AdminBaseController
 
         // ── Load all tab data upfront so hash-based tab switching always has data ───
         $latestFeedback = (new FeedbackModel())
-            ->select('feedbacks.id, feedbacks.type, feedbacks.subject, feedbacks.status, feedbacks.created_at, feedback_categories.name as category_name, users.first_name, users.last_name, feedbacks.is_anonymous')
+            ->select('feedbacks.id, feedbacks.type, feedbacks.subject, feedbacks.status, feedbacks.created_at, feedback_categories.name as category_name, feedback_categories.color as category_color, users.first_name, users.last_name, feedbacks.is_anonymous')
             ->join('feedback_categories', 'feedback_categories.id = feedbacks.category_id', 'left')
             ->join('users', 'users.id = feedbacks.user_id', 'left')
             ->orderBy('feedbacks.created_at', 'DESC')
@@ -59,7 +59,7 @@ class DashboardController extends AdminBaseController
             ->findAll(5);
 
         $feedbackList = (new FeedbackModel())
-            ->select('feedbacks.*, feedback_categories.name as category_name, users.first_name, users.last_name, users.email')
+            ->select('feedbacks.*, feedback_categories.name as category_name, feedback_categories.color as category_color, users.first_name, users.last_name, users.email')
             ->join('feedback_categories', 'feedback_categories.id = feedbacks.category_id', 'left')
             ->join('users', 'users.id = feedbacks.user_id', 'left')
             ->orderBy('feedbacks.created_at', 'DESC')

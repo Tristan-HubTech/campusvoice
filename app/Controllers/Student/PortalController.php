@@ -38,7 +38,7 @@ class PortalController extends StudentBaseController
         $userId = (int) ($studentUser['id'] ?? 0);
 
         $myFeedback = (new FeedbackModel())
-            ->select('feedbacks.*, feedback_categories.name as category_name')
+            ->select('feedbacks.*, feedback_categories.name as category_name, feedback_categories.color as category_color')
             ->join('feedback_categories', 'feedback_categories.id = feedbacks.category_id', 'left')
             ->where('feedbacks.user_id', $userId)
             ->orderBy('feedbacks.created_at', 'DESC')
@@ -97,7 +97,7 @@ class PortalController extends StudentBaseController
         $userId = (int) ($studentUser['id'] ?? 0);
 
         $feedbackList = (new FeedbackModel())
-            ->select('feedbacks.*, feedback_categories.name as category_name, (SELECT COUNT(*) FROM feedback_replies WHERE feedback_replies.feedback_id = feedbacks.id) as reply_count')
+            ->select('feedbacks.*, feedback_categories.name as category_name, feedback_categories.color as category_color, (SELECT COUNT(*) FROM feedback_replies WHERE feedback_replies.feedback_id = feedbacks.id) as reply_count')
             ->join('feedback_categories', 'feedback_categories.id = feedbacks.category_id', 'left')
             ->where('feedbacks.user_id', $userId)
             ->orderBy('feedbacks.created_at', 'DESC')

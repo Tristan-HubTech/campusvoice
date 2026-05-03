@@ -778,6 +778,27 @@ $allCategories = $allCategories ?? [];
                 <label for="cat-desc">Description</label>
                 <textarea id="cat-desc" name="description" rows="3" maxlength="500" placeholder="Optional description"></textarea>
 
+                <label>Color</label>
+                <div class="cat-color-picker">
+                    <div class="cat-swatches">
+                        <button type="button" class="cat-swatch" data-color="#7c3aed" style="background:#7c3aed" title="Purple"></button>
+                        <button type="button" class="cat-swatch" data-color="#be185d" style="background:#be185d" title="Pink"></button>
+                        <button type="button" class="cat-swatch" data-color="#0f766e" style="background:#0f766e" title="Teal"></button>
+                        <button type="button" class="cat-swatch" data-color="#c2410c" style="background:#c2410c" title="Orange"></button>
+                        <button type="button" class="cat-swatch" data-color="#4338ca" style="background:#4338ca" title="Indigo"></button>
+                        <button type="button" class="cat-swatch" data-color="#1d4ed8" style="background:#1d4ed8" title="Blue"></button>
+                        <button type="button" class="cat-swatch" data-color="#15803d" style="background:#15803d" title="Green"></button>
+                        <button type="button" class="cat-swatch" data-color="#374151" style="background:#374151" title="Gray"></button>
+                        <button type="button" class="cat-swatch" data-color="#b45309" style="background:#b45309" title="Amber"></button>
+                        <button type="button" class="cat-swatch" data-color="#0e7490" style="background:#0e7490" title="Cyan"></button>
+                    </div>
+                    <label class="cat-custom-wrap">
+                        <span>Custom</span>
+                        <input type="color" id="cat-color-custom" class="cat-color-custom" value="#7c3aed">
+                    </label>
+                    <input type="hidden" id="cat-color" name="color" value="">
+                </div>
+
                 <div class="form-actions">
                     <button type="submit" id="category-submit-btn">Add Category</button>
                     <button type="button" class="btn-link secondary" id="category-cancel-edit" style="display:none;">Cancel</button>
@@ -803,13 +824,20 @@ $allCategories = $allCategories ?? [];
                     <tbody>
                     <?php if (! empty($allCategories)): ?>
                         <?php foreach ($allCategories as $cat): ?>
+                            <?php
+                                $cColor = trim((string) ($cat['color'] ?? ''));
+                                $cSlug  = preg_replace('/[^a-z0-9]/', '', strtolower((string) $cat['name'])) ?: 'general';
+                                $cDotStyle = ($cColor !== '' && preg_match('/^#[0-9a-fA-F]{6}$/', $cColor))
+                                    ? ' style="background:' . esc($cColor) . '"' : '';
+                            ?>
                             <tr
                                 data-category-row="1"
                                 data-id="<?= (int) $cat['id'] ?>"
                                 data-name="<?= esc((string) $cat['name'], 'attr') ?>"
                                 data-description="<?= esc((string) ($cat['description'] ?? ''), 'attr') ?>"
+                                data-color="<?= esc($cColor, 'attr') ?>"
                             >
-                                <td><strong><?= esc((string) $cat['name']) ?></strong></td>
+                                <td><span class="cat-dot cat-dot--<?= esc($cSlug) ?>"<?= $cDotStyle ?>></span><strong><?= esc((string) $cat['name']) ?></strong></td>
                                 <td><?= esc(strlen((string) ($cat['description'] ?? '')) > 60 ? substr((string) $cat['description'], 0, 60) . '...' : (string) ($cat['description'] ?? '—')) ?></td>
                                 <td>
                                     <?php if ((int) ($cat['is_active'] ?? 1) === 1): ?>
@@ -1630,8 +1658,34 @@ $allCategories = $allCategories ?? [];
         var categoryTitle = document.getElementById('category-form-title');
         var categorySubmitBtn = document.getElementById('category-submit-btn');
         var categoryCancelBtn = document.getElementById('category-cancel-edit');
-
         var categoryPanel = document.getElementById('category-form-panel');
+
+        // ── Color picker ──────────────────────────────────────────────
+        var colorHiddenInput = document.getElementById('cat-color');
+        var colorCustomInput = document.getElementById('cat-color-custom');
+        var colorSwatches    = document.querySelectorAll('.cat-swatch');
+
+        function setPickerColor(hex) {
+            if (!colorHiddenInput) { return; }
+            colorHiddenInput.value = hex || '';
+            if (colorCustomInput) { colorCustomInput.value = hex || '#7c3aed'; }
+            colorSwatches.forEach(function (s) {
+                s.classList.toggle('cat-swatch--active', s.getAttribute('data-color') === hex);
+            });
+        }
+
+        colorSwatches.forEach(function (swatch) {
+            swatch.addEventListener('click', function () {
+                setPickerColor(swatch.getAttribute('data-color'));
+            });
+        });
+
+        if (colorCustomInput) {
+            colorCustomInput.addEventListener('input', function () {
+                colorHiddenInput.value = colorCustomInput.value;
+                colorSwatches.forEach(function (s) { s.classList.remove('cat-swatch--active'); });
+            });
+        }
 
         function resetCategoryForm() {
             if (!categoryForm) { return; }
@@ -1640,6 +1694,7 @@ $allCategories = $allCategories ?? [];
             categorySubmitBtn.textContent = 'Add Category';
             categoryCancelBtn.style.display = 'none';
             categoryForm.reset();
+            setPickerColor('');
             if (categoryPanel) { categoryPanel.classList.remove('panel--editing'); }
         }
 
@@ -1657,6 +1712,7 @@ $allCategories = $allCategories ?? [];
 
                 categoryForm.elements['name'].value = row.getAttribute('data-name') || '';
                 categoryForm.elements['description'].value = row.getAttribute('data-description') || '';
+                setPickerColor(row.getAttribute('data-color') || '');
 
                 if (categoryPanel) { categoryPanel.classList.add('panel--editing'); }
 

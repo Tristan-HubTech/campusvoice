@@ -115,7 +115,7 @@ abstract class StudentBaseController extends BaseController
     protected function buildPosts(int $viewerId = 0, ?int $userId = null, int $limit = 20): array
     {
         $query = (new SocialPostModel())
-            ->select('social_posts.*, users.first_name, users.last_name, users.email, social_profiles.avatar_color, social_profiles.bio, social_profiles.is_anonymous as profile_is_anonymous, feedbacks.status as feedback_status, feedbacks.type as feedback_type, feedbacks.image_path as feedback_image_path, feedback_categories.name as category_name')
+            ->select('social_posts.*, users.first_name, users.last_name, users.email, social_profiles.avatar_color, social_profiles.bio, social_profiles.is_anonymous as profile_is_anonymous, feedbacks.status as feedback_status, feedbacks.type as feedback_type, feedbacks.image_path as feedback_image_path, feedback_categories.name as category_name, feedback_categories.color as category_color')
             ->join('users', 'users.id = social_posts.user_id', 'inner')
             ->join('social_profiles', 'social_profiles.user_id = users.id', 'left')
             ->join('feedbacks', 'feedbacks.id = social_posts.feedback_id', 'left')

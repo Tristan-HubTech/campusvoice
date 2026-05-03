@@ -723,6 +723,33 @@ select:focus {
     white-space: nowrap;
 }
 
+/* ── Feed pills: base ─────────────────────────────────────── */
+.pill {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+    line-height: 1;
+}
+
+/* Category colors */
+.pill.cat--academic { background: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe; }
+.pill.cat--event    { background: #fdf2f8; color: #be185d; border: 1px solid #fbcfe8; }
+.pill.cat--facility { background: #f0fdfa; color: #0f766e; border: 1px solid #99f6e4; }
+.pill.cat--other    { background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; }
+.pill.cat--security { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+.pill.cat--service  { background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe; }
+.pill.cat--teacher  { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+.pill.cat--general { background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; }
+
+/* Type colors */
+.pill.pill-type-praise     { background: #f0fdf4; color: #15803d; border: 1px solid #86efac; }
+.pill.pill-type-suggestion { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+.pill.pill-type-complaint  { background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; }
+
 .avatar {
     display: grid;
     place-items: center;

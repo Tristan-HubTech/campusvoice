@@ -1475,15 +1475,23 @@ html[data-theme="dark"] .fp-step__line {
     border: 1px solid #d8e2f8;
 }
 
+.myfb-pill-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
 .myfb-pill {
     display: inline-flex;
     align-items: center;
     gap: 4px;
     font-size: 0.72rem;
-    font-weight: 700;
-    padding: 2px 10px;
+    font-weight: 600;
+    padding: 3px 10px;
     border-radius: 999px;
     letter-spacing: 0.03em;
+    white-space: nowrap;
 }
 
 .myfb-pill--complaint {
@@ -1505,10 +1513,23 @@ html[data-theme="dark"] .fp-step__line {
 }
 
 .myfb-category {
-    font-size: 0.78rem;
-    color: #6b7280;
-    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
 }
+
+.myfb-cat--academic  { background: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe; }
+.myfb-cat--event     { background: #fdf2f8; color: #be185d; border: 1px solid #fbcfe8; }
+.myfb-cat--facility  { background: #f0fdfa; color: #0f766e; border: 1px solid #99f6e4; }
+.myfb-cat--other     { background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; }
+.myfb-cat--security  { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+.myfb-cat--service   { background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe; }
+.myfb-cat--teacher   { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+.myfb-cat--general   { background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; }
 
 /* Status badge */
 .myfb-status {

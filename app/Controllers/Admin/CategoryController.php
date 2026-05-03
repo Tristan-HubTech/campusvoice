@@ -11,6 +11,7 @@ class CategoryController extends AdminBaseController
         $rules = [
             'name'        => 'required|min_length[2]|max_length[100]',
             'description' => 'permit_empty|max_length[500]',
+            'color'       => 'permit_empty|regex_match[/^#[0-9a-fA-F]{6}$/]',
         ];
 
         if (! $this->validateData($this->request->getPost(), $rules)) {
@@ -19,6 +20,7 @@ class CategoryController extends AdminBaseController
 
         $name        = trim((string) $this->request->getPost('name'));
         $description = trim((string) ($this->request->getPost('description') ?? ''));
+        $color       = trim((string) ($this->request->getPost('color') ?? ''));
 
         $model = new FeedbackCategoryModel();
 
@@ -32,6 +34,7 @@ class CategoryController extends AdminBaseController
         $model->insert([
             'name'        => $name,
             'description' => $description !== '' ? $description : null,
+            'color'       => preg_match('/^#[0-9a-fA-F]{6}$/', $color) ? $color : null,
             'is_active'   => 1,
         ]);
 
@@ -56,6 +59,7 @@ class CategoryController extends AdminBaseController
         $rules = [
             'name'        => 'required|min_length[2]|max_length[100]',
             'description' => 'permit_empty|max_length[500]',
+            'color'       => 'permit_empty|regex_match[/^#[0-9a-fA-F]{6}$/]',
         ];
 
         if (! $this->validateData($this->request->getPost(), $rules)) {
@@ -64,6 +68,7 @@ class CategoryController extends AdminBaseController
 
         $name        = trim((string) $this->request->getPost('name'));
         $description = trim((string) ($this->request->getPost('description') ?? ''));
+        $color       = trim((string) ($this->request->getPost('color') ?? ''));
 
         // Check for duplicate names (excluding this category).
         $escapedName = $model->db->escape(strtolower($name));
@@ -79,6 +84,7 @@ class CategoryController extends AdminBaseController
         $model->update($id, [
             'name'        => $name,
             'description' => $description !== '' ? $description : null,
+            'color'       => preg_match('/^#[0-9a-fA-F]{6}$/', $color) ? $color : null,
         ]);
 
         $this->logActivity(

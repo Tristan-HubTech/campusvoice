@@ -11,7 +11,7 @@ class FeedbackCategoryModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['name', 'description', 'is_active'];
+    protected $allowedFields    = ['name', 'description', 'color', 'is_active'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;

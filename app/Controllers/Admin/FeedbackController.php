@@ -21,7 +21,7 @@ class FeedbackController extends AdminBaseController
         $replyModel = new FeedbackReplyModel();
 
         $feedback = $feedbackModel
-            ->select('feedbacks.*, feedback_categories.name as category_name, users.first_name, users.last_name, users.email')
+            ->select('feedbacks.*, feedback_categories.name as category_name, feedback_categories.color as category_color, users.first_name, users.last_name, users.email')
             ->join('feedback_categories', 'feedback_categories.id = feedbacks.category_id', 'left')
             ->join('users', 'users.id = feedbacks.user_id', 'left')
             ->where('feedbacks.id', $id)

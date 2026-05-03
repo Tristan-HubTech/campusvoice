@@ -20,7 +20,7 @@ class FeedbackController extends ApiController
 
         $feedbackModel = new FeedbackModel();
         $feedbackModel
-            ->select('feedbacks.*, feedback_categories.name as category_name, users.first_name, users.last_name')
+            ->select('feedbacks.*, feedback_categories.name as category_name, feedback_categories.color as category_color, users.first_name, users.last_name')
             ->join('feedback_categories', 'feedback_categories.id = feedbacks.category_id', 'left')
             ->join('users', 'users.id = feedbacks.user_id', 'left');
 
@@ -54,7 +54,7 @@ class FeedbackController extends ApiController
 
         $feedbackModel = new FeedbackModel();
         $records = $feedbackModel
-            ->select('feedbacks.*, feedback_categories.name as category_name')
+            ->select('feedbacks.*, feedback_categories.name as category_name, feedback_categories.color as category_color')
             ->join('feedback_categories', 'feedback_categories.id = feedbacks.category_id', 'left')
             ->where('feedbacks.user_id', $user['id'])
             ->orderBy('feedbacks.created_at', 'DESC')
@@ -122,7 +122,7 @@ class FeedbackController extends ApiController
 
         $feedbackModel = new FeedbackModel();
         $record = $feedbackModel
-            ->select('feedbacks.*, feedback_categories.name as category_name')
+            ->select('feedbacks.*, feedback_categories.name as category_name, feedback_categories.color as category_color')
             ->join('feedback_categories', 'feedback_categories.id = feedbacks.category_id', 'left')
             ->where('feedbacks.id', $id)
             ->first();
