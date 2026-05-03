@@ -40,18 +40,18 @@ if ($fbType !== '') {
     <div class="feed-head">
         <div class="avatar avatar-<?= esc((string) $post['avatar_color']) ?>"><?= esc((string) $post['initials']) ?></div>
         <div class="feed-info">
-            <div class="feed-info-text">
-                <?php if ($postIsAnon || empty($post['profile_url']) || empty($currentUser['id'])): ?>
-                    <span class="feed-author"><?= esc((string) $post['author_name']) ?></span>
-                <?php else: ?>
-                    <a href="<?= esc((string) $post['profile_url']) ?>" class="feed-author"><?= esc((string) $post['author_name']) ?></a>
-                <?php endif; ?>
-                <span class="feed-date"><?= esc(date('M d, Y', strtotime((string) $post['created_at']))) ?></span>
-            </div>
-            <div class="feed-pills-col">
+            <?php if ($postIsAnon || empty($post['profile_url']) || empty($currentUser['id'])): ?>
+                <span class="feed-author"><?= esc((string) $post['author_name']) ?></span>
+            <?php else: ?>
+                <a href="<?= esc((string) $post['profile_url']) ?>" class="feed-author"><?= esc((string) $post['author_name']) ?></a>
+            <?php endif; ?>
+            <div class="feed-pill-slot">
                 <?php if ($fbCategory !== ''): ?>
                     <span class="pill pill-category"><?= esc($fbCategory) ?></span>
                 <?php endif; ?>
+            </div>
+            <span class="feed-date"><?= esc(date('M d, Y', strtotime((string) $post['created_at']))) ?></span>
+            <div class="feed-pill-slot">
                 <?php if ($fbType !== ''): ?>
                     <span class="pill pill-type-<?= esc($fbType) ?>"><?= esc(ucfirst($fbType)) ?></span>
                 <?php endif; ?>

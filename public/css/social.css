@@ -219,13 +219,31 @@ select {
 }
 
 .toast-success {
-    background: #0b6a62;
-    color: #ffffff;
+    background: #f0fdf4;
+    border: 1px solid #86efac;
+    border-left: 4px solid #22c55e;
+    color: #14532d;
 }
 
 .toast-error {
-    background: #d55b54;
-    color: #ffffff;
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
+    border-left: 4px solid #ef4444;
+    color: #7f1d1d;
+}
+
+html[data-theme="dark"] .toast-success {
+    background: #052e16;
+    border: 1px solid rgba(74, 222, 128, .25);
+    border-left: 4px solid #4ade80;
+    color: #86efac;
+}
+
+html[data-theme="dark"] .toast-error {
+    background: #2a0c0c;
+    border: 1px solid rgba(252, 165, 165, .25);
+    border-left: 4px solid #f87171;
+    color: #fca5a5;
 }
 
 .toast-icon {
@@ -236,7 +254,7 @@ select {
 .toast-close {
     background: none;
     border: none;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(0, 0, 0, 0.4);
     font-size: 1rem;
     cursor: pointer;
     padding: 0 0 0 8px;
@@ -244,7 +262,15 @@ select {
 }
 
 .toast-close:hover {
-    color: #ffffff;
+    color: rgba(0, 0, 0, 0.7);
+}
+
+html[data-theme="dark"] .toast-close {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+html[data-theme="dark"] .toast-close:hover {
+    color: rgba(255, 255, 255, 0.8);
 }
 
 @keyframes toastSlideIn {
@@ -676,30 +702,25 @@ select:focus {
 .feed-info {
     flex: 1;
     min-width: 0;
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
+    display: grid;
+    grid-template-columns: auto auto;
+    column-gap: 8px;
+    row-gap: 3px;
+    align-items: center;
+    justify-content: start;
 }
 
-.feed-info-text {
-    min-width: 0;
-    overflow: hidden;
+.feed-pill-slot {
     display: flex;
-    flex-direction: column;
-    gap: 3px;
-}
-
-.feed-pills-col {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
+    align-items: center;
     gap: 4px;
-    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .feed-date {
     font-size: 0.84rem;
     color: var(--muted);
+    white-space: nowrap;
 }
 
 .avatar {

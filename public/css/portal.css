@@ -429,15 +429,31 @@ body.portal-nav-open .portal-menu-btn__line:nth-child(3) {
 }
 
 .portal-alert.success {
-    background: #e8f8ef;
-    border-color: #b8e7c9;
-    color: #15663f;
+    background: #f0fdf4;
+    border-color: #86efac;
+    border-left: 4px solid #22c55e;
+    color: #14532d;
 }
 
 .portal-alert.error {
-    background: #fff0ef;
-    border-color: #f4c4bf;
-    color: #8a251a;
+    background: #fef2f2;
+    border-color: #fca5a5;
+    border-left: 4px solid #ef4444;
+    color: #7f1d1d;
+}
+
+html[data-theme="dark"] .portal-alert.success {
+    background: #052e16;
+    border-color: rgba(74, 222, 128, .25);
+    border-left: 4px solid #4ade80;
+    color: #86efac;
+}
+
+html[data-theme="dark"] .portal-alert.error {
+    background: #2a0c0c;
+    border-color: rgba(252, 165, 165, .25);
+    border-left: 4px solid #f87171;
+    color: #fca5a5;
 }
 
 .auth-card {
