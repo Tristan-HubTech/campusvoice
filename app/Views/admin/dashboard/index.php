@@ -766,7 +766,7 @@ $allCategories = $allCategories ?? [];
 
 <section class="tab-panel" data-tab-panel="categories">
     <div class="panel-grid">
-        <section class="panel">
+        <section class="panel" id="category-form-panel">
             <div class="panel-head">
                 <h2 id="category-form-title">Add Category</h2>
             </div>
@@ -780,7 +780,7 @@ $allCategories = $allCategories ?? [];
 
                 <div class="form-actions">
                     <button type="submit" id="category-submit-btn">Add Category</button>
-                    <button type="button" class="btn-link secondary" id="category-cancel-edit" style="display:none;">Cancel Edit</button>
+                    <button type="button" class="btn-link secondary" id="category-cancel-edit" style="display:none;">Cancel</button>
                 </div>
             </form>
         </section>
@@ -1529,46 +1529,52 @@ $allCategories = $allCategories ?? [];
 
         resetAnnouncementForm();
 
-        otpRequestForm.addEventListener('submit', async function (event) {
-            event.preventDefault();
-            const email = otpRequestForm.elements.email.value.trim();
+        if (otpRequestForm) {
+            otpRequestForm.addEventListener('submit', async function (event) {
+                event.preventDefault();
+                const email = otpRequestForm.elements.email.value.trim();
 
-            const res = await postJson(apiBase + '/auth/password/otp/request', { email: email }, requestStatus, requestResult);
-            if (res.ok) {
-                otpVerifyForm.elements.email.value = email;
-                otpResetForm.elements.email.value = email;
-            }
-        });
+                const res = await postJson(apiBase + '/auth/password/otp/request', { email: email }, requestStatus, requestResult);
+                if (res.ok) {
+                    if (otpVerifyForm) { otpVerifyForm.elements.email.value = email; }
+                    if (otpResetForm)  { otpResetForm.elements.email.value  = email; }
+                }
+            });
+        }
 
-        otpVerifyForm.addEventListener('submit', function (event) {
-            event.preventDefault();
+        if (otpVerifyForm) {
+            otpVerifyForm.addEventListener('submit', function (event) {
+                event.preventDefault();
 
-            postJson(
-                apiBase + '/auth/password/otp/verify',
-                {
-                    email: otpVerifyForm.elements.email.value.trim(),
-                    otp: otpVerifyForm.elements.otp.value.trim(),
-                },
-                verifyStatus,
-                verifyResult
-            );
-        });
+                postJson(
+                    apiBase + '/auth/password/otp/verify',
+                    {
+                        email: otpVerifyForm.elements.email.value.trim(),
+                        otp: otpVerifyForm.elements.otp.value.trim(),
+                    },
+                    verifyStatus,
+                    verifyResult
+                );
+            });
+        }
 
-        otpResetForm.addEventListener('submit', function (event) {
-            event.preventDefault();
+        if (otpResetForm) {
+            otpResetForm.addEventListener('submit', function (event) {
+                event.preventDefault();
 
-            postJson(
-                apiBase + '/auth/password/reset',
-                {
-                    email: otpResetForm.elements.email.value.trim(),
-                    otp: otpResetForm.elements.otp.value.trim(),
-                    new_password: otpResetForm.elements.new_password.value,
-                    confirm_password: otpResetForm.elements.confirm_password.value,
-                },
-                resetStatus,
-                resetResult
-            );
-        });
+                postJson(
+                    apiBase + '/auth/password/reset',
+                    {
+                        email: otpResetForm.elements.email.value.trim(),
+                        otp: otpResetForm.elements.otp.value.trim(),
+                        new_password: otpResetForm.elements.new_password.value,
+                        confirm_password: otpResetForm.elements.confirm_password.value,
+                    },
+                    resetStatus,
+                    resetResult
+                );
+            });
+        }
 
         var purgeForm = document.getElementById('activity-purge-form');
         var purgeModal = document.getElementById('purge-confirm-modal');
@@ -1625,6 +1631,8 @@ $allCategories = $allCategories ?? [];
         var categorySubmitBtn = document.getElementById('category-submit-btn');
         var categoryCancelBtn = document.getElementById('category-cancel-edit');
 
+        var categoryPanel = document.getElementById('category-form-panel');
+
         function resetCategoryForm() {
             if (!categoryForm) { return; }
             categoryForm.action = <?= json_encode(site_url('admin/categories')) ?>;
@@ -1632,6 +1640,7 @@ $allCategories = $allCategories ?? [];
             categorySubmitBtn.textContent = 'Add Category';
             categoryCancelBtn.style.display = 'none';
             categoryForm.reset();
+            if (categoryPanel) { categoryPanel.classList.remove('panel--editing'); }
         }
 
         document.querySelectorAll('[data-edit-category]').forEach(function (button) {
@@ -1646,11 +1655,23 @@ $allCategories = $allCategories ?? [];
                 categorySubmitBtn.textContent = 'Save Changes';
                 categoryCancelBtn.style.display = '';
 
-                categoryForm.elements.name.value = row.getAttribute('data-name') || '';
-                categoryForm.elements.description.value = row.getAttribute('data-description') || '';
+                categoryForm.elements['name'].value = row.getAttribute('data-name') || '';
+                categoryForm.elements['description'].value = row.getAttribute('data-description') || '';
+
+                if (categoryPanel) { categoryPanel.classList.add('panel--editing'); }
 
                 openTab('categories', true);
-                categoryForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                // Scroll with offset to clear the fixed topbar
+                setTimeout(function () {
+                    var topbar = document.querySelector('.admin-topbar');
+                    var offset = topbar ? topbar.offsetHeight + 16 : 72;
+                    var top = categoryPanel
+                        ? categoryPanel.getBoundingClientRect().top + window.scrollY - offset
+                        : categoryForm.getBoundingClientRect().top + window.scrollY - offset;
+                    window.scrollTo({ top: top, behavior: 'smooth' });
+                    categoryForm.elements['name'].focus();
+                }, 50);
             });
         });
 

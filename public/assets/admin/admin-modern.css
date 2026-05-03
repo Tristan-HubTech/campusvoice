@@ -1884,6 +1884,40 @@ h4 {
   font-size: 1.02rem !important;
 }
 
+.panel--editing {
+  border-color: var(--cv-navy-600) !important;
+  box-shadow: 0 0 0 3px rgba(35, 80, 150, 0.12), var(--cv-shadow-sm) !important;
+  animation: panel-edit-pulse 0.4s var(--cv-ease);
+}
+
+.panel--editing .panel-head {
+  background: var(--cv-navy-50) !important;
+  border-bottom-color: var(--cv-navy-100) !important;
+}
+
+.panel--editing .panel-head h2 {
+  color: var(--cv-navy-700) !important;
+}
+
+@keyframes panel-edit-pulse {
+  from { box-shadow: 0 0 0 6px rgba(35, 80, 150, 0.22); }
+  to   { box-shadow: 0 0 0 3px rgba(35, 80, 150, 0.12), var(--cv-shadow-sm); }
+}
+
+[data-theme="dark"] .panel--editing {
+  border-color: #4a7cdc !important;
+  box-shadow: 0 0 0 3px rgba(74, 124, 220, 0.18), var(--cv-shadow-sm) !important;
+}
+
+[data-theme="dark"] .panel--editing .panel-head {
+  background: rgba(74, 124, 220, 0.08) !important;
+  border-bottom-color: rgba(74, 124, 220, 0.2) !important;
+}
+
+[data-theme="dark"] .panel--editing .panel-head h2 {
+  color: #93c5fd !important;
+}
+
 /* Table utility helpers */
 .data-table td.nowrap,
 .data-table th.nowrap,
