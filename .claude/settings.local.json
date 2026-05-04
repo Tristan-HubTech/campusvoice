@@ -5,7 +5,14 @@
       "Bash(Get-ChildItem -Path \"C:\\\\xampp\\\\htdocs\\\\campusvoice\" -Force)",
       "Bash(Select-Object Name, Mode)",
       "PowerShell(ls -Path \"C:\\\\xampp\\\\htdocs\\\\campusvoice\" | ForEach-Object { \"$\\($_.Name\\) [$\\($_.Mode\\)]\" })",
-      "Bash(php spark *)"
+      "Bash(php spark *)",
+      "Bash(npx *)",
+      "Bash(echo \"EXIT: $?\")",
+      "Read(//c/Users/Ara/AppData/Roaming/Claude/**)",
+      "Read(//c/Users/Ara/.claude/**)",
+      "mcp__claude-flow__hooks_intelligence_stats",
+      "mcp__claude-flow__neural_status",
+      "mcp__claude-flow__hooks_model-stats"
     ]
   }
 }

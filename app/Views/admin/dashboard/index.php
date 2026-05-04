@@ -465,182 +465,194 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
 
 <!-- ── Announcements Tab ── Form to create announcements and table to manage them -->
 <section class="tab-panel" data-tab-panel="announcements">
-    <div class="panel-grid">
-        <section class="panel">
-            <div class="panel-head">
-                <h2 id="announcement-form-title">Create Announcement</h2>
+    <div class="ann-dash-grid">
+
+        <!-- ── Create / Edit Form Card ── -->
+        <section class="ann-dash-card" id="ann-form-card">
+            <div class="ann-dash-card-head">
+                <div class="ann-dash-card-head-inner">
+                    <svg class="ann-dash-head-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-5"/><path d="M17.5 2.5a2.121 2.121 0 0 1 3 3L12 14l-4 1 1-4 7.5-7.5z"/></svg>
+                    <h2 id="announcement-form-title">Create Announcement</h2>
+                </div>
             </div>
 
-            <form method="post" action="<?= site_url('admin/announcements') ?>" class="form-grid" id="announcement-form" enctype="multipart/form-data">
-                <label for="ann-title">Title</label>
-                <input id="ann-title" name="title" required maxlength="180" placeholder="Title">
+            <div class="ann-dash-card-body">
+                <form method="post" action="<?= site_url('admin/announcements') ?>" class="ann-dash-form" id="announcement-form" enctype="multipart/form-data">
 
-                <label for="ann-body">Body</label>
-                <textarea id="ann-body" name="body" rows="8" required placeholder="Announcement content"></textarea>
+                    <div class="ann-dash-field">
+                        <label class="ann-dash-label" for="ann-title">Title</label>
+                        <input class="ann-dash-input" id="ann-title" name="title" required maxlength="180" placeholder="Announcement title…">
+                    </div>
 
-                <label for="ann-image">Image <small class="muted">— optional, JPG/PNG/WebP, max 5 MB</small></label>
-                <div id="ann-image-preview-wrap" style="display:none; margin-bottom:6px;">
-                    <img id="ann-image-preview" src="" alt="Current image" style="max-width:100%; max-height:180px; border-radius:10px; border:1px solid var(--line); object-fit:cover; display:block; margin-bottom:6px;">
-                    <label style="display:flex; align-items:center; gap:6px; font-size:0.82rem; cursor:pointer;">
-                        <input type="checkbox" name="remove_image" id="ann-remove-image" value="1"> Remove current image
-                    </label>
-                </div>
-                <input type="file" id="ann-image" name="image" accept="image/jpeg,image/png,image/webp"
-                       style="border:1px solid var(--line); border-radius:10px; padding:8px 10px; font-size:0.85rem; width:100%; box-sizing:border-box;">
+                    <div class="ann-dash-field">
+                        <label class="ann-dash-label" for="ann-body">Body</label>
+                        <textarea class="ann-dash-input ann-dash-textarea" id="ann-body" name="body" required placeholder="Write your announcement content…"></textarea>
+                    </div>
 
-                <label>Publish At <small class="muted">— blank = publish immediately</small></label>
-                <div class="ann-dt-row">
-                    <input type="date" id="ann-publish-date" class="ann-dt-date">
-                    <input type="time" id="ann-publish-time" class="ann-dt-time" value="08:00">
-                    <button type="button" class="ann-dt-clear" data-dt-clear="publish" title="Clear">✕</button>
-                </div>
-                <div class="ann-dt-quick">
-                    <button type="button" class="ann-quick-btn" data-quick-publish="today">Today</button>
-                    <button type="button" class="ann-quick-btn" data-quick-publish="tomorrow">Tomorrow</button>
-                    <button type="button" class="ann-quick-btn" data-quick-publish="week">+1 Week</button>
-                </div>
-                <input type="hidden" name="publish_at" id="ann-publish-at">
+                    <div class="ann-dash-field">
+                        <label class="ann-dash-label">Image <span class="ann-dash-label-hint">optional · JPG/PNG/WebP · max 5 MB</span></label>
+                        <div id="ann-image-preview-wrap" style="display:none; margin-bottom:10px;">
+                            <img id="ann-image-preview" src="" alt="Current image" class="ann-dash-img-preview">
+                            <label class="ann-dash-remove-img-label">
+                                <input type="checkbox" name="remove_image" id="ann-remove-image" value="1" style="width:auto;padding:0;border-radius:3px;"> Remove current image
+                            </label>
+                        </div>
+                        <label class="ann-dash-upload-zone">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+                            <span class="ann-dash-upload-text">Click to upload or drag &amp; drop</span>
+                            <input type="file" id="ann-image" name="image" accept="image/jpeg,image/png,image/webp" class="ann-dash-file-input">
+                        </label>
+                    </div>
 
-                <label>Expires At <small class="muted">— blank = never expires</small></label>
-                <div class="ann-dt-row">
-                    <input type="date" id="ann-expires-date" class="ann-dt-date">
-                    <input type="time" id="ann-expires-time" class="ann-dt-time" value="23:59">
-                    <button type="button" class="ann-dt-clear" data-dt-clear="expires" title="Clear">✕</button>
-                </div>
-                <script>
-                (function () {
-                    var now = new Date();
-                    var today = now.getFullYear() + '-' +
-                        String(now.getMonth() + 1).padStart(2, '0') + '-' +
-                        String(now.getDate()).padStart(2, '0');
-                    document.getElementById('ann-publish-date').min = today;
-                    document.getElementById('ann-expires-date').min = today;
-                })();
-                </script>
-                <div class="ann-dt-quick">
-                    <button type="button" class="ann-quick-btn" data-quick-expires="week">+1 Week</button>
-                    <button type="button" class="ann-quick-btn" data-quick-expires="month">+1 Month</button>
-                    <button type="button" class="ann-quick-btn" data-quick-expires="year">+1 Year</button>
-                </div>
-                <input type="hidden" name="expires_at" id="ann-expires-at">
+                    <div class="ann-dash-field">
+                        <label class="ann-dash-label">Publish At <span class="ann-dash-label-hint">blank = publish immediately</span></label>
+                        <div class="ann-dt-row">
+                            <input type="date" id="ann-publish-date" class="ann-dash-input ann-dt-date">
+                            <input type="time" id="ann-publish-time" class="ann-dash-input ann-dt-time" value="08:00">
+                            <button type="button" class="ann-dt-clear" data-dt-clear="publish" title="Clear">✕</button>
+                        </div>
+                        <div class="ann-dt-quick">
+                            <button type="button" class="ann-quick-btn" data-quick-publish="today">Today</button>
+                            <button type="button" class="ann-quick-btn" data-quick-publish="tomorrow">Tomorrow</button>
+                            <button type="button" class="ann-quick-btn" data-quick-publish="week">+1 Week</button>
+                        </div>
+                        <input type="hidden" name="publish_at" id="ann-publish-at">
+                    </div>
 
-                <input type="hidden" name="is_published" id="ann-is-published" value="1">
+                    <div class="ann-dash-field">
+                        <label class="ann-dash-label">Expires At <span class="ann-dash-label-hint">blank = never expires</span></label>
+                        <div class="ann-dt-row">
+                            <input type="date" id="ann-expires-date" class="ann-dash-input ann-dt-date">
+                            <input type="time" id="ann-expires-time" class="ann-dash-input ann-dt-time" value="23:59">
+                            <button type="button" class="ann-dt-clear" data-dt-clear="expires" title="Clear">✕</button>
+                        </div>
+                        <script>
+                        (function () {
+                            var now = new Date();
+                            var today = now.getFullYear() + '-' +
+                                String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                                String(now.getDate()).padStart(2, '0');
+                            document.getElementById('ann-publish-date').min = today;
+                            document.getElementById('ann-expires-date').min = today;
+                        })();
+                        </script>
+                        <div class="ann-dt-quick">
+                            <button type="button" class="ann-quick-btn" data-quick-expires="week">+1 Week</button>
+                            <button type="button" class="ann-quick-btn" data-quick-expires="month">+1 Month</button>
+                            <button type="button" class="ann-quick-btn" data-quick-expires="year">+1 Year</button>
+                        </div>
+                        <input type="hidden" name="expires_at" id="ann-expires-at">
+                    </div>
 
-                <div class="form-actions">
-                    <button type="submit" id="announcement-submit-btn">Publish Announcement</button>
-                    <button type="button" class="btn-link secondary" id="announcement-cancel-edit" style="display:none;">Cancel Edit</button>
-                </div>
-            </form>
+                    <input type="hidden" name="is_published" id="ann-is-published" value="1">
+
+                    <div class="ann-dash-actions">
+                        <button type="submit" class="ann-dash-submit" id="announcement-submit-btn">Publish Announcement</button>
+                        <button type="button" class="ann-dash-cancel" id="announcement-cancel-edit" style="display:none;">Cancel</button>
+                    </div>
+
+                </form>
+            </div>
         </section>
 
-        <section class="panel" id="announcement-list">
-            <div class="panel-head">
-                <h2>Announcement List</h2>
-            </div>
-
-            <div class="cv-table-card"><div class="table-wrap">
-                <table class="cv-admin-table">
-                    <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Status</th>
-                        <th>Publishes</th>
-                        <th>Expires</th>
-                        <th>Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
+        <!-- ── Announcement List Card ── -->
+        <section class="ann-dash-card" id="announcement-list">
+            <div class="ann-dash-card-head">
+                <div class="ann-dash-card-head-inner">
+                    <svg class="ann-dash-head-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    <h2>Announcement List</h2>
                     <?php if (! empty($announcements)): ?>
-                        <?php foreach ($announcements as $item): ?>
-                            <?php
-                            $annNow       = time();
-                            $annPublishRaw = (string) ($item['publish_at'] ?? '');
-                            $annExpiresRaw = (string) ($item['expires_at'] ?? '');
-                            $annPublishTs  = $annPublishRaw !== '' ? strtotime($annPublishRaw) : null;
-                            $annExpiresTs  = $annExpiresRaw !== '' ? strtotime($annExpiresRaw) : null;
-                            $annIsLive     = (int) ($item['is_published'] ?? 0) === 1
-                                             && ($annPublishTs === null || $annPublishTs <= $annNow)
-                                             && ($annExpiresTs === null || $annExpiresTs >= $annNow);
-                            $annIsExpired  = $annExpiresTs !== null && $annExpiresTs < $annNow;
-                            $annIsScheduled = (int) ($item['is_published'] ?? 0) === 1
-                                              && $annPublishTs !== null && $annPublishTs > $annNow;
-                            ?>
-                            <tr
-                                data-announcement-row="1"
-                                data-id="<?= (int) $item['id'] ?>"
-                                data-title="<?= esc((string) $item['title'], 'attr') ?>"
-                                data-body="<?= esc((string) $item['body'], 'attr') ?>"
-                                data-audience="<?= esc((string) $item['audience'], 'attr') ?>"
-                                data-is-published="<?= (int) ($item['is_published'] ?? 0) ?>"
-                                data-publish-at="<?= esc($annPublishRaw, 'attr') ?>"
-                                data-expires-at="<?= esc($annExpiresRaw, 'attr') ?>"
-                                data-image-path="<?= esc($item['image_path'] ?? '', 'attr') ?>"
-                                data-image-url="<?= esc($item['image_path'] ? FeedbackImageStorage::publicUrl((string)$item['image_path']) : '', 'attr') ?>"
-                            >
-                                <?php
-                                $annTitle = (string) $item['title'];
-                                $annBody  = (string) $item['body'];
-                                $annTitleShort = mb_strlen($annTitle) > 42 ? mb_substr($annTitle, 0, 42) . '…' : $annTitle;
-                                $annBodyShort  = mb_strlen($annBody)  > 60 ? mb_substr($annBody,  0, 60) . '…' : $annBody;
-                                ?>
-                                <td>
-                                    <?php if ((int)($item['pinned'] ?? 0) === 1): ?>
-                                        <span title="Pinned">📍</span>
-                                    <?php endif; ?>
-                                    <div class="cell-name">
-                                        <strong title="<?= esc($annTitle, 'attr') ?>"><?= esc($annTitleShort) ?></strong>
-                                        <small class="muted" title="<?= esc($annBody, 'attr') ?>"><?= esc($annBodyShort) ?></small>
-                                    </div>
-                                </td>
-                                <td>
-                                    <?php if ($annIsExpired): ?>
-                                        <span class="pill status-rejected">Expired</span>
-                                    <?php elseif ($annIsScheduled): ?>
-                                        <span class="pill status-pending">Scheduled</span>
-                                    <?php elseif ($annIsLive): ?>
-                                        <span class="pill status-approved">Live</span>
-                                    <?php else: ?>
-                                        <span class="pill status-new">Draft</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <?= $annPublishTs !== null ? esc(date('M d, Y H:i', $annPublishTs)) : '<em>Immediate</em>' ?>
-                                </td>
-                                <td>
-                                    <?php if ($annExpiresTs !== null): ?>
-                                        <span class="<?= $annIsExpired ? 'cv-expired' : 'muted' ?>">
-                                            <?= esc(date('M d, Y H:i', $annExpiresTs)) ?>
-                                        </span>
-                                    <?php else: ?>
-                                        <span class="muted"><em>Never</em></span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <?php $isPinned = (int)($item['pinned'] ?? 0); ?>
-                                    <div class="smgmt-actions">
-                                        <button type="button"
-                                                class="act-btn act-pin pin-btn <?= $isPinned ? 'is-pinned' : '' ?>"
-                                                data-announcement-id="<?= (int) $item['id'] ?>"
-                                                title="<?= $isPinned ? 'Unpin' : 'Pin' ?>">
-                                            <?= $isPinned ? '📍 Unpin' : '📌 Pin' ?>
-                                        </button>
-                                        <button type="button" class="act-btn act-edit" data-edit-announcement="<?= (int) $item['id'] ?>">✏️ Edit</button>
-                                        <form method="post" action="<?= site_url('admin/announcements/' . (int) $item['id'] . '/delete') ?>" style="display:contents;" onsubmit="return confirm('Delete this announcement?');">
-                                            <button class="act-btn act-delete" type="submit">🗑️ Delete</button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="5">No announcements available.</td>
-                        </tr>
+                        <span class="ann-dash-count-badge"><?= count($announcements) ?></span>
                     <?php endif; ?>
-                    </tbody>
-                </table>
-            </div></div>
+                </div>
+            </div>
+
+            <div class="ann-list">
+                <?php if (! empty($announcements)): ?>
+                    <?php foreach ($announcements as $item): ?>
+                        <?php
+                        $annNow        = time();
+                        $annPublishRaw = (string) ($item['publish_at'] ?? '');
+                        $annExpiresRaw = (string) ($item['expires_at'] ?? '');
+                        $annPublishTs  = $annPublishRaw !== '' ? strtotime($annPublishRaw) : null;
+                        $annExpiresTs  = $annExpiresRaw !== '' ? strtotime($annExpiresRaw) : null;
+                        $annIsLive     = (int) ($item['is_published'] ?? 0) === 1
+                                         && ($annPublishTs === null || $annPublishTs <= $annNow)
+                                         && ($annExpiresTs === null || $annExpiresTs >= $annNow);
+                        $annIsExpired  = $annExpiresTs !== null && $annExpiresTs < $annNow;
+                        $annIsScheduled = (int) ($item['is_published'] ?? 0) === 1
+                                          && $annPublishTs !== null && $annPublishTs > $annNow;
+                        $isPinned      = (int) ($item['pinned'] ?? 0);
+                        $annTitle      = (string) $item['title'];
+                        $annBody       = (string) $item['body'];
+                        $annBodyShort  = mb_strlen($annBody) > 100 ? mb_substr($annBody, 0, 100) . '…' : $annBody;
+                        ?>
+                        <div
+                            class="ann-list-row<?= $isPinned ? ' ann-list-row--pinned' : '' ?>"
+                            data-announcement-row="1"
+                            data-id="<?= (int) $item['id'] ?>"
+                            data-title="<?= esc($annTitle, 'attr') ?>"
+                            data-body="<?= esc($annBody, 'attr') ?>"
+                            data-audience="<?= esc((string) $item['audience'], 'attr') ?>"
+                            data-is-published="<?= (int) ($item['is_published'] ?? 0) ?>"
+                            data-publish-at="<?= esc($annPublishRaw, 'attr') ?>"
+                            data-expires-at="<?= esc($annExpiresRaw, 'attr') ?>"
+                            data-image-path="<?= esc($item['image_path'] ?? '', 'attr') ?>"
+                            data-image-url="<?= esc($item['image_path'] ? FeedbackImageStorage::publicUrl((string)$item['image_path']) : '', 'attr') ?>"
+                        >
+                            <div class="ann-list-main">
+                                <div class="ann-list-top">
+                                    <?php if ($annIsExpired): ?>
+                                        <span class="ann-dash-pill ann-dash-pill--expired">Expired</span>
+                                    <?php elseif ($annIsScheduled): ?>
+                                        <span class="ann-dash-pill ann-dash-pill--scheduled">Scheduled</span>
+                                    <?php elseif ($annIsLive): ?>
+                                        <span class="ann-dash-pill ann-dash-pill--live">Live</span>
+                                    <?php else: ?>
+                                        <span class="ann-dash-pill ann-dash-pill--draft">Draft</span>
+                                    <?php endif; ?>
+                                    <?php if ($isPinned): ?>
+                                        <span class="ann-dash-pinned-badge">📍 Pinned</span>
+                                    <?php endif; ?>
+                                </div>
+                                <p class="ann-list-title" title="<?= esc($annTitle, 'attr') ?>"><?= esc($annTitle) ?></p>
+                                <p class="ann-list-preview"><?= esc($annBodyShort) ?></p>
+                                <div class="ann-list-meta">
+                                    <span class="ann-list-meta-item">
+                                        <span class="ann-list-meta-label">Publishes</span>
+                                        <?= $annPublishTs !== null ? esc(date('M d, Y', $annPublishTs)) : '<em>Immediately</em>' ?>
+                                    </span>
+                                    <span class="ann-list-meta-sep">·</span>
+                                    <span class="ann-list-meta-item <?= $annIsExpired ? 'ann-list-meta-expired' : '' ?>">
+                                        <span class="ann-list-meta-label">Expires</span>
+                                        <?= $annExpiresTs !== null ? esc(date('M d, Y', $annExpiresTs)) : '<em>Never</em>' ?>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="ann-list-actions">
+                                <button type="button"
+                                        class="act-btn act-pin pin-btn <?= $isPinned ? 'is-pinned' : '' ?>"
+                                        data-announcement-id="<?= (int) $item['id'] ?>"
+                                        title="<?= $isPinned ? 'Unpin' : 'Pin' ?>">
+                                    <?= $isPinned ? '📍 Unpin' : '📌 Pin' ?>
+                                </button>
+                                <button type="button" class="act-btn act-edit" data-edit-announcement="<?= (int) $item['id'] ?>">✏️ Edit</button>
+                                <form method="post" action="<?= site_url('admin/announcements/' . (int) $item['id'] . '/delete') ?>" style="display:contents;" onsubmit="return confirm('Delete this announcement?');">
+                                    <button class="act-btn act-delete" type="submit">🗑️ Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="ann-dash-empty">
+                        <div class="ann-dash-empty-icon">📢</div>
+                        <p class="ann-dash-empty-title">No announcements yet</p>
+                        <p class="ann-dash-empty-sub">Create your first one using the form on the left.</p>
+                    </div>
+                <?php endif; ?>
+            </div>
         </section>
+
     </div>
 </section>
 

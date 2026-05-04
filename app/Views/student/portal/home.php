@@ -14,17 +14,16 @@
 <?= $this->section('content') ?>
 <div class="home-feed">
 
-    <!-- ── Welcome hero ── Shows user name and 'Share Feedback' button -->
-    <div class="home-hero">
-        <div class="home-hero__left">
-            <div class="home-hero__avatar">
-                <?= esc(strtoupper(substr((string) (! empty($isAnonymous) ? ($anonAlias ?? 'Anonymous') : ($studentUser['name'] ?? 'S')), 0, 1))) ?>
-            </div>
-            <div>
-                <?php $greeting = ! empty($studentUser['is_new_user']) ? 'Welcome,' : 'Welcome back,'; ?>
-            <h2 class="home-hero__title"><?= $greeting ?> <?= esc((string) (! empty($isAnonymous) ? ($anonAlias ?? 'Anonymous') : ($studentUser['name'] ?? 'Student'))) ?>!</h2>
-                <p class="home-hero__sub">Your campus voice matters.</p>
-            </div>
+    <!-- ── Page hero ── Community Feed header -->
+    <div class="announce-hero">
+        <div class="announce-hero__icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+        </div>
+        <div class="announce-hero__text">
+            <h1 class="announce-hero__title">Community Feed</h1>
+            <p class="announce-hero__sub">Stay connected with your campus community</p>
         </div>
         <a href="<?= site_url('users/feedback/submit') ?>" class="fb-hero__cta">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>

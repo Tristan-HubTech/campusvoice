@@ -5,15 +5,15 @@
 <div class="portal-page narrow">
 
     <!-- Hero Header -->
-    <div class="fb-hero">
-        <div class="fb-hero__icon">
+    <div class="announce-hero">
+        <div class="announce-hero__icon">
             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
             </svg>
         </div>
-        <div class="fb-hero__text">
-            <h1 class="fb-hero__title">Share Feedback</h1>
-            <p class="fb-hero__sub">Something broken? An idea? Someone doing great work? Let us know.</p>
+        <div class="announce-hero__text">
+            <h1 class="announce-hero__title">Share Feedback</h1>
+            <p class="announce-hero__sub">Something broken? An idea? Someone doing great work? Let us know.</p>
         </div>
         <a href="<?= site_url('users/feedback') ?>" class="fb-hero__back">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
