@@ -2605,7 +2605,6 @@ html[data-theme="dark"] .ann-read-more-btn:hover {
 /* ─ Dark mode ─ */
 html[data-theme="dark"] .announce-hero {
     background: linear-gradient(135deg, #071022 0%, #0c1a3a 60%, #102850 100%);
-    border: 1px solid rgba(133, 172, 255, 0.1);
 }
 
 html[data-theme="dark"] .announce-hero__icon {
