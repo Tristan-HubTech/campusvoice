@@ -115,7 +115,7 @@
     .auth-head h2 { font-family: 'Fraunces', serif; font-size: 1.7rem; font-weight: 700; color: #09111f; line-height: 1.15; letter-spacing: -0.02em; margin: 0 0 7px; }
     .auth-head p { font-size: 0.84rem; color: #7a8698; line-height: 1.6; margin: 0; }
 
-    .auth-form { display: grid; gap: 14px; }
+    .auth-form { display: grid; gap: 16px; }
 
     .auth-form label {
         display: block; font-size: 0.77rem; font-weight: 700;
@@ -128,12 +128,12 @@
     .auth-form input[type="text"],
     .auth-form input[type="tel"] {
         width: 100%; padding: 11px 14px;
-        border: 1.5px solid #e0e2e7; border-radius: 10px;
+        border: 1.5px solid #d1d5db; border-radius: 10px;
         font-family: 'Manrope', sans-serif; font-size: 0.88rem; color: #111827;
         background: #ffffff; outline: none; appearance: none;
         transition: border-color .18s, box-shadow .18s;
     }
-    .auth-form input::placeholder { color: #c4cad4; }
+    .auth-form input::placeholder { color: #9ca3af; }
     .auth-form input:focus { border-color: #c8972c; box-shadow: 0 0 0 3px rgba(200,151,44,0.13); }
 
     .form-row-half { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }

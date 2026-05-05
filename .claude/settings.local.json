@@ -12,7 +12,9 @@
       "Read(//c/Users/Ara/.claude/**)",
       "mcp__claude-flow__hooks_intelligence_stats",
       "mcp__claude-flow__neural_status",
-      "mcp__claude-flow__hooks_model-stats"
+      "mcp__claude-flow__hooks_model-stats",
+      "mcp__claude-flow__swarm_status",
+      "mcp__claude-flow__swarm_health"
     ]
   }
 }

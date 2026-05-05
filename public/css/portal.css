@@ -5,20 +5,22 @@
 
 /* Global CSS Variables — Colors, backgrounds, and shadows */
 :root {
-    --bg-alt: #e6f0f8;
-    --surface: #ffffff;
-    --ink: #17324a;
-    --ink-soft: #4a6a84;
-    --primary: #0f5f9a;
-    --primary-strong: #0a4a78;
-    --accent: #f28b30;
-    --line: #d6e3ef;
-    --ok: #1f8f5f;
-    --warn: #bf5f0a;
-    --danger: #c0392b;
-    --shadow: 0 12px 36px rgba(15, 62, 94, 0.12);
-    --glass-bg: linear-gradient(160deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.44) 52%, rgba(244, 247, 255, 0.6) 100%),
-        linear-gradient(125deg, rgba(234, 240, 255, 0.5), rgba(214, 226, 255, 0.46));
+    --bg:           #e8e4dc;
+    --bg-alt:       #ddd9d0;
+    --surface:      #ffffff;
+    --ink:          #0a1b42;
+    --ink-soft:     #5a6a82;
+    --primary:      #0a1b42;
+    --primary-strong: #060f28;
+    --accent:       #c8972c;
+    --accent-soft:  rgba(200, 151, 44, 0.12);
+    --line:         #d8d4cb;
+    --ok:           #15803d;
+    --warn:         #92400e;
+    --danger:       #b91c1c;
+    --shadow:       0 8px 32px rgba(10, 27, 66, 0.10);
+    --glass-bg: linear-gradient(160deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.60) 52%, rgba(248, 245, 240, 0.78) 100%),
+        linear-gradient(125deg, rgba(245, 241, 232, 0.55), rgba(232, 226, 212, 0.48));
 }
 
 * {
@@ -31,20 +33,25 @@ body {
     padding: 0;
     font-family: 'Manrope', sans-serif;
     color: var(--ink);
-    background:
-        radial-gradient(circle at 80% 0, rgba(47, 107, 255, 0.14), transparent 28%),
-        radial-gradient(circle at 8% 18%, rgba(11, 31, 77, 0.12), transparent 34%),
-        linear-gradient(165deg, #f4f8ff 0%, #eaf0ff 100%);
+    background-color: var(--bg);
+    background-image: radial-gradient(circle, rgba(10, 27, 66, 0.055) 1px, transparent 1px);
+    background-size: 30px 30px;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
 }
 
 body.is-auth-screen {
-    background:
-        radial-gradient(circle at 80% 0, rgba(47, 107, 255, 0.14), transparent 28%),
-        radial-gradient(circle at 8% 18%, rgba(11, 31, 77, 0.12), transparent 34%),
-        linear-gradient(165deg, #f4f8ff 0%, #eaf0ff 100%);
+    background-color: var(--bg);
+    background-image: radial-gradient(circle, rgba(10, 27, 66, 0.055) 1px, transparent 1px);
+    background-size: 30px 30px;
+}
+
+html[data-theme="dark"] body,
+html[data-theme="dark"] body.is-auth-screen {
+    background-color: #080f1e;
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 30px 30px;
 }
 
 a {
@@ -88,7 +95,9 @@ a:hover {
     align-items: center;
     gap: 10px;
     color: #fff;
-    font-weight: 800;
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 1.05rem;
     letter-spacing: 0.2px;
 }
 
@@ -416,8 +425,8 @@ body.portal-nav-open .portal-menu-btn__line:nth-child(3) {
     color: var(--ink-soft);
     padding: 16px;
     font-size: 0.9rem;
-    border-top: 1px solid rgba(194, 212, 255, 0.6);
-    background: rgba(255, 255, 255, 0.3);
+    border-top: 1px solid rgba(10, 27, 66, 0.10);
+    background: rgba(255, 255, 255, 0.22);
     margin-top: auto;
 }
 
@@ -985,8 +994,8 @@ html[data-theme="dark"] .fp-step__line {
 .portal-form input:focus,
 .portal-form select:focus,
 .portal-form textarea:focus {
-    outline: 3px solid rgba(47, 107, 255, 0.18);
-    border-color: #2f6bff;
+    outline: 3px solid rgba(200, 151, 44, 0.16);
+    border-color: #c8972c;
 }
 
 .auth-footer-text {
@@ -1011,12 +1020,12 @@ html[data-theme="dark"] .fp-step__line {
     justify-content: space-between;
     gap: 14px;
     background: var(--glass-bg);
-    border: 1px solid rgba(133, 172, 255, 0.36);
+    border: 1px solid rgba(10, 27, 66, 0.10);
     border-radius: 18px;
     padding: 20px 22px;
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.7),
-        0 12px 28px rgba(7, 20, 53, 0.1);
+        0 8px 24px rgba(10, 27, 66, 0.08);
     backdrop-filter: blur(16px) saturate(115%);
     -webkit-backdrop-filter: blur(16px) saturate(115%);
 }
@@ -1092,11 +1101,11 @@ html[data-theme="dark"] .fp-step__line {
 .portal-card,
 .panel-card {
     background: var(--glass-bg);
-    border: 1px solid rgba(133, 172, 255, 0.36);
+    border: 1px solid rgba(10, 27, 66, 0.10);
     border-radius: 18px;
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.7),
-        0 18px 38px rgba(7, 20, 53, 0.13);
+        0 8px 28px rgba(10, 27, 66, 0.08);
     backdrop-filter: blur(16px) saturate(115%);
     -webkit-backdrop-filter: blur(16px) saturate(115%);
     padding: 18px;
@@ -1131,8 +1140,8 @@ html[data-theme="dark"] .fp-step__line {
 .announce-mini-list li,
 .reply-item,
 .announce-item-full {
-    border: 1px solid rgba(194, 212, 255, 0.9);
-    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(10, 27, 66, 0.10);
+    background: rgba(255, 255, 255, 0.80);
     border-radius: 14px;
     padding: 14px;
     transition: box-shadow 0.18s ease, border-color 0.18s ease;
@@ -1149,8 +1158,8 @@ html[data-theme="dark"] .fp-step__line {
 
 .feedback-mini-list li:hover,
 .announce-mini-list li:hover {
-    border-color: rgba(133, 172, 255, 0.6);
-    box-shadow: 0 6px 18px rgba(7, 20, 53, 0.08);
+    border-color: rgba(200, 151, 44, 0.30);
+    box-shadow: 0 6px 18px rgba(10, 27, 66, 0.08);
 }
 
 .feedback-mini-list a {
@@ -1469,12 +1478,12 @@ html[data-theme="dark"] .fp-step__line {
 .myfb-ref {
     font-size: 0.74rem;
     font-weight: 700;
-    color: #7a8fb5;
+    color: #7a8698;
     letter-spacing: 0.04em;
-    background: #f0f4ff;
+    background: #f2efe8;
     padding: 2px 8px;
     border-radius: 6px;
-    border: 1px solid #d8e2f8;
+    border: 1px solid #ddd9d0;
 }
 
 .myfb-pill-group {
@@ -1634,7 +1643,7 @@ html[data-theme="dark"] .fp-step__line {
 }
 
 .myfb-replies {
-    color: #3b6bff;
+    color: #c8972c;
 }
 
 .myfb-thumb-link {
@@ -1670,14 +1679,14 @@ html[data-theme="dark"] .fp-step__line {
 }
 
 .myfb-btn--view {
-    background: #eef3ff;
-    color: #1d4ed8;
-    border: 1px solid #c7d8ff;
+    background: rgba(10, 27, 66, 0.06);
+    color: #0a1b42;
+    border: 1px solid rgba(10, 27, 66, 0.16);
 }
 
 .myfb-btn--view:hover {
-    background: #dbeafe;
-    color: #1d4ed8;
+    background: rgba(10, 27, 66, 0.12);
+    color: #0a1b42;
     text-decoration: none;
     transform: translateY(-1px);
 }
@@ -1711,11 +1720,11 @@ html[data-theme="dark"] .fp-step__line {
     width: 72px;
     height: 72px;
     border-radius: 50%;
-    background: #eef3ff;
+    background: rgba(200, 151, 44, 0.09);
     display: grid;
     place-items: center;
-    color: #3b6bff;
-    border: 2px solid #c7d8ff;
+    color: #c8972c;
+    border: 2px solid rgba(200, 151, 44, 0.28);
 }
 
 .myfb-empty__title {
@@ -1955,7 +1964,7 @@ html[data-theme="dark"] .myfb-modal__btn--cancel {
 }
 
 .fb-label svg {
-    color: #3b6bff;
+    color: #c8972c;
     flex-shrink: 0;
 }
 
@@ -1986,8 +1995,8 @@ html[data-theme="dark"] .myfb-modal__btn--cancel {
 }
 
 .fb-select:focus {
-    border-color: #3b6bff;
-    box-shadow: 0 0 0 3px rgba(59, 107, 255, 0.12);
+    border-color: #c8972c;
+    box-shadow: 0 0 0 3px rgba(200, 151, 44, 0.14);
     background-color: #fff;
 }
 
@@ -2060,8 +2069,8 @@ html[data-theme="dark"] .myfb-modal__btn--cancel {
 }
 
 .fb-textarea:focus {
-    border-color: #3b6bff;
-    box-shadow: 0 0 0 3px rgba(59, 107, 255, 0.12);
+    border-color: #c8972c;
+    box-shadow: 0 0 0 3px rgba(200, 151, 44, 0.14);
     background: #fff;
 }
 
@@ -2144,7 +2153,7 @@ html[data-theme="dark"] .myfb-modal__btn--cancel {
     display: flex;
     align-items: center;
     gap: 12px;
-    color: #3b6bff;
+    color: #c8972c;
 }
 
 .fb-anon-title {
@@ -2199,7 +2208,7 @@ html[data-theme="dark"] .myfb-modal__btn--cancel {
 }
 
 .fb-toggle__input:checked+.fb-toggle__track {
-    background: #3b6bff;
+    background: #c8972c;
 }
 
 .fb-toggle__input:checked+.fb-toggle__track::after {
@@ -2304,12 +2313,12 @@ html[data-theme="dark"] .fb-dropzone:hover {
 }
 
 html[data-theme="dark"] .fb-anon-row {
-    background: #0f1a30;
-    border-color: #1e2d4a;
+    background: #0c1626;
+    border-color: #1c2b40;
 }
 
 html[data-theme="dark"] .fb-anon-title {
-    color: #e0eaff;
+    color: #e6ebf5;
 }
 
 /* ── Announcements page ── */
@@ -2368,7 +2377,7 @@ html[data-theme="dark"] .fb-anon-title {
 
 .announce-hero__title {
     margin: 0;
-    font-family: 'Playfair Display', 'Fraunces', serif;
+    font-family: 'Fraunces', 'Playfair Display', serif;
     font-size: 1.6rem;
     font-weight: 700;
     color: #ffffff;
@@ -2556,23 +2565,23 @@ html[data-theme="dark"] .fb-anon-title {
     border: none;
     font-size: 0.82rem;
     font-weight: 700;
-    color: #3b6bff;
+    color: #c8972c;
     cursor: pointer;
     letter-spacing: 0.01em;
     transition: color 0.15s;
 }
 
 .ann-read-more-btn:hover {
-    color: #1a4fd8;
+    color: #a87820;
     text-decoration: underline;
 }
 
 html[data-theme="dark"] .ann-read-more-btn {
-    color: #6b9fff;
+    color: #d4a843;
 }
 
 html[data-theme="dark"] .ann-read-more-btn:hover {
-    color: #93b8ff;
+    color: #e0be6a;
 }
 
 /* Empty state */
@@ -2828,10 +2837,10 @@ html[data-theme="dark"] .ann-empty p {
 }
 
 .feed-card {
-    border: 1px solid rgba(194, 212, 255, 0.9);
+    border: 1px solid rgba(10, 27, 66, 0.10);
     border-radius: 18px;
     padding: 18px;
-    background: rgba(255, 255, 255, 0.72);
+    background: rgba(255, 255, 255, 0.82);
 }
 
 .feed-head {
@@ -2915,24 +2924,108 @@ html[data-theme="dark"] .ann-empty p {
     color: var(--ink, #203253);
 }
 
-/* Community comment images (feeds that use portal.css) */
-.comment-image-label {
+/* ── Comment image uploader ── */
+.cmt-img-field {
     display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin: 8px 0;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.cmt-img-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 13px 6px 11px;
+    border: 1.5px dashed rgba(10, 27, 66, 0.20);
+    border-radius: 9px;
+    background: rgba(10, 27, 66, 0.03);
+    color: #5a6a82;
+    font-size: 0.76rem;
+    font-weight: 700;
+    cursor: pointer;
+    user-select: none;
+    transition: border-color 0.18s, background 0.18s, color 0.18s;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.cmt-img-btn:hover {
+    border-color: #c8972c;
+    background: rgba(200, 151, 44, 0.07);
+    color: #c8972c;
+}
+
+.cmt-img-btn svg {
+    flex-shrink: 0;
+}
+
+.cmt-img-chosen {
+    font-size: 0.73rem;
+    font-weight: 600;
+    color: #c8972c;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 180px;
+    min-width: 0;
+}
+
+.cmt-img-chosen:empty { display: none; }
+
+.cmt-img-clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(10, 27, 66, 0.10);
+    color: #5a6a82;
     font-size: 0.85rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
 }
 
-.comment-image-hint {
-    font-weight: 400;
-    font-size: 0.78rem;
-    opacity: 0.85;
+.cmt-img-clear:hover {
+    background: #fee2e2;
+    color: #b91c1c;
 }
 
-.comment-image-input {
-    font-size: 0.8rem;
-    max-width: 100%;
+/* Legacy selectors — keep for any remaining direct usages */
+.comment-image-label { display: flex; flex-direction: column; gap: 4px; margin: 8px 0; font-size: 0.85rem; }
+.comment-image-hint  { font-weight: 400; font-size: 0.78rem; opacity: 0.85; }
+.comment-image-input { font-size: 0.8rem; max-width: 100%; }
+
+/* Dark mode */
+html[data-theme="dark"] .cmt-img-btn {
+    border-color: rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.40);
+}
+
+html[data-theme="dark"] .cmt-img-btn:hover {
+    border-color: #c8972c;
+    background: rgba(200, 151, 44, 0.10);
+    color: #d4a843;
+}
+
+html[data-theme="dark"] .cmt-img-chosen {
+    color: #d4a843;
+}
+
+html[data-theme="dark"] .cmt-img-clear {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.40);
+}
+
+html[data-theme="dark"] .cmt-img-clear:hover {
+    background: rgba(239, 68, 68, 0.20);
+    color: #f87171;
 }
 
 .comment-attachment {
@@ -3172,10 +3265,10 @@ html[data-theme="dark"] .ann-empty p {
     align-items: center;
     gap: 8px;
     padding: 6px 10px;
-    background: #e8f0fe;
+    background: rgba(200, 151, 44, 0.08);
     border-radius: 8px;
     font-size: 0.82rem;
-    color: #2078f4;
+    color: #a87820;
     margin-bottom: 6px;
 }
 
@@ -3257,7 +3350,7 @@ html[data-theme="dark"] .ann-empty p {
 
 .comment-form textarea:focus {
     background: #fff;
-    box-shadow: 0 4px 18px rgba(47, 107, 255, 0.13), 0 0 0 2px #2f6bff33;
+    box-shadow: 0 4px 18px rgba(200, 151, 44, 0.12), 0 0 0 2px rgba(200, 151, 44, 0.22);
 }
 
 .avatar {
@@ -3307,9 +3400,9 @@ html[data-theme="dark"] .ann-empty p {
     display: grid;
     gap: 12px;
     background: var(--glass-bg);
-    border: 1px solid rgba(133, 172, 255, 0.28);
+    border: 1px solid rgba(10, 27, 66, 0.10);
     border-radius: 18px;
-    box-shadow: 0 6px 24px rgba(7, 20, 53, 0.10);
+    box-shadow: 0 6px 24px rgba(10, 27, 66, 0.08);
     padding: 16px 18px 14px 18px;
     backdrop-filter: blur(10px) saturate(110%);
     -webkit-backdrop-filter: blur(10px) saturate(110%);
@@ -3340,8 +3433,8 @@ html[data-theme="dark"] .ann-empty p {
     font-weight: 800;
     cursor: pointer;
     text-decoration: none;
-    border: 1px solid #c5d7ff;
-    background: #f6f9ff;
+    border: 1px solid rgba(10, 27, 66, 0.16);
+    background: rgba(255, 255, 255, 0.72);
     color: var(--ink);
 }
 
@@ -3353,7 +3446,7 @@ html[data-theme="dark"] .ann-empty p {
 }
 
 .action-btn.active {
-    background: linear-gradient(125deg, #2b5bd7, #1a4fb8);
+    background: linear-gradient(125deg, #0a1b42, #0e2152);
     color: #fff;
     border-color: transparent;
 }
@@ -3492,22 +3585,22 @@ html[data-theme="dark"] .ann-empty p {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #b8d0ff;
+    border: 1px solid rgba(10, 27, 66, 0.18);
     border-radius: 10px;
     padding: 5px 12px;
     font-size: 0.82rem;
     font-weight: 700;
-    color: #0a57a1;
-    background: #e8f2ff;
+    color: #0a1b42;
+    background: rgba(10, 27, 66, 0.06);
     cursor: pointer;
     text-decoration: none;
     transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
 .btn-view-sm:hover {
-    background: #0a57a1;
+    background: #0a1b42;
     color: #fff;
-    border-color: #0a57a1;
+    border-color: #0a1b42;
     text-decoration: none;
 }
 
@@ -3773,7 +3866,7 @@ html[data-theme="dark"] .ann-empty p {
 
 .home-hero__title {
     margin: 0;
-    font-family: 'Playfair Display', 'Fraunces', serif;
+    font-family: 'Fraunces', 'Playfair Display', serif;
     font-size: 1.6rem;
     font-weight: 700;
     color: #fff;
@@ -3994,7 +4087,7 @@ html[data-theme="dark"] .ann-empty p {
 
 .home-announce__view-all-gold {
     display: inline-block;
-    color: #f59e0b;
+    color: #c8972c;
     font-weight: 700;
     text-decoration: none;
     font-size: 0.95rem;
@@ -4005,7 +4098,7 @@ html[data-theme="dark"] .ann-empty p {
 }
 
 .home-announce__view-all-gold:hover {
-    color: #b45309;
+    color: #a87820;
     text-decoration: underline;
 }
 
@@ -4123,14 +4216,14 @@ html[data-theme="dark"] .ann-empty p {
 .h-ann-read-link {
     font-size: 0.78rem;
     font-weight: 700;
-    color: #3b6bff;
+    color: #c8972c;
     text-decoration: none;
     white-space: nowrap;
     transition: color 0.15s;
 }
 
 .h-ann-read-link:hover {
-    color: #1a4fd8;
+    color: #a87820;
     text-decoration: underline;
 }
 
@@ -4204,9 +4297,102 @@ html[data-theme="dark"] .h-ann-badge--pinned {
 }
 
 html[data-theme="dark"] .h-ann-read-link {
-    color: #6b9fff;
+    color: #d4a843;
 }
 
 html[data-theme="dark"] .h-ann-read-link:hover {
-    color: #93b8ff;
+    color: #e0be6a;
+}
+
+/* ── Dark mode: portal structure ── */
+html[data-theme="dark"] .portal-footer {
+    border-top-color: rgba(255, 255, 255, 0.07);
+    background: rgba(255, 255, 255, 0.02);
+    color: rgba(255, 255, 255, 0.32);
+}
+
+html[data-theme="dark"] .portal-card,
+html[data-theme="dark"] .panel-card {
+    background: linear-gradient(160deg, rgba(12, 22, 38, 0.90), rgba(8, 16, 30, 0.80));
+    border-color: rgba(255, 255, 255, 0.07);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
+}
+
+html[data-theme="dark"] .feed-card {
+    background: rgba(12, 22, 38, 0.88);
+    border-color: rgba(255, 255, 255, 0.07);
+}
+
+html[data-theme="dark"] .composer-form,
+html[data-theme="dark"] .comment-form {
+    background: linear-gradient(160deg, rgba(12, 22, 38, 0.88), rgba(8, 16, 30, 0.76));
+    border-color: rgba(255, 255, 255, 0.07);
+}
+
+html[data-theme="dark"] .myfb-ref {
+    background: #1a2840;
+    border-color: #253550;
+    color: #5a7090;
+}
+
+html[data-theme="dark"] .myfb-replies {
+    color: #d4a843;
+}
+
+html[data-theme="dark"] .solid-btn,
+html[data-theme="dark"] .action-btn {
+    border-color: rgba(255, 255, 255, 0.10);
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.80);
+}
+
+html[data-theme="dark"] .btn-view-sm {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.70);
+}
+
+html[data-theme="dark"] .btn-view-sm:hover {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.20);
+    color: #fff;
+}
+
+html[data-theme="dark"] .myfb-btn--view {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.70);
+}
+
+html[data-theme="dark"] .myfb-btn--view:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+}
+
+html[data-theme="dark"] .reply-list {
+    border-left-color: rgba(255, 255, 255, 0.10);
+}
+
+html[data-theme="dark"] .post-summary-row,
+html[data-theme="dark"] .post-actions-grid {
+    border-top-color: rgba(255, 255, 255, 0.07);
+}
+
+html[data-theme="dark"] .fb-select {
+    background-color: #0c1626;
+}
+
+html[data-theme="dark"] .fb-select:focus {
+    border-color: #c8972c;
+    box-shadow: 0 0 0 3px rgba(200, 151, 44, 0.14);
+}
+
+html[data-theme="dark"] .fb-textarea:focus {
+    border-color: #c8972c;
+    box-shadow: 0 0 0 3px rgba(200, 151, 44, 0.14);
+}
+
+html[data-theme="dark"] .fb-dropzone:hover {
+    border-color: #c8972c;
+    background: #0c1626;
 }

@@ -153,6 +153,10 @@
                     form.querySelector('textarea').value = '';
                     const fileIn = form.querySelector('.comment-image-input');
                     if (fileIn) { fileIn.value = ''; }
+                    const chosen = form.querySelector('.cmt-img-chosen');
+                    const clearBtn = form.querySelector('.cmt-img-clear');
+                    if (chosen) chosen.textContent = '';
+                    if (clearBtn) clearBtn.style.display = 'none';
                 }
             } catch (err) {
                 console.error('Comment failed:', err);

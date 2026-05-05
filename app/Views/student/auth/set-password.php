@@ -10,6 +10,15 @@ body.is-auth-screen {
         linear-gradient(165deg, #080e1c 0%, #0a1535 45%, #0d214e 100%);
     color: #e6ebf5;
 }
+.fp-field-group label {
+    font-size: 0.77rem; font-weight: 600; color: #4b5563; letter-spacing: 0.02em;
+}
+.auth-form input[type="password"] {
+    border: 1.5px solid #d1d5db !important; border-radius: 10px;
+    padding: 11px 14px; font-size: 0.875rem;
+}
+.auth-form input[type="password"]::placeholder { color: #9ca3af; }
+html[data-theme="dark"] .fp-field-group label { color: #6a7a90; }
 </style>
 
 <!-- One-tab-only overlay -->

@@ -18,7 +18,7 @@
     <title><?= esc($title ?? 'CampusVoice') ?> | CampusVoice</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <?php
 $studentPortalCss = FCPATH . 'css/portal.css';
 $studentPortalCssVersion = is_file($studentPortalCss) ? (string) filemtime($studentPortalCss) : '1';
@@ -68,11 +68,13 @@ $isAuthScreen = (bool) ($isAuthScreen ?? ($currentTitle === 'Student Portal Acce
 <?php endif; ?>
 
 <main class="portal-main<?= $isAuthScreen ? ' portal-main--auth' : '' ?>">
+    <?php if (! $isAuthScreen): ?>
     <?php if (session()->getFlashdata('success')): ?>
         <div class="portal-alert success"><?= esc((string) session()->getFlashdata('success')) ?></div>
     <?php endif; ?>
     <?php if (session()->getFlashdata('error')): ?>
         <div class="portal-alert error"><?= esc((string) session()->getFlashdata('error')) ?></div>
+    <?php endif; ?>
     <?php endif; ?>
 
 

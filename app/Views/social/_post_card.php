@@ -246,10 +246,15 @@ if ($fbType !== '') {
                     <button type="button" class="cancel-reply-btn" title="Cancel reply">&times;</button>
                 </div>
                 <textarea name="body" rows="2" class="comment-body-input" placeholder="Write a comment..."></textarea>
-                <label class="comment-image-label">
-                    <span class="summary-muted">Image <span class="comment-image-hint">(optional, JPG/PNG/WebP, max 5 MB)</span></span>
-                    <input type="file" name="image" accept="image/jpeg,image/png,image/webp" class="comment-image-input">
-                </label>
+                <div class="cmt-img-field">
+                    <label class="cmt-img-btn" for="cmt-img-<?= (int) $post['id'] ?>">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        Attach image
+                    </label>
+                    <input id="cmt-img-<?= (int) $post['id'] ?>" type="file" name="image" accept="image/jpeg,image/png,image/webp" class="comment-image-input" style="display:none">
+                    <span class="cmt-img-chosen" id="cmt-img-chosen-<?= (int) $post['id'] ?>"></span>
+                    <button type="button" class="cmt-img-clear" id="cmt-img-clear-<?= (int) $post['id'] ?>" style="display:none" aria-label="Remove image">&times;</button>
+                </div>
                 <label class="summary-muted"><input type="checkbox" name="is_anonymous" value="1" class="anon-check"> Comment anonymously</label>
                 <button type="submit" class="solid-btn">Comment</button>
             </form>
@@ -258,3 +263,31 @@ if ($fbType !== '') {
         <?php endif; ?>
     </div>
 </article>
+<?php if (! empty($currentUser['id'])): ?>
+<script>
+(function () {
+    var pid    = <?= (int) $post['id'] ?>;
+    var inp    = document.getElementById('cmt-img-' + pid);
+    var chosen = document.getElementById('cmt-img-chosen-' + pid);
+    var clear  = document.getElementById('cmt-img-clear-' + pid);
+    if (!inp || !chosen || !clear) return;
+
+    inp.addEventListener('change', function () {
+        if (inp.files[0]) {
+            var name = inp.files[0].name;
+            chosen.textContent = name.length > 28 ? name.slice(0, 25) + '…' : name;
+            clear.style.display = 'inline-flex';
+        } else {
+            chosen.textContent = '';
+            clear.style.display = 'none';
+        }
+    });
+
+    clear.addEventListener('click', function () {
+        inp.value = '';
+        chosen.textContent = '';
+        clear.style.display = 'none';
+    });
+})();
+</script>
+<?php endif; ?>

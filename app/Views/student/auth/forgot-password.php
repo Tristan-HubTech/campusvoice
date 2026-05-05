@@ -148,10 +148,10 @@ $sessionOtp  = (string) ($forgotSessionOtp ?? '');
     .fp-step__line { flex: 1; height: 1.5px; background: rgba(10,27,66,0.12); margin: 0 4px; margin-bottom: 18px; }
 
     /* Form */
-    .auth-form { display: grid; gap: 13px; }
+    .auth-form { display: grid; gap: 16px; }
     .fp-field-group { display: grid; }
     .fp-field-group label {
-        display: block; font-size: 0.77rem; font-weight: 700;
+        display: block; font-size: 0.77rem; font-weight: 600;
         color: #4b5563; letter-spacing: 0.02em; margin-bottom: 6px;
     }
     .fp-field-group label small { font-weight: 400; color: #9ca3af; }
@@ -159,20 +159,26 @@ $sessionOtp  = (string) ($forgotSessionOtp ?? '');
     .auth-form input[type="password"],
     .auth-form input[type="text"] {
         width: 100%; padding: 11px 14px;
-        border: 1.5px solid #e0e2e7; border-radius: 10px;
-        font-family: 'Manrope', sans-serif; font-size: 0.88rem; color: #111827;
+        border: 1.5px solid #d1d5db; border-radius: 10px;
+        font-family: 'Manrope', sans-serif; font-size: 0.875rem; color: #111827;
         background: #ffffff; outline: none; appearance: none;
         transition: border-color .18s, box-shadow .18s;
     }
-    .auth-form input::placeholder { color: #c4cad4; }
+    .auth-form input::placeholder { color: #9ca3af; }
     .auth-form input:focus { border-color: #c8972c; box-shadow: 0 0 0 3px rgba(200,151,44,0.13); }
     .auth-form input[readonly], .auth-form input:disabled { background: #f4f4f4; color: #9ca3af; cursor: not-allowed; }
+
+    /* Progressive reveal sections */
+    .fp-section { display: grid; gap: 16px; }
+    .fp-section--hidden { display: none !important; }
+    .fp-section-reveal { animation: fpReveal .25s ease both; }
+    @keyframes fpReveal { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
     .auth-otp-row { display: flex; gap: 8px; }
     .auth-otp-row input { flex: 1; }
     .auth-otp-btn {
-        padding: 10px 14px; border: 1.5px solid #c8972c; border-radius: 10px;
-        background: transparent; color: #c8972c;
+        padding: 11px 14px; border: 1.5px solid #c8972c; border-radius: 10px;
+        background: transparent; color: #8a6218;
         font-family: 'Manrope', sans-serif; font-size: 0.78rem; font-weight: 700;
         cursor: pointer; white-space: nowrap; transition: background .18s, color .18s; flex-shrink: 0;
     }
@@ -180,6 +186,25 @@ $sessionOtp  = (string) ($forgotSessionOtp ?? '');
     .auth-otp-btn.ready { background: #c8972c; color: #ffffff; }
     .otp-status-text { display: block; font-size: 0.77rem; margin-top: 5px; line-height: 1.4; }
     .fp-warn { display: block; font-size: 0.77rem; margin-top: 5px; color: #b91c1c; }
+
+    /* Standalone step action button */
+    .btn-step {
+        width: 100%; padding: 11px 22px; background: #0a1b42; color: #fff;
+        font-family: 'Manrope', sans-serif; font-size: 0.875rem; font-weight: 700; letter-spacing: 0.02em;
+        border: none; border-radius: 10px; cursor: pointer;
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        transition: background .2s, transform .15s, box-shadow .18s;
+        position: relative; overflow: hidden;
+    }
+    .btn-step::after {
+        content: ''; position: absolute; inset: 0;
+        background: linear-gradient(130deg, rgba(200,151,44,0.18), transparent 55%);
+        opacity: 0; transition: opacity .2s;
+    }
+    .btn-step:hover { background: #0e2152; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(10,27,66,0.24); }
+    .btn-step:hover::after { opacity: 1; }
+    .btn-step:active { transform: translateY(0); box-shadow: none; }
+    .btn-step:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
 
     .btn-primary {
         width: 100%; padding: 12px 22px; background: #0a1b42; color: #fff;
@@ -237,8 +262,12 @@ $sessionOtp  = (string) ($forgotSessionOtp ?? '');
     html[data-theme="dark"] .auth-form input[readonly], html[data-theme="dark"] .auth-form input:disabled { background: #0a1220; color: #3a4a5e; }
     html[data-theme="dark"] .btn-primary { background: #0c2050; }
     html[data-theme="dark"] .btn-primary:hover { background: #0f2660; }
+    html[data-theme="dark"] .btn-step { background: #0c2050; }
+    html[data-theme="dark"] .btn-step:hover { background: #0f2660; }
     html[data-theme="dark"] .auth-divider { border-top-color: rgba(255,255,255,0.07); }
     html[data-theme="dark"] .auth-eyebrow { color: #c8972c; }
+    html[data-theme="dark"] .fp-field-group label { color: #6b7280; }
+    html[data-theme="dark"] .auth-otp-btn { color: #c8972c; }
 </style>
 
 <div class="auth-theme-wrap">
@@ -349,66 +378,71 @@ $sessionOtp  = (string) ($forgotSessionOtp ?? '');
 
             <form method="post" action="<?= site_url('users/forgot-password') ?>" class="auth-form" novalidate autocomplete="off" id="forgot-form">
 
-                <div class="fp-field-group">
-                    <label for="fp-email">Email Address</label>
-                    <div class="auth-otp-row">
+                <!-- ── STEP 1: Email + Send OTP ── -->
+                <div id="fp-step1" class="fp-section<?= $forgotOtpVerified ? ' fp-section--hidden' : '' ?>">
+                    <div class="fp-field-group">
+                        <label for="fp-email">Email Address</label>
                         <input id="fp-email" name="email" type="email" required maxlength="150"
                                autocomplete="off" placeholder="you@example.com"
                                value="<?= esc($emailValue) ?>"<?= $forgotOtpVerified ? ' readonly' : '' ?>>
-                        <button type="button" class="auth-otp-btn" id="send-forgot-otp-btn" disabled>Send OTP</button>
+                        <small id="forgot-otp-status" class="otp-status-text" aria-live="polite"></small>
                     </div>
-                    <small id="forgot-otp-status" class="otp-status-text" aria-live="polite"></small>
+                    <button type="button" class="btn-step" id="send-forgot-otp-btn" disabled>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        Send OTP to Email
+                    </button>
                 </div>
 
-                <div class="fp-field-group">
-                    <label for="fp-otp">OTP Code</label>
+                <!-- ── STEP 2: Verify OTP ── -->
+                <div id="fp-step2" class="fp-section<?= $forgotOtpVerified ? ' fp-section--hidden' : ' fp-section--hidden' ?>">
                     <?php if ($forgotOtpVerified && $sessionOtp !== ''): ?>
                         <input type="hidden" name="otp" value="<?= esc($sessionOtp) ?>">
-                        <div class="auth-otp-row">
-                            <input id="fp-otp" type="text" placeholder="OTP verified" readonly
+                    <?php endif ?>
+                    <div class="fp-field-group">
+                        <label for="fp-otp">Verification Code</label>
+                        <?php if ($forgotOtpVerified && $sessionOtp !== ''): ?>
+                            <input id="fp-otp" type="text" placeholder="✓ OTP verified" readonly
                                    style="background:rgba(34,197,94,0.06);border-color:#86efac;color:#15803d;">
-                            <button type="button" class="auth-otp-btn ready" disabled>✓ Verified</button>
-                        </div>
-                    <?php else: ?>
-                        <div class="auth-otp-row">
+                        <?php else: ?>
                             <input id="fp-otp" name="otp" type="text" inputmode="numeric" pattern="[0-9]*"
-                                   required maxlength="6" placeholder="Send OTP first"
-                                   value="<?= esc((string) (old('otp') ?? '')) ?>"<?= $forgotOtpVerified ? ' readonly' : ' disabled' ?>>
-                            <button type="button" class="auth-otp-btn<?= $forgotOtpVerified ? ' ready' : '' ?>" id="verify-forgot-otp-btn" disabled>Verify OTP</button>
-                        </div>
+                                   required maxlength="6" placeholder="Enter 6-digit code"
+                                   value="<?= esc((string) (old('otp') ?? '')) ?>" disabled>
+                        <?php endif ?>
+                    </div>
+                    <button type="button" class="btn-step" id="verify-forgot-otp-btn" disabled>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        Verify Code
+                    </button>
+                </div>
+
+                <!-- ── STEP 3: New Password + Submit ── -->
+                <div id="fp-step3" class="fp-section<?= $forgotOtpVerified ? '' : ' fp-section--hidden' ?>">
+                    <div class="fp-field-group">
+                        <label for="fp-password">New Password <small>(min 8 characters)</small></label>
+                        <input id="fp-password" name="password" type="password" required
+                               minlength="8" maxlength="255" autocomplete="new-password"
+                               placeholder="Create a strong password">
+                        <small id="fp-pw-len-warn" class="fp-warn" style="display:none;"></small>
+                    </div>
+                    <div class="fp-field-group">
+                        <label for="fp-confirm">Confirm New Password</label>
+                        <input id="fp-confirm" name="password_confirm" type="password" required
+                               maxlength="255" autocomplete="new-password"
+                               placeholder="Repeat your new password">
+                        <small id="fp-pw-match-warn" class="fp-warn" style="display:none;"></small>
+                    </div>
+                    <button type="submit" class="btn-primary" id="fp-submit-btn" disabled style="opacity:0.5;cursor:not-allowed;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        Reset Password
+                    </button>
+                    <?php if ($forgotOtpVerified): ?>
+                    <div style="text-align:center;margin-top:6px;">
+                        <a href="<?= site_url('users/forgot-password?restart=1') ?>" class="auth-link-subtle">↩ Use a different email?</a>
+                    </div>
                     <?php endif ?>
                 </div>
 
-                <div class="fp-field-group">
-                    <label for="fp-password">New Password <small>(min 8 characters)</small></label>
-                    <input id="fp-password" name="password" type="password" required
-                           minlength="8" maxlength="255" autocomplete="new-password"
-                           placeholder="Create new password"<?= $forgotOtpVerified ? '' : ' disabled' ?>>
-                    <small id="fp-pw-len-warn" class="fp-warn" style="display:none;"></small>
-                </div>
-
-                <div class="fp-field-group">
-                    <label for="fp-confirm">Confirm New Password</label>
-                    <input id="fp-confirm" name="password_confirm" type="password" required
-                           maxlength="255" autocomplete="new-password"
-                           placeholder="Repeat new password"<?= $forgotOtpVerified ? '' : ' disabled' ?>>
-                    <small id="fp-pw-match-warn" class="fp-warn" style="display:none;"></small>
-                </div>
-
-                <button type="submit" class="btn-primary" id="fp-submit-btn"<?= $forgotOtpVerified ? '' : ' disabled' ?> style="<?= $forgotOtpVerified ? '' : 'opacity:0.5;cursor:not-allowed;' ?>">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                    Reset Password
-                </button>
-
-                <?php if ($forgotOtpVerified): ?>
-                <div style="text-align:center;margin-top:10px;">
-                    <a href="<?= site_url('users/forgot-password?restart=1') ?>" class="auth-link-subtle">
-                        ↩ Use a different email?
-                    </a>
-                </div>
-                <?php endif ?>
-
-                <hr class="auth-divider">
+                <hr class="auth-divider" style="margin-top:4px;">
                 <div style="text-align:center;">
                     <a href="<?= site_url('users/login') ?>" class="auth-link-subtle">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px;"><polyline points="15 18 9 12 15 6"/></svg>
@@ -432,6 +466,9 @@ $sessionOtp  = (string) ($forgotSessionOtp ?? '');
     var verifyBtn  = document.getElementById('verify-forgot-otp-btn');
     var submitBtn  = document.getElementById('fp-submit-btn');
     var statusEl   = document.getElementById('forgot-otp-status');
+    var step1      = document.getElementById('fp-step1');
+    var step2      = document.getElementById('fp-step2');
+    var step3      = document.getElementById('fp-step3');
     var otpVerified = <?= $forgotOtpVerified ? 'true' : 'false' ?>;
 
     function isValidEmail(val) {
@@ -444,54 +481,36 @@ $sessionOtp  = (string) ($forgotSessionOtp ?? '');
         statusEl.style.color = isError ? '#8a251a' : '#1f8f5f';
     }
 
+    function showSection(el) {
+        if (!el) return;
+        el.classList.remove('fp-section--hidden');
+        el.classList.add('fp-section-reveal');
+    }
+
     function updateSendBtn() {
+        if (!sendBtn) return;
         var ready = emailEl && isValidEmail(emailEl.value) && !emailEl.readOnly;
         sendBtn.disabled = !ready;
-        sendBtn.classList.toggle('ready', !!ready);
     }
 
     function updateVerifyBtn() {
-        if (!verifyBtn) {
-            return;
-        }
-
+        if (!verifyBtn) return;
         var ready = !otpVerified && otpEl && !otpEl.disabled && otpEl.value.trim().length === 6;
         verifyBtn.disabled = !ready;
-        verifyBtn.classList.toggle('ready', !!ready);
     }
 
-    function setPasswordAccess(isEnabled) {
-        otpVerified = isEnabled;
-
-        if (passwordEl) {
-            passwordEl.disabled = !isEnabled;
-            if (!isEnabled) {
-                passwordEl.value = '';
-            }
-        }
-
-        if (confirmEl) {
-            confirmEl.disabled = !isEnabled;
-            if (!isEnabled) {
-                confirmEl.value = '';
-            }
-        }
-
-        if (otpEl) {
-            otpEl.readOnly = isEnabled;
-        }
-
-        if (verifyBtn) {
-            verifyBtn.textContent = isEnabled ? 'Verified' : 'Verify OTP';
-        }
-
-        updateVerifyBtn();
+    function revealStep3() {
+        otpVerified = true;
+        showSection(step3);
+        if (passwordEl) { passwordEl.disabled = false; passwordEl.focus(); }
+        if (confirmEl)  { confirmEl.disabled = false; }
         updateSubmitBtn();
     }
 
     function updateSubmitBtn() {
+        if (!submitBtn) return;
         var password = passwordEl ? passwordEl.value : '';
-        var confirm  = confirmEl ? confirmEl.value : '';
+        var confirm  = confirmEl  ? confirmEl.value  : '';
         var ready    = otpVerified && password.length >= 8 && password === confirm;
         submitBtn.disabled = !ready;
         submitBtn.style.opacity = ready ? '1' : '0.5';
@@ -499,45 +518,31 @@ $sessionOtp  = (string) ($forgotSessionOtp ?? '');
 
         var warnEl = document.getElementById('fp-pw-match-warn');
         if (warnEl) {
-            if (confirm.length > 0 && password !== confirm) {
-                warnEl.textContent = '⚠ Passwords do not match.';
-                warnEl.style.display = 'block';
-            } else {
-                warnEl.style.display = 'none';
-            }
+            warnEl.style.display = (confirm.length > 0 && password !== confirm) ? 'block' : 'none';
+            warnEl.textContent = '⚠ Passwords do not match.';
         }
-
         var lenWarnEl = document.getElementById('fp-pw-len-warn');
         if (lenWarnEl) {
-            if (password.length > 0 && password.length < 8) {
-                lenWarnEl.textContent = '⚠ Password must be at least 8 characters.';
-                lenWarnEl.style.display = 'block';
-            } else {
-                lenWarnEl.style.display = 'none';
-            }
+            lenWarnEl.style.display = (password.length > 0 && password.length < 8) ? 'block' : 'none';
+            lenWarnEl.textContent = '⚠ Password must be at least 8 characters.';
         }
     }
 
     if (emailEl) {
         emailEl.addEventListener('input', function () {
             updateSendBtn();
-            if (otpEl) {
-                otpEl.disabled = true;
-                otpEl.value = '';
-                otpEl.placeholder = 'Send OTP first';
+            /* If email changes after OTP sent, hide step 2 again */
+            if (step2 && !step2.classList.contains('fp-section--hidden')) {
+                step2.classList.add('fp-section--hidden');
+                if (otpEl) { otpEl.disabled = true; otpEl.value = ''; }
+                otpVerified = false;
             }
-            setPasswordAccess(false);
         });
     }
 
     if (otpEl) {
         otpEl.addEventListener('input', function () {
-            if (otpVerified) {
-                setPasswordAccess(false);
-            }
-
             updateVerifyBtn();
-            updateSubmitBtn();
         });
     }
     if (passwordEl) { passwordEl.addEventListener('input', updateSubmitBtn); }
@@ -546,40 +551,27 @@ $sessionOtp  = (string) ($forgotSessionOtp ?? '');
     if (sendBtn) {
         sendBtn.addEventListener('click', function () {
             if (!emailEl || !isValidEmail(emailEl.value)) return;
-
             sendBtn.disabled = true;
-            sendBtn.classList.remove('ready');
-            showStatus('Sending OTP to your email...', false);
+            showStatus('Sending OTP to your email…', false);
 
             var body = new URLSearchParams();
             body.set('email', emailEl.value.trim());
 
             fetch(<?= json_encode(site_url('users/forgot-password/send-otp')) ?>, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8', 'X-Requested-With': 'XMLHttpRequest' },
                 body: body.toString()
             })
-            .then(function (res) {
-                return res.json().catch(function () {
-                    return { ok: false, message: 'Unexpected server response.' };
-                });
-            })
+            .then(function (res) { return res.json().catch(function () { return { ok: false, message: 'Unexpected server response.' }; }); })
             .then(function (data) {
                 var ok = !!(data && data.ok);
-                var message = (data && data.message) ? data.message : (ok ? 'OTP sent.' : 'Failed to send OTP.');
+                var message = (data && data.message) ? data.message : (ok ? 'OTP sent to your email.' : 'Failed to send OTP.');
                 showStatus(message, !ok);
-
                 if (ok) {
                     emailEl.readOnly = true;
-                    otpEl.disabled = false;
-                    otpEl.readOnly = false;
-                    otpEl.value = '';
-                    otpEl.placeholder = 'Enter 6-digit OTP';
-                    setPasswordAccess(false);
-                    otpEl.focus();
+                    showSection(step2);
+                    if (otpEl) { otpEl.disabled = false; otpEl.value = ''; otpEl.focus(); }
+                    updateVerifyBtn();
                 } else {
                     sendBtn.disabled = false;
                     updateSendBtn();
@@ -595,13 +587,9 @@ $sessionOtp  = (string) ($forgotSessionOtp ?? '');
 
     if (verifyBtn) {
         verifyBtn.addEventListener('click', function () {
-            if (!emailEl || !otpEl || !isValidEmail(emailEl.value) || otpEl.value.trim().length !== 6) {
-                return;
-            }
-
+            if (!emailEl || !otpEl || !isValidEmail(emailEl.value) || otpEl.value.trim().length !== 6) return;
             verifyBtn.disabled = true;
-            verifyBtn.classList.remove('ready');
-            showStatus('Verifying OTP...', false);
+            showStatus('Verifying code…', false);
 
             var body = new URLSearchParams();
             body.set('email', emailEl.value.trim());
@@ -609,56 +597,36 @@ $sessionOtp  = (string) ($forgotSessionOtp ?? '');
 
             fetch(<?= json_encode(site_url('users/forgot-password/verify-otp')) ?>, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8', 'X-Requested-With': 'XMLHttpRequest' },
                 body: body.toString()
             })
-            .then(function (res) {
-                return res.json().catch(function () {
-                    return { ok: false, message: 'Unexpected server response.' };
-                });
-            })
+            .then(function (res) { return res.json().catch(function () { return { ok: false, message: 'Unexpected server response.' }; }); })
             .then(function (data) {
                 var ok = !!(data && data.ok);
-                var message = (data && data.message) ? data.message : (ok ? 'OTP verified.' : 'OTP verification failed.');
+                var message = (data && data.message) ? data.message : (ok ? 'Code verified.' : 'Verification failed.');
                 showStatus(message, !ok);
-
                 if (ok) {
-                    setPasswordAccess(true);
-                    if (passwordEl) {
-                        passwordEl.focus();
-                    }
-                    return;
+                    revealStep3();
+                } else {
+                    verifyBtn.disabled = false;
+                    updateVerifyBtn();
                 }
-
-                setPasswordAccess(false);
-                updateVerifyBtn();
             })
             .catch(function () {
-                showStatus('Failed to verify OTP. Please try again.', true);
-                setPasswordAccess(false);
+                showStatus('Failed to verify. Please try again.', true);
+                verifyBtn.disabled = false;
                 updateVerifyBtn();
             });
         });
     }
 
-    if (otpVerified && emailEl) {
-        emailEl.readOnly = true;
-        if (otpEl) {
-            otpEl.disabled = false;
-            otpEl.readOnly = true;
-            otpEl.placeholder = 'OTP verified';
-        }
-        setPasswordAccess(true);
-    } else {
-        setPasswordAccess(false);
+    /* Server-side: OTP already verified — go straight to Step 3 */
+    if (otpVerified) {
+        updateSubmitBtn();
     }
 
     updateSendBtn();
     updateVerifyBtn();
-    updateSubmitBtn();
 })();
 </script>
 <?= $this->endSection() ?>
