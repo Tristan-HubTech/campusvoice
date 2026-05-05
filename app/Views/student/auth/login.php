@@ -95,31 +95,141 @@
     color: rgba(255,255,255,.92); letter-spacing: -.01em;
 }
 
-.cv-lp-foot {}
-.cv-lp-tagline {
-    font-family: var(--cv-pf);
-    font-style: italic; font-weight: 600;
-    font-size: clamp(1.05rem, 1.8vw, 1.45rem);
-    color: rgba(255,255,255,.9);
-    line-height: 1.38; margin: 0 0 20px;
-    letter-spacing: -.01em;
+.cv-hero-caption {
+    position: absolute; top: 18%; left: 3rem; z-index: 10; max-width: 380px;
+    padding: 0; background: none;
+    -webkit-mask-image: none;
+    mask-image: none;
 }
-.cv-lp-tagline em { font-style: normal; color: var(--cv-gold); font-weight: 700; }
+.cv-caption-rule {
+    width: 40px; height: 3px; border-radius: 2px; margin-bottom: 1.25rem; opacity: 0.9;
+    background: linear-gradient(90deg, var(--cv-gold), #fde68a);
+}
+.cv-caption-headline {
+    font-family: var(--cv-pf); font-size: clamp(1.75rem, 2.5vw, 2.75rem);
+    font-weight: 700; line-height: 1.15; color: #ffffff;
+    margin: 0 0 0.75rem 0; letter-spacing: -0.02em;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.4);
+}
+.cv-caption-headline em { font-style: italic; font-weight: 300; color: rgba(200,151,44,.88); text-shadow: 0 0 20px rgba(200,151,44,0.35); }
+.cv-caption-sub {
+    font-size: clamp(0.85rem, 1vw, 0.95rem); font-weight: 400; line-height: 1.5;
+    color: rgba(255,255,255,0.55); margin: 0 0 1.5rem 0; max-width: 320px;
+}
+.cv-live-badge {
+    display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem;
+    font-size: 0.8rem; font-weight: 500; color: rgba(255,255,255,0.8);
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 100px;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    margin-top: 1.5rem;
+}
+.cv-pulse-dot {
+    width: 8px; height: 8px; background: #4ade80; border-radius: 50%;
+    box-shadow: 0 0 0 0 rgba(74,222,128,0.7); animation: cvPulseDot 2s infinite;
+}
 
-.cv-lp-badge {
-    display: inline-flex; align-items: center; gap: 9px;
-    padding: 8px 18px;
-    background: rgba(255,255,255,.06);
-    border: 1px solid rgba(255,255,255,.1);
-    border-radius: 100px;
-    font-size: .76rem; color: rgba(255,255,255,.48);
+@keyframes cvPulseDot {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(74,222,128,0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(74,222,128,0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(74,222,128,0); }
 }
-.cv-lp-dot {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: #4ade80;
-    box-shadow: 0 0 8px rgba(74,222,128,.6);
-    flex-shrink: 0;
-    animation: cvPulse 2.5s ease-in-out infinite;
+
+/* ============================================
+   LEFT PANEL — TREES IN FOG
+   ============================================ */
+
+.left-ground-scene {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 40%;
+    z-index: 2; pointer-events: none; overflow: hidden;
+}
+
+.fog-floor {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 100%;
+    background: linear-gradient(to top, rgba(10,22,40,0.98) 0%, rgba(10,22,40,0.7) 35%, rgba(10,22,40,0.2) 70%, transparent 100%);
+    z-index: 3;
+}
+
+.ftree { position: absolute; bottom: 0; z-index: 2; opacity: 0.85; }
+.ftree::before {
+    content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 6px; background: #0c1929; border-radius: 3px 3px 0 0;
+}
+.ftree::after {
+    content: ''; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+    background: radial-gradient(circle at 35% 40%, #1a3a2a 0%, #0f1f18 60%, #0a1628 100%);
+    border-radius: 50%;
+}
+
+.ftree.t1 { left: 5%; }
+.ftree.t1::before { height: 35px; }
+.ftree.t1::after  { width: 55px; height: 55px; box-shadow: -12px 8px 0 -8px #0f1f18, 10px 5px 0 -12px #0f1f18; }
+
+.ftree.t2 { left: 18%; opacity: 0.6; }
+.ftree.t2::before { height: 50px; width: 8px; }
+.ftree.t2::after  { width: 80px; height: 75px; box-shadow: -18px 10px 0 -12px #0f1f18, 15px 8px 0 -15px #0f1f18, 0 -12px 0 -5px #152b22; }
+
+.ftree.t3 { left: 75%; opacity: 0.7; }
+.ftree.t3::before { height: 40px; }
+.ftree.t3::after  { width: 65px; height: 60px; box-shadow: -14px 6px 0 -10px #0f1f18, 12px 10px 0 -14px #0f1f18; }
+
+.ftree.t4 { left: 88%; opacity: 0.5; }
+.ftree.t4::before { height: 28px; width: 5px; }
+.ftree.t4::after  { width: 45px; height: 45px; box-shadow: -10px 6px 0 -8px #0f1f18; }
+
+.tree-fireflies {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 50%;
+    z-index: 4; pointer-events: none;
+}
+
+.tfly {
+    position: absolute; width: 3px; height: 3px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(253,230,138,0.95) 0%, transparent 70%);
+    box-shadow: 0 0 10px rgba(253,230,138,0.5), 0 0 25px rgba(253,230,138,0.15);
+    animation: treeFly 8s ease-in-out infinite; opacity: 0;
+}
+
+.tfly:nth-child(1) { left: 8%;  bottom: 15%; animation-delay: 0s;   animation-duration: 7s;  width: 4px; height: 4px; }
+.tfly:nth-child(2) { left: 22%; bottom: 25%; animation-delay: 1.5s; animation-duration: 9s;  }
+.tfly:nth-child(3) { left: 35%; bottom: 10%; animation-delay: 3s;   animation-duration: 8s;  width: 2px; height: 2px; opacity: 0.7; }
+.tfly:nth-child(4) { left: 70%; bottom: 20%; animation-delay: 2s;   animation-duration: 10s; width: 5px; height: 5px; }
+.tfly:nth-child(5) { left: 82%; bottom: 12%; animation-delay: 4s;   animation-duration: 7s;  }
+.tfly:nth-child(6) { left: 50%; bottom: 18%; animation-delay: 5.5s; animation-duration: 9s;  width: 3px; height: 3px; }
+
+@keyframes treeFly {
+    0% { opacity: 0; transform: translateY(0) translateX(0); }
+    10% { opacity: 1; }
+    50% { transform: translateY(-30px) translateX(15px); opacity: 0.8; }
+    90% { opacity: 0.3; }
+    100% { opacity: 0; transform: translateY(-70px) translateX(-10px); }
+}
+
+/* ============================================
+   RIGHT PANEL — FIREFLIES
+   ============================================ */
+
+.right-fireflies { position: absolute; inset: 0; z-index: 4; pointer-events: none; overflow: hidden; }
+.rfly {
+    position: absolute; width: 3px; height: 3px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(253,230,138,0.95) 0%, transparent 70%);
+    box-shadow: 0 0 8px rgba(253,230,138,0.4), 0 0 20px rgba(253,230,138,0.15);
+    animation: rflyFloat 10s ease-in-out infinite; opacity: 0;
+}
+
+.rfly:nth-child(1)  { left: 10%; top: 15%; animation-delay: 0s;   animation-duration: 9s;  width: 4px; height: 4px; }
+.rfly:nth-child(2)  { left: 25%; top: 8%;  animation-delay: 2s;   animation-duration: 12s; }
+.rfly:nth-child(3)  { left: 40%; top: 20%; animation-delay: 4s;   animation-duration: 8s;  width: 2px; height: 2px; }
+.rfly:nth-child(4)  { left: 55%; top: 12%; animation-delay: 1s;   animation-duration: 11s; width: 5px; height: 5px; }
+.rfly:nth-child(5)  { left: 70%; top: 25%; animation-delay: 3s;   animation-duration: 10s; }
+.rfly:nth-child(6)  { left: 85%; top: 10%; animation-delay: 5s;   animation-duration: 13s; width: 3px; height: 3px; }
+.rfly:nth-child(7)  { left: 15%; top: 40%; animation-delay: 2.5s; animation-duration: 9s;  width: 2px; height: 2px; opacity: 0.6; }
+.rfly:nth-child(8)  { left: 60%; top: 45%; animation-delay: 6s;   animation-duration: 11s; width: 4px; height: 4px; }
+
+@keyframes rflyFloat {
+    0% { opacity: 0; transform: translateY(0) translateX(0) scale(0.8); }
+    15% { opacity: 1; }
+    50% { transform: translateY(-40px) translateX(20px) scale(1); opacity: 0.8; }
+    85% { opacity: 0.4; }
+    100% { opacity: 0; transform: translateY(-90px) translateX(-15px) scale(0.6); }
 }
 
 /* ══════════════════════════════════════
@@ -413,16 +523,16 @@
 .cv-otp-txt { display: block; font-size: .76rem; margin-top: 5px; line-height: 1.4; }
 
 /* footer links */
-.cv-foot-row { display: flex; justify-content: flex-end; margin-top: 2px; }
+.cv-foot-row { display: flex; justify-content: center; margin-top: 8px; }
 .cv-link {
-    font-size: .79rem; color: rgba(255,255,255,.45);
+    font-size: .82rem; color: rgba(255,255,255,.70);
     text-decoration: none; font-weight: 500;
     transition: color .14s;
 }
 .cv-link:hover { color: var(--cv-gold); }
 
 /* pane animation */
-.auth-panes-host { position: relative; transition: height .22s ease; }
+.auth-panes-host { position: relative; }
 .auth-pane { transition: opacity .18s ease, visibility .18s ease; }
 .auth-pane--inactive {
     opacity: 0; visibility: hidden; pointer-events: none;
@@ -434,6 +544,9 @@
     .cv-shell { flex-direction: column !important; }
     .cv-rp { min-height: 100vh; padding: 40px 20px 60px; }
     .cv-card { max-width: 480px; padding: 32px 22px; border-radius: 20px; }
+    .cv-hero-caption { left: 1.5rem; top: 12%; max-width: 280px; padding: 0; }
+    .cv-caption-headline { font-size: 1.5rem; }
+    .cv-caption-sub { font-size: 0.8rem; }
 }
 
 /* ── Keyframes ── */
@@ -689,6 +802,25 @@
               fill="#c8972c" opacity=".38"/>
     </svg>
 
+    <!-- Left panel atmospheric ground scene -->
+    <div class="left-ground-scene" aria-hidden="true">
+        <div class="fog-trees">
+            <div class="ftree t1"></div>
+            <div class="ftree t2"></div>
+            <div class="ftree t3"></div>
+            <div class="ftree t4"></div>
+        </div>
+        <div class="fog-floor"></div>
+        <div class="tree-fireflies">
+            <div class="tfly"></div>
+            <div class="tfly"></div>
+            <div class="tfly"></div>
+            <div class="tfly"></div>
+            <div class="tfly"></div>
+            <div class="tfly"></div>
+        </div>
+    </div>
+
     <!-- Vignette -->
     <div class="cv-lp-vignette"></div>
 
@@ -698,12 +830,24 @@
             <img src="<?= base_url('assets/admin/logo-mark.svg') ?>" alt="" class="cv-lp-brand-mark">
             <span class="cv-lp-brand-name">CampusVoice</span>
         </div>
-        <div class="cv-lp-foot">
-            <p class="cv-lp-tagline">
-                Your campus,<br>your <em>voice.</em>
+        
+        <!-- Left Panel Hero Caption -->
+        <div class="cv-hero-caption">
+            <div class="cv-caption-rule"></div>
+            <h1 class="cv-caption-headline">
+                Your voice.<br>
+                Your campus.<br>
+                Your <em>impact</em>.
+            </h1>
+            <p class="cv-caption-sub">
+                Join the conversation that's shaping student life.
             </p>
-            <div class="cv-lp-badge">
-                <span class="cv-lp-dot"></span>
+        </div>
+        
+        <!-- Bottom left badge -->
+        <div>
+            <div class="cv-live-badge">
+                <span class="cv-pulse-dot"></span>
                 Portal is live
             </div>
         </div>
@@ -717,6 +861,18 @@
     <div class="cv-rp-g cv-rp-g--gold"></div>
     <div class="cv-rp-g cv-rp-g--blue"></div>
     <div class="cv-rp-seam" aria-hidden="true"></div>
+
+    <!-- Right panel fireflies -->
+    <div class="right-fireflies" aria-hidden="true">
+        <div class="rfly"></div>
+        <div class="rfly"></div>
+        <div class="rfly"></div>
+        <div class="rfly"></div>
+        <div class="rfly"></div>
+        <div class="rfly"></div>
+        <div class="rfly"></div>
+        <div class="rfly"></div>
+    </div>
 
     <!-- Night campus skyline silhouette -->
     <svg class="cv-rp-skyline" viewBox="0 0 800 220" preserveAspectRatio="xMidYMax meet"
@@ -1062,13 +1218,27 @@
         otpStatus.style.color = isErr ? '#fca5a5' : '#86efac';
     }
 
-    /* ── Pane height sync — no layout shift ── */
+    /* ── Pane height sync — only used during animated tab switches ── */
     function syncHeight(pane) {
-        if (panesHost && pane) panesHost.style.height = pane.scrollHeight + 'px';
+        // Set an explicit height so CSS transition can animate between pane sizes.
+        // We immediately revert to 'auto' after the transition so reCAPTCHA and
+        // other async content can never be clipped.
+        if (!panesHost || !pane) return;
+        panesHost.style.transition = 'height .22s ease';
+        panesHost.style.height = pane.scrollHeight + 'px';
+        // Revert to auto once the CSS transition finishes
+        var done = function () {
+            panesHost.style.height = 'auto';
+            panesHost.style.transition = '';
+            panesHost.removeEventListener('transitionend', done);
+        };
+        panesHost.addEventListener('transitionend', done);
+        // Safety fallback in case transitionend doesn't fire
+        setTimeout(done, 350);
     }
 
     /* ── Tab switching ── */
-    function setMode(mode, updateUrl) {
+    function setMode(mode, updateUrl, animate) {
         var incoming = null;
         var tabIndicator = document.getElementById('cv-tab-indicator');
         panes.forEach(function (p) {
@@ -1082,7 +1252,8 @@
             btn.setAttribute('aria-selected', String(active));
         });
         if (tabIndicator) tabIndicator.classList.toggle('cv-tab-indicator--register', mode === 'register');
-        syncHeight(incoming);
+        // Only animate height when switching tabs, not on initial load
+        if (animate) syncHeight(incoming);
         if (updateUrl) {
             var url = mode === 'register'
                 ? <?= json_encode(site_url('users/login?mode=register')) ?>
@@ -1092,7 +1263,7 @@
     }
 
     tabButtons.forEach(function (btn) {
-        btn.addEventListener('click', function () { setMode(btn.getAttribute('data-auth-tab'), true); });
+        btn.addEventListener('click', function () { setMode(btn.getAttribute('data-auth-tab'), true, true); });
     });
 
     /* ── Login form validation ── */
@@ -1267,11 +1438,11 @@
     }());
 
     /* ── Init ── */
-    if (panesHost) panesHost.style.transition = 'none';
-    setMode(authMode, false);
-    requestAnimationFrame(function () {
-        requestAnimationFrame(function () { if (panesHost) panesHost.style.transition = ''; });
-    });
+    // Do NOT lock panesHost to a pixel height on first load.
+    // reCAPTCHA loads async, so scrollHeight is always underestimated at this
+    // point — locking it clips the Sign In button and hides "Forgot password?".
+    // animate=false → syncHeight is skipped; panesHost stays height:auto.
+    setMode(authMode, false, false);
 
     /* OTP error recovery on reload */
     (function () {
