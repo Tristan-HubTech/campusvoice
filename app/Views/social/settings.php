@@ -31,8 +31,9 @@ $selectedColor = (string) old('avatar_color', (string) ($settingsProfile['avatar
 
     <form method="post" action="<?= site_url('settings') ?>" class="st-form" id="settingsForm">
 
-        <!-- ── Privacy ── -->
         <div class="st-card">
+
+            <!-- ── Privacy ── -->
             <div class="st-card__header">
                 <div class="st-card__header-icon st-icon--privacy">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
@@ -54,11 +55,9 @@ $selectedColor = (string) old('avatar_color', (string) ($settingsProfile['avatar
                     <button type="button" class="st-seg__btn st-seg__btn--on"  onclick="setAnon(true)">ON</button>
                 </div>
             </div>
-        </div>
 
-        <!-- ── Profile Information ── -->
-        <div class="st-card">
-            <div class="st-card__header">
+            <!-- ── Profile Information ── -->
+            <div class="st-card__header st-card__header--section">
                 <div class="st-card__header-icon st-icon--profile">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 </div>
@@ -96,11 +95,9 @@ $selectedColor = (string) old('avatar_color', (string) ($settingsProfile['avatar
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- ── Security ── -->
-        <div class="st-card">
-            <div class="st-card__header">
+            <!-- ── Security ── -->
+            <div class="st-card__header st-card__header--section">
                 <div class="st-card__header-icon st-icon--security">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                 </div>
@@ -148,7 +145,8 @@ $selectedColor = (string) old('avatar_color', (string) ($settingsProfile['avatar
                     <p class="st-otp-status" id="otpStatus"></p>
                 </div>
             </div>
-        </div>
+
+        </div><!-- /.st-card -->
 
         <!-- ── Save ── -->
         <div class="st-save-row">
@@ -181,10 +179,20 @@ $selectedColor = (string) old('avatar_color', (string) ($settingsProfile['avatar
 (function () {
     var cb  = document.getElementById('is_anonymous');
     var seg = document.getElementById('anonSeg');
+    var realName  = <?= json_encode((string) ($currentUser['name'] ?? trim(($settingsUser['first_name'] ?? '') . ' ' . ($settingsUser['last_name'] ?? '')))) ?>;
+    var anonName  = <?= json_encode((string) ($anonAlias ?? 'Anonymous')) ?>;
+
+    function updateDisplayName(val) {
+        document.querySelectorAll('.portal-user-name').forEach(function (el) {
+            el.textContent = val ? anonName : realName;
+        });
+    }
+
     window.setAnon = function (val) {
         var prev = cb.checked;
         cb.checked = val;
         seg.setAttribute('data-checked', val ? '1' : '0');
+        updateDisplayName(val);
         fetch('<?= site_url('settings/anonymous') ?>', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest' },
@@ -192,6 +200,7 @@ $selectedColor = (string) old('avatar_color', (string) ($settingsProfile['avatar
         }).catch(function () {
             cb.checked = prev;
             seg.setAttribute('data-checked', prev ? '1' : '0');
+            updateDisplayName(prev);
         });
     };
 })();

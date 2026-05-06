@@ -70,7 +70,7 @@
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg>
                     Your Message
                 </label>
-                <textarea id="message" name="message" class="fb-textarea" rows="6" required
+                <textarea id="message" name="message" class="fb-textarea" rows="6" required maxlength="2000"
                     placeholder="Share the details so we can take action…"><?= esc((string) (old('message') ?? '')) ?></textarea>
                 <div class="fb-char-hint"><span id="fb-char-count">0</span> / 2000 characters</div>
             </div>

@@ -1030,8 +1030,21 @@ html[data-theme="dark"] .fp-step__line {
     -webkit-backdrop-filter: blur(16px) saturate(115%);
 }
 
+.portal-welcome > div {
+    min-width: 0;
+    flex: 1;
+}
+
+.message-box,
+.reply-item p {
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
 .portal-welcome h2 {
     margin: 0 0 6px;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 .muted {
@@ -1109,6 +1122,10 @@ html[data-theme="dark"] .fp-step__line {
     backdrop-filter: blur(16px) saturate(115%);
     -webkit-backdrop-filter: blur(16px) saturate(115%);
     padding: 18px;
+    overflow: hidden;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .card-head,
@@ -1143,6 +1160,9 @@ html[data-theme="dark"] .fp-step__line {
     border: 1px solid rgba(10, 27, 66, 0.10);
     background: rgba(255, 255, 255, 0.80);
     border-radius: 14px;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    min-width: 0;
     padding: 14px;
     transition: box-shadow 0.18s ease, border-color 0.18s ease;
 }
@@ -1593,6 +1613,8 @@ html[data-theme="dark"] .fp-step__line {
     display: -webkit-box;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 /* Rejection reason */
@@ -1906,6 +1928,49 @@ html[data-theme="dark"] .myfb-modal__btn--cancel {
     background: #1e2d4a;
     border-color: #2a3d60;
     color: #8aaad0;
+}
+
+/* Feedback Status Cards */
+.fb-status-card--resolved,
+.fb-status-card--approved {
+    border-left: 4px solid #15803d !important;
+    background: #dcfce7 !important;
+}
+
+.fb-status-card--rejected {
+    border-left: 4px solid #b91c1c !important;
+    background: #fee2e2 !important;
+}
+
+.fb-status-card--reviewed {
+    border-left: 4px solid #1d4ed8 !important;
+    background: #dbeafe !important;
+}
+
+.fb-status-card--pending {
+    border-left: 4px solid #92400e !important;
+    background: #fef3c7 !important;
+}
+
+html[data-theme="dark"] .fb-status-card--resolved,
+html[data-theme="dark"] .fb-status-card--approved {
+    border-left-color: #15803d !important;
+    background: rgba(21, 128, 61, 0.1) !important;
+}
+
+html[data-theme="dark"] .fb-status-card--rejected {
+    border-left-color: #b91c1c !important;
+    background: rgba(185, 28, 28, 0.1) !important;
+}
+
+html[data-theme="dark"] .fb-status-card--reviewed {
+    border-left-color: #1d4ed8 !important;
+    background: rgba(29, 78, 216, 0.1) !important;
+}
+
+html[data-theme="dark"] .fb-status-card--pending {
+    border-left-color: #92400e !important;
+    background: rgba(146, 64, 14, 0.1) !important;
 }
 
 /* Alerts */
@@ -3462,6 +3527,12 @@ html[data-theme="dark"] .cmt-img-clear:hover {
     background: rgba(255, 255, 255, 0.72);
     white-space: normal;
     line-height: 1.5;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .reply-head {
@@ -4395,4 +4466,102 @@ html[data-theme="dark"] .fb-textarea:focus {
 html[data-theme="dark"] .fb-dropzone:hover {
     border-color: #c8972c;
     background: #0c1626;
+}
+
+/* ── Inline comment validation error ── */
+.cv-comment-error {
+    display: none;
+    font-size: 0.78rem;
+    color: #ef4444;
+    font-weight: 600;
+    margin-top: 4px;
+    padding: 5px 10px;
+    background: rgba(239, 68, 68, 0.08);
+    border-radius: 8px;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+html[data-theme="dark"] .cv-comment-error {
+    color: #fca5a5;
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.25);
+}
+
+/* ── Comment bubbles ── */
+html[data-theme="dark"] .comment-bubble {
+    background: rgba(20, 35, 60, 0.75) !important;
+    color: #d0dcf5 !important;
+}
+
+html[data-theme="dark"] .reply-item .comment-bubble {
+    background: rgba(15, 28, 50, 0.65) !important;
+}
+
+html[data-theme="dark"] .comment-bubble strong {
+    color: #c8d8f8 !important;
+}
+
+html[data-theme="dark"] .comment-bubble p {
+    color: #b8ccee !important;
+}
+
+/* ── Comment form + textarea ── */
+html[data-theme="dark"] .comment-form {
+    background: rgba(15, 28, 46, 0.6) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html[data-theme="dark"] .comment-form textarea,
+html[data-theme="dark"] .comment-form .comment-body-input {
+    background: rgba(0, 0, 0, 0.3) !important;
+    color: #e2e8f0 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html[data-theme="dark"] .comment-form textarea::placeholder,
+html[data-theme="dark"] .comment-form .comment-body-input::placeholder {
+    color: #94a3b8 !important;
+}
+
+/* ── Attach bar + anonymous label ── */
+html[data-theme="dark"] .comment-form .summary-muted {
+    color: #7a90b4 !important;
+}
+
+html[data-theme="dark"] .cmt-img-field {
+    border-top-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* ── Submit button ── */
+html[data-theme="dark"] .comment-form .solid-btn {
+    background: rgba(79, 125, 255, 0.7) !important;
+    border-color: rgba(79, 125, 255, 0.4) !important;
+    color: #fff !important;
+}
+
+html[data-theme="dark"] .comment-form .solid-btn:hover {
+    background: rgba(79, 125, 255, 0.9) !important;
+}
+
+/* ── Reply indicator bar ── */
+html[data-theme="dark"] .reply-indicator {
+    background: rgba(200, 151, 44, 0.12) !important;
+    color: #d4a843 !important;
+}
+
+html[data-theme="dark"] .cancel-reply-btn {
+    color: #7a90b4 !important;
+}
+
+/* ── Reaction picker flyout ── */
+html[data-theme="dark"] .comment-reaction-picker {
+    background: #0f1a2e !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* ── Reply-mode form ── */
+html[data-theme="dark"] .comment-form.replying {
+    background: rgba(15, 28, 55, 0.72) !important;
+    border-color: rgba(30, 110, 240, 0.28) !important;
 }

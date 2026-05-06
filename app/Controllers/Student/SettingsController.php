@@ -128,7 +128,7 @@ class SettingsController extends StudentBaseController
             'avatarPalette'      => $this->avatarPalette,
             'settingsUser'       => $userModel->find($viewerId),
             'isAnonymous'        => $isAnon,
-            'anonAlias'          => $isAnon ? $this->anonymousAlias($viewerId) : '',
+            'anonAlias'          => $this->anonymousAlias($viewerId),
         ]);
     }
 

@@ -69,7 +69,18 @@ if ($fbType !== '') {
         </div>
     </div>
 
-    <div class="feed-body-text"><?= nl2br(esc($displayBody)) ?></div>
+    <?php if (mb_strlen($displayBody) > 350): ?>
+        <div class="feed-body-text" id="body-trunc-<?= (int) $post['id'] ?>">
+            <?= nl2br(esc(mb_strimwidth($displayBody, 0, 350, '…'))) ?>
+            <a href="javascript:void(0)" onclick="document.getElementById('body-trunc-<?= (int) $post['id'] ?>').style.display='none'; document.getElementById('body-full-<?= (int) $post['id'] ?>').style.display='block'; return false;" style="font-weight:700; color:#2078f4; text-decoration:none; margin-left:4px;">View more</a>
+        </div>
+        <div class="feed-body-text" id="body-full-<?= (int) $post['id'] ?>" style="display:none;">
+            <?= nl2br(esc($displayBody)) ?>
+            <a href="javascript:void(0)" onclick="document.getElementById('body-full-<?= (int) $post['id'] ?>').style.display='none'; document.getElementById('body-trunc-<?= (int) $post['id'] ?>').style.display='block'; return false;" style="font-weight:700; color:#2078f4; text-decoration:none; margin-left:4px;">Show less</a>
+        </div>
+    <?php else: ?>
+        <div class="feed-body-text"><?= nl2br(esc($displayBody)) ?></div>
+    <?php endif; ?>
 
     <?php
     $fbImage = (string) ($post['feedback_image_path'] ?? '');

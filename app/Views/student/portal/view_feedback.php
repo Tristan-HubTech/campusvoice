@@ -36,14 +36,20 @@
 
     <?php $fbStatus = (string) ($feedback['status'] ?? 'new'); ?>
     <?php if ($fbStatus !== 'new'): ?>
-    <section class="portal-card" style="<?= $fbStatus === 'resolved' ? 'border-left:4px solid #1a8a4a; background:#f4fdf7;' : 'border-left:4px solid #0a57a1; background:#f0f6ff;' ?>">
+    <section class="portal-card fb-status-card fb-status-card--<?= esc($fbStatus) ?>">
         <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
             <span class="pill status-<?= esc($fbStatus) ?>"><?= esc(ucfirst($fbStatus)) ?></span>
             <p style="margin:0; font-size:0.9rem;">
                 <?php if ($fbStatus === 'resolved'): ?>
                     Your feedback has been resolved.<?php if (! empty($feedback['resolved_at'])): ?> <span class="muted">Resolved on <?= esc(date('M d, Y', strtotime((string) $feedback['resolved_at']))) ?>.</span><?php endif; ?>
+                <?php elseif ($fbStatus === 'approved'): ?>
+                    Your feedback has been approved and is currently being processed by the administration.
+                <?php elseif ($fbStatus === 'rejected'): ?>
+                    Your feedback has been declined. Please check admin replies for more details.
+                <?php elseif ($fbStatus === 'reviewed'): ?>
+                    Your feedback is currently under review by the administration.
                 <?php else: ?>
-                    Your feedback is currently being reviewed by the administration.
+                    Your feedback has been received and is waiting for review.
                 <?php endif; ?>
             </p>
         </div>

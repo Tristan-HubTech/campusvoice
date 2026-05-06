@@ -68,6 +68,29 @@
         '</div>';
     }
 
+    /* ── Inline comment error helper ── */
+    function showCommentError(form, msg) {
+        var err = form.querySelector('.cv-comment-error');
+        if (!err) {
+            err = document.createElement('span');
+            err.className = 'cv-comment-error';
+            var ta = form.querySelector('textarea');
+            if (ta) ta.parentNode.insertBefore(err, ta.nextSibling);
+            else form.insertBefore(err, form.firstChild);
+        }
+        err.textContent = msg;
+        err.style.display = 'block';
+        var hideTimer = setTimeout(function () { err.style.display = 'none'; }, 4000);
+        var ta2 = form.querySelector('textarea');
+        if (ta2) {
+            ta2.addEventListener('input', function clearErr() {
+                err.style.display = 'none';
+                clearTimeout(hideTimer);
+                ta2.removeEventListener('input', clearErr);
+            });
+        }
+    }
+
     /* ── AJAX Comment Submission ── */
     document.querySelectorAll('.comment-form').forEach(function (form) {
         form.addEventListener('submit', async function (e) {
@@ -86,7 +109,7 @@
                 const data = await resp.json();
 
                 if (data.error && !data.ok) {
-                    if (window.alert) { window.alert(data.error); }
+                    showCommentError(form, data.error);
                 }
                 if (data.ok && data.comment) {
                     const c = data.comment;

@@ -27,7 +27,7 @@ class PortalController extends StudentBaseController
         $isAnon = (int) (($profile['is_anonymous'] ?? 0)) === 1;
         return [
             'isAnonymous' => $isAnon,
-            'anonAlias'   => $isAnon ? $this->anonymousAlias($userId) : '',
+            'anonAlias'   => $this->anonymousAlias($userId),
         ];
     }
 
