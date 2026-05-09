@@ -78,32 +78,33 @@
             </a>
         </nav>
 
-        <!-- 3 · Profile (sticks to bottom) ─────────────────── -->
-        <div class="cv-sidebar-profile">
-            <div class="cv-profile-avatar"><?= esc($pInitials) ?></div>
-            <div class="cv-profile-info">
-                <strong><?= esc($pName) ?></strong>
-                <small><?= esc($pEmail) ?></small>
-            </div>
-            <a href="<?= site_url('admin/logout') ?>" class="cv-profile-logout" title="Sign out">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-            </a>
-        </div>
+        <!-- 3 · Sign out ──────────────────────────────────── -->
+        <a href="<?= site_url('admin/logout') ?>" class="cv-sidebar-logout">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            <span class="cv-logout-label">Sign Out</span>
+        </a>
 
     </aside>
 
     <div class="admin-main">
-        <header class="admin-topbar" style="background:linear-gradient(175deg,#0a1535 0%,#0d214e 58%,#102a62 100%);color:#fff;border:1px solid rgba(133,172,255,.32);">
-            <button type="button" class="menu-btn" id="menuBtn">Menu</button>
-            <h1 style="color:#fff;margin:0;"><?= esc($title ?? 'Control Panel') ?></h1>
+        <header class="admin-topbar">
+            <button type="button" class="menu-btn" id="menuBtn" aria-label="Toggle navigation">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <h1 class="admin-topbar-title"><?= esc($title ?? 'Control Panel') ?></h1>
             <div class="admin-topbar-actions">
                 <?= $this->include('partials/theme_toggle', ['toggleClass' => 'theme-toggle--on-light']) ?>
+                <div class="admin-topbar-sep"></div>
                 <div class="admin-user">
-                    <strong style="color:#fff;"><?= esc((string) ($adminUser['name'] ?? 'Admin')) ?></strong>
-                    <small style="color:rgba(255,255,255,.6);"><?= esc((string) ($adminUser['email'] ?? '')) ?></small>
+                    <div class="admin-topbar-avatar"><?= esc($pInitials) ?></div>
+                    <div class="admin-user-info">
+                        <strong><?= esc((string) ($adminUser['name'] ?? 'Admin')) ?></strong>
+                        <small><?= esc((string) ($adminUser['email'] ?? '')) ?></small>
+                    </div>
                 </div>
             </div>
         </header>
+
 
         <?php if (session()->getFlashdata('success')): ?>
             <div class="alert success"><?= esc((string) session()->getFlashdata('success')) ?></div>

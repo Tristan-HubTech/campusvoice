@@ -40,114 +40,201 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
 
 <!-- ── Overview Tab ── Shows high-level stats and recent summaries -->
 <section class="tab-panel active" data-tab-panel="overview">
-    <div class="stats-grid">
-        <article class="stat-card">
-            <span>Total Feedback</span>
-            <strong><?= esc((string) ($stats['feedback_total'] ?? 0)) ?></strong>
-        </article>
-        <article class="stat-card">
-            <span>Pending</span>
-            <strong><?= esc((string) ($stats['feedback_pending'] ?? 0)) ?></strong>
-        </article>
-        <article class="stat-card">
-            <span>Approved</span>
-            <strong><?= esc((string) ($stats['feedback_approved'] ?? 0)) ?></strong>
-        </article>
-        <article class="stat-card">
-            <span>Reviewed</span>
-            <strong><?= esc((string) ($stats['feedback_reviewed'] ?? 0)) ?></strong>
-        </article>
-        <article class="stat-card">
-            <span>Resolved</span>
-            <strong><?= esc((string) ($stats['feedback_resolved'] ?? 0)) ?></strong>
-        </article>
-        <article class="stat-card">
-            <span>Students</span>
-            <strong><?= esc((string) ($stats['student_total'] ?? 0)) ?></strong>
-        </article>
-        <article class="stat-card">
-            <span>Announcements</span>
-            <strong><?= esc((string) ($stats['announcement_total'] ?? 0)) ?></strong>
-        </article>
+
+<?php
+$hour = (int) date('G');
+$timeGreet = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good evening');
+$adminFirstName = explode(' ', trim((string) ($adminUser['name'] ?? 'Admin')))[0];
+?>
+<div class="ov-welcome" id="ovWelcome" style="display:none">
+    <span class="ov-welcome-dot" aria-hidden="true"></span>
+    <span class="ov-welcome-time"><?= esc($timeGreet) ?>,</span>
+    <strong class="ov-welcome-name"><?= esc($adminFirstName) ?></strong>
+    <span class="ov-welcome-sep" aria-hidden="true">&middot;</span>
+    <span class="ov-welcome-date"><?= date('l, F j') ?></span>
+</div>
+<script>
+    (function () {
+        var el = document.getElementById('ovWelcome');
+        if (!el) return;
+        var loginTs = '<?= (int) session()->get('__ci_last_regenerate') ?>';
+        var STORE_KEY = 'cv_greeted';
+        if (sessionStorage.getItem(STORE_KEY) === loginTs) return;
+        sessionStorage.setItem(STORE_KEY, loginTs);
+        el.style.display = 'flex';
+        setTimeout(function () {
+            el.classList.add('ov-welcome--hide');
+            el.addEventListener('transitionend', function (e) {
+                if (e.propertyName === 'max-height') el.style.display = 'none';
+            }, { once: true });
+        }, 10000);
+    }());
+</script>
+
+    <!-- KPI Cards -->
+    <div class="ov-kpi-grid">
+
+        <div class="ov-kpi" style="--kc:#1a4ab8;--kc-bg:#e6efff;">
+            <div class="ov-kpi-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <div>
+                <p class="ov-kpi-label">Total Feedback</p>
+                <strong class="ov-kpi-val"><?= esc((string) ($stats['feedback_total'] ?? 0)) ?></strong>
+            </div>
+        </div>
+
+        <div class="ov-kpi" style="--kc:#9a7010;--kc-bg:#fdf8e6;">
+            <div class="ov-kpi-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div>
+                <p class="ov-kpi-label">Pending</p>
+                <strong class="ov-kpi-val"><?= esc((string) ($stats['feedback_pending'] ?? 0)) ?></strong>
+            </div>
+        </div>
+
+        <div class="ov-kpi" style="--kc:#0d7a50;--kc-bg:#e6f7f0;">
+            <div class="ov-kpi-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div>
+                <p class="ov-kpi-label">Approved</p>
+                <strong class="ov-kpi-val"><?= esc((string) ($stats['feedback_approved'] ?? 0)) ?></strong>
+            </div>
+        </div>
+
+        <div class="ov-kpi" style="--kc:#235096;--kc-bg:#dce6f5;">
+            <div class="ov-kpi-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </div>
+            <div>
+                <p class="ov-kpi-label">Reviewed</p>
+                <strong class="ov-kpi-val"><?= esc((string) ($stats['feedback_reviewed'] ?? 0)) ?></strong>
+            </div>
+        </div>
+
+        <div class="ov-kpi" style="--kc:#7218b8;--kc-bg:#f3e8ff;">
+            <div class="ov-kpi-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div>
+                <p class="ov-kpi-label">Resolved</p>
+                <strong class="ov-kpi-val"><?= esc((string) ($stats['feedback_resolved'] ?? 0)) ?></strong>
+            </div>
+        </div>
+
+        <div class="ov-kpi" style="--kc:#0a7070;--kc-bg:#e6f7f7;">
+            <div class="ov-kpi-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div>
+                <p class="ov-kpi-label">Students</p>
+                <strong class="ov-kpi-val"><?= esc((string) ($stats['student_total'] ?? 0)) ?></strong>
+            </div>
+        </div>
+
+        <div class="ov-kpi" style="--kc:#b8830c;--kc-bg:#fdf5e0;">
+            <div class="ov-kpi-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 19-9-9 19-2-8-8-2z"/></svg>
+            </div>
+            <div>
+                <p class="ov-kpi-label">Announcements</p>
+                <strong class="ov-kpi-val"><?= esc((string) ($stats['announcement_total'] ?? 0)) ?></strong>
+            </div>
+        </div>
+
         <?php if ($canViewActivity): ?>
-            <article class="stat-card">
-                <span>Activity Today</span>
-                <strong><?= esc((string) ($activityToday ?? 0)) ?></strong>
-            </article>
+        <div class="ov-kpi" style="--kc:#b81f1f;--kc-bg:#fdf0f0;">
+            <div class="ov-kpi-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <div>
+                <p class="ov-kpi-label">Activity Today</p>
+                <strong class="ov-kpi-val"><?= esc((string) ($activityToday ?? 0)) ?></strong>
+            </div>
+        </div>
         <?php endif; ?>
+
     </div>
 
-    <div class="panel-grid">
-        <section class="panel">
-            <div class="panel-head">
-                <h2>Recent Feedback</h2>
-                <button class="btn-link" type="button" data-tab-trigger="feedback">Open Feedback</button>
+    <!-- Content Panels -->
+    <div class="ov-panels">
+
+        <!-- Recent Feedback -->
+        <div class="ov-panel">
+            <div class="ov-panel-hd">
+                <div class="ov-panel-hd-left">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    <h2>Recent Feedback</h2>
+                </div>
+                <button class="ov-view-all" type="button" data-tab-trigger="feedback">View All</button>
             </div>
-
-            <div class="cv-table-card"><div class="table-wrap">
-                <table class="cv-admin-table">
-                    <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Category</th>
-                        <th>Type</th>
-                        <th>Author</th>
-                        <th>Status</th>
-                        <th>Time</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <?php if (! empty($latestFeedback)): ?>
-                        <?php $rowNum = 1; foreach ($latestFeedback as $item): ?>
-                            <tr>
-                                <td><a href="<?= site_url('admin/feedback/' . (int) $item['id']) ?>">#<?= $rowNum++ ?></a></td>
-                                <td><?= esc((string) ($item['category_name'] ?? 'N/A')) ?></td>
-                                <td><span class="pill type-<?= esc((string) $item['type']) ?>"><?= esc(ucfirst((string) $item['type'])) ?></span></td>
-                                <td>
-                                    <?php if ((int) ($item['is_anonymous'] ?? 0) === 1): ?>
-                                        Anonymous
-                                    <?php else: ?>
-                                        <?= esc(trim(((string) ($item['first_name'] ?? '')) . ' ' . ((string) ($item['last_name'] ?? '')))) ?>
-                                    <?php endif; ?>
-                                </td>
-                                <td><span class="pill status-<?= esc((string) $item['status']) ?>"><?= esc(ucfirst((string) $item['status'])) ?></span></td>
-                                <td><?= esc((string) date('M d, Y H:i', strtotime((string) ($item['created_at'] ?? 'now')))) ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="6">No feedback records yet.</td>
-                        </tr>
-                    <?php endif; ?>
-                    </tbody>
-                </table>
-            </div></div>
-        </section>
-
-        <section class="panel">
-            <div class="panel-head">
-                <h2>Latest Announcements</h2>
-                <button class="btn-link" type="button" data-tab-trigger="announcements">Open Announcements</button>
-            </div>
-
-            <div class="announcement-list">
-                <?php if (! empty($latestAnnouncements)): ?>
-                    <?php foreach ($latestAnnouncements as $item): ?>
-                        <article class="announce-card">
-                            <h3><?= esc((string) $item['title']) ?></h3>
-                            <p>
-                                Published: <strong><?= (int) ($item['is_published'] ?? 0) === 1 ? 'Yes' : 'No' ?></strong>
-                            </p>
-                            <small>
-                                <?= esc((string) date('M d, Y H:i', strtotime((string) ($item['created_at'] ?? 'now')))) ?>
-                            </small>
-                        </article>
+            <div class="ov-feed">
+                <?php if (! empty($latestFeedback)): ?>
+                    <?php $rowNum = 1; foreach ($latestFeedback as $item): ?>
+                    <a href="<?= site_url('admin/feedback/' . (int) $item['id']) ?>" class="ov-feed-item">
+                        <div class="ov-feed-num">#<?= $rowNum++ ?></div>
+                        <div class="ov-feed-meta">
+                            <span class="ov-feed-cat"><?= esc((string) ($item['category_name'] ?? 'Uncategorized')) ?></span>
+                            <span class="ov-feed-author">
+                                <?php if ((int) ($item['is_anonymous'] ?? 0) === 1): ?>
+                                    Anonymous
+                                <?php else: ?>
+                                    <?= esc(trim(((string) ($item['first_name'] ?? '')) . ' ' . ((string) ($item['last_name'] ?? '')))) ?>
+                                <?php endif; ?>
+                            </span>
+                        </div>
+                        <div class="ov-feed-right">
+                            <span class="pill type-<?= esc((string) $item['type']) ?>"><?= esc(ucfirst((string) $item['type'])) ?></span>
+                            <span class="pill status-<?= esc((string) $item['status']) ?>"><?= esc(ucfirst((string) $item['status'])) ?></span>
+                            <span class="ov-feed-time"><?= esc(date('M d', strtotime((string) ($item['created_at'] ?? 'now')))) ?></span>
+                        </div>
+                    </a>
                     <?php endforeach; ?>
                 <?php else: ?>
-                    <p class="muted">No announcements yet.</p>
+                    <div class="ov-empty">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        <p>No feedback records yet.</p>
+                    </div>
                 <?php endif; ?>
             </div>
-        </section>
+        </div>
+
+        <!-- Latest Announcements -->
+        <div class="ov-panel">
+            <div class="ov-panel-hd">
+                <div class="ov-panel-hd-left">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 19-9-9 19-2-8-8-2z"/></svg>
+                    <h2>Latest Announcements</h2>
+                </div>
+                <button class="ov-view-all" type="button" data-tab-trigger="announcements">View All</button>
+            </div>
+            <div class="ov-ann-list">
+                <?php if (! empty($latestAnnouncements)): ?>
+                    <?php foreach ($latestAnnouncements as $item): ?>
+                    <div class="ov-ann-item">
+                        <div class="ov-ann-icon <?= (int) ($item['is_published'] ?? 0) === 1 ? 'ov-ann-icon--pub' : '' ?>">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 19-9-9 19-2-8-8-2z"/></svg>
+                        </div>
+                        <div class="ov-ann-body">
+                            <p class="ov-ann-title"><?= esc((string) $item['title']) ?></p>
+                            <span class="ov-ann-date"><?= esc(date('M d, Y', strtotime((string) ($item['created_at'] ?? 'now')))) ?></span>
+                        </div>
+                        <span class="ov-ann-badge <?= (int) ($item['is_published'] ?? 0) === 1 ? 'ov-ann-badge--pub' : 'ov-ann-badge--draft' ?>">
+                            <?= (int) ($item['is_published'] ?? 0) === 1 ? 'Published' : 'Draft' ?>
+                        </span>
+                    </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="ov-empty">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 19-9-9 19-2-8-8-2z"/></svg>
+                        <p>No announcements yet.</p>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+
     </div>
 </section>
 
@@ -207,7 +294,7 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                     <th>Ref #</th>
                     <th>Type</th>
                     <th>Category</th>
-                    <th>Subject</th>
+                    <th class="col-subject">Subject</th>
                     <th>Author</th>
                     <th>Status</th>
                     <th>Date</th>
@@ -247,7 +334,7 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                             <td><a href="<?= site_url('admin/feedback/' . (int) $item['id']) ?>" class="fbk-badge-link"><span class="fbk-badge">#FBK-<?= $fbkPadded ?></span></a></td>
                             <td><span class="pill type-<?= esc((string) $item['type']) ?>"><?= esc(ucfirst((string) $item['type'])) ?></span></td>
                             <td><?= esc((string) ($item['category_name'] ?? 'N/A')) ?></td>
-                            <td>
+                            <td class="col-subject">
                                 <?php
                                 $subject = trim((string) ($item['subject'] ?? ''));
                                 if ($subject === '') {
@@ -255,7 +342,7 @@ $safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
                                     $subject = strlen($message) > 70 ? substr($message, 0, 70) . '...' : $message;
                                 }
                                 ?>
-                                <?= esc($subject) ?>
+                                <span class="subject-text" title="<?= esc($subject, 'attr') ?>"><?= esc($subject) ?></span>
                             </td>
                             <td>
                                 <?php if ((int) ($item['is_anonymous'] ?? 0) === 1): ?>

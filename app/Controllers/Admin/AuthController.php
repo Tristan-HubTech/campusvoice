@@ -69,7 +69,7 @@ class AuthController extends AdminBaseController
             (int) $user['id']
         );
 
-        return redirect()->to(site_url('admin'))->with('success', 'Welcome back, ' . $user['full_name'] . '.');
+        return redirect()->to(site_url('admin'));
     }
 
     public function logout()

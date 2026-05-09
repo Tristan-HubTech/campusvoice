@@ -41,7 +41,7 @@
                 <th>#</th>
                 <th>Type</th>
                 <th>Category</th>
-                <th>Subject</th>
+                <th class="col-subject">Subject</th>
                 <th>Author</th>
                 <th class="status-col">Status</th>
                 <th>Date</th>
@@ -55,7 +55,7 @@
                         <td>#<?= $rowNum++ ?></td>
                         <td><span class="pill type-<?= esc((string) $item['type']) ?>"><?= esc(ucfirst((string) $item['type'])) ?></span></td>
                         <td><?= esc((string) ($item['category_name'] ?? 'N/A')) ?></td>
-                        <td><?= esc((string) ($item['subject'] ?: mb_strimwidth((string) $item['message'], 0, 50, '...'))) ?></td>
+                        <td class="col-subject"><span class="subject-text"><?= esc((string) ($item['subject'] ?: mb_strimwidth((string) $item['message'], 0, 50, '...'))) ?></span></td>
                         <td>
                             <?php if ((int) ($item['is_anonymous'] ?? 0) === 1): ?>
                                 Anonymous
