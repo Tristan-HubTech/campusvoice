@@ -359,11 +359,11 @@ h4 {
   width: auto !important;
   height: 2px !important;
   background: linear-gradient(90deg,
-    transparent 0%,
-    #3a7bd5 20%,
-    #1a4ab8 50%,
-    #3a7bd5 80%,
-    transparent 100%) !important;
+      transparent 0%,
+      #3a7bd5 20%,
+      #1a4ab8 50%,
+      #3a7bd5 80%,
+      transparent 100%) !important;
   border-radius: 16px 16px 0 0 !important;
 }
 
@@ -696,9 +696,8 @@ html:not([data-theme="dark"]) .admin-topbar .theme-toggle--on-light:hover {
 .cv-admin-table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: fixed;
+  table-layout: auto;
   font-size: .875rem;
-  min-width: 860px;
 }
 
 .cv-admin-table thead tr {
@@ -1155,16 +1154,16 @@ html:not([data-theme="dark"]) .admin-topbar .theme-toggle--on-light:hover {
 [data-theme="dark"] .admin-topbar {
   background: linear-gradient(135deg, #0e1c36 0%, #142040 100%) !important;
   border: 1px solid rgba(80, 130, 220, 0.22) !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255,255,255,0.04) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
 }
 
 [data-theme="dark"] .admin-topbar::before {
   background: linear-gradient(90deg,
-    transparent 0%,
-    #4a80d0 20%,
-    #6ea0f0 50%,
-    #4a80d0 80%,
-    transparent 100%) !important;
+      transparent 0%,
+      #4a80d0 20%,
+      #6ea0f0 50%,
+      #4a80d0 80%,
+      transparent 100%) !important;
 }
 
 [data-theme="dark"] .admin-topbar-title {
@@ -2125,6 +2124,12 @@ html:not([data-theme="dark"]) .admin-topbar .theme-toggle--on-light:hover {
 }
 
 /* ── Welcome Banner — slim inline bar ───────────────────────────── */
+/* Welcome Banner — collapse handled entirely by JS-measured scrollHeight */
+.ov-welcome-wrap {
+  overflow: hidden;
+  margin-bottom: 0;
+}
+
 .ov-welcome {
   display: flex;
   align-items: center;
@@ -2135,26 +2140,17 @@ html:not([data-theme="dark"]) .admin-topbar .theme-toggle--on-light:hover {
   font-size: 0.82rem;
   color: rgba(200, 220, 255, 0.85);
   box-shadow: 0 2px 8px rgba(13, 30, 66, 0.18);
-  max-height: 60px;
-  overflow: hidden;
   animation: welcomeFadeIn 500ms cubic-bezier(0.4, 0, 0.2, 1) both;
-  transition:
-    opacity 700ms cubic-bezier(0.4, 0, 0.2, 1),
-    max-height 700ms cubic-bezier(0.4, 0, 0.2, 1),
-    padding-top 700ms cubic-bezier(0.4, 0, 0.2, 1),
-    padding-bottom 700ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes welcomeFadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
+  from {
+    opacity: 0;
+  }
 
-.ov-welcome--hide {
-  opacity: 0;
-  max-height: 0 !important;
-  padding-top: 0;
-  padding-bottom: 0;
+  to {
+    opacity: 1;
+  }
 }
 
 .ov-welcome-dot {
@@ -3549,11 +3545,16 @@ span.type-praise {
   color: var(--cv-muted);
 }
 
-/* Centered action cell */
+/* Centered action column — th + td */
+.data-table th.center-col,
 .data-table td.center-col,
+.cv-admin-table th.center-col,
 .cv-admin-table td.center-col,
+.student-mgmt-table th.center-col,
 .student-mgmt-table td.center-col {
   text-align: center !important;
+  overflow: visible !important;
+  white-space: nowrap !important;
 }
 
 /* Dark mode unified table */
@@ -5211,9 +5212,10 @@ span.type-praise {
 .ann-list-actions {
   flex-shrink: 0;
   display: flex;
-  flex-direction: column;
-  gap: 5px;
-  align-items: flex-end;
+  flex-direction: row;
+  gap: 6px;
+  align-items: center;
+  align-self: center;
 }
 
 /* ── Status pills ───────────────────────────────────────── */
@@ -5435,7 +5437,7 @@ span.type-praise {
 
 .ov-kpi:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 22px color-mix(in srgb, var(--kc, #1a4ab8) 18%, rgba(10,27,66,0.10));
+  box-shadow: 0 6px 22px color-mix(in srgb, var(--kc, #1a4ab8) 18%, rgba(10, 27, 66, 0.10));
 }
 
 .ov-kpi-icon {

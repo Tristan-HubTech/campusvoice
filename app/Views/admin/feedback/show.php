@@ -29,7 +29,7 @@ $statusLabelMap = [
         <div class="fd-header-body">
             <div class="fd-header-left">
                 <div class="fd-id-row">
-                    <h1 class="fd-heading">Feedback <span class="fd-num">#<?= $rowNum ?></span></h1>
+                    <h1 class="fd-heading">Feedback <span class="fd-num">#FBK-<?= str_pad((string)(int)$feedback['id'], 4, '0', STR_PAD_LEFT) ?></span></h1>
                 </div>
                 <p class="fd-submitted">
                     Submitted <?= esc(date('F j, Y \a\t g:i A', strtotime((string) ($feedback['created_at'] ?? 'now')))) ?>
@@ -152,8 +152,8 @@ $statusLabelMap = [
                         <span class="fd-detail-val"><?= esc((string)($feedback['category_name'] ?? 'N/A')) ?></span>
                     </div>
                     <div class="fd-detail-row">
-                        <span class="fd-detail-key">ID</span>
-                        <span class="fd-detail-val">#<?= $rowNum ?></span>
+                        <span class="fd-detail-key">Reference ID</span>
+                        <span class="fd-detail-val">#FBK-<?= str_pad((string)(int)$feedback['id'], 4, '0', STR_PAD_LEFT) ?></span>
                     </div>
                 </div>
             </div>

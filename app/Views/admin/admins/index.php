@@ -30,10 +30,10 @@ $canDelete      = ! empty($me['permissions']['admin.delete']);
         <thead>
             <tr>
                 <th class="col-admin">Admin</th>
-                <th class="col-role">Role</th>
-                <th class="col-status">Status</th>
-                <th class="col-login">Last Login</th>
-                <th class="col-actions">Actions</th>
+                <th class="col-role center-col">Role</th>
+                <th class="col-status center-col">Status</th>
+                <th class="col-login center-col">Last Login</th>
+                <th class="col-actions center-col">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -73,12 +73,12 @@ $canDelete      = ! empty($me['permissions']['admin.delete']);
                         </td>
 
                         <!-- Role -->
-                        <td class="col-role">
+                        <td class="col-role center-col">
                             <span class="role-pill role-<?= esc($roleSlug, 'attr') ?>"><?= esc($roleName) ?></span>
                         </td>
 
                         <!-- Status -->
-                        <td class="col-status">
+                        <td class="col-status center-col">
                             <?php if ($uActive === 1): ?>
                                 <span class="status-pill status-active">Active</span>
                             <?php else: ?>
@@ -87,7 +87,7 @@ $canDelete      = ! empty($me['permissions']['admin.delete']);
                         </td>
 
                         <!-- Last Login -->
-                        <td class="col-login">
+                        <td class="col-login center-col">
                             <?php if (! empty($u['last_login_at'])): ?>
                                 <span class="login-date"><?= esc(date('M d, Y', strtotime((string) $u['last_login_at']))) ?></span>
                                 <span class="login-time"><?= esc(date('H:i', strtotime((string) $u['last_login_at']))) ?></span>
@@ -97,8 +97,8 @@ $canDelete      = ! empty($me['permissions']['admin.delete']);
                         </td>
 
                         <!-- Actions -->
-                        <td class="col-actions">
-                            <div class="action-btns">
+                        <td class="col-actions center-col">
+                            <div class="action-btns" style="justify-content: center;">
                                 <?php if ($canEdit): ?>
                                     <a href="<?= site_url('admin/admins/' . (int) $u['id'] . '/edit') ?>" class="act-btn act-edit">Edit</a>
                                 <?php endif; ?>

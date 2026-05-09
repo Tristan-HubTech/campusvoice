@@ -46,26 +46,63 @@ $hour = (int) date('G');
 $timeGreet = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good evening');
 $adminFirstName = explode(' ', trim((string) ($adminUser['name'] ?? 'Admin')))[0];
 ?>
-<div class="ov-welcome" id="ovWelcome" style="display:none">
-    <span class="ov-welcome-dot" aria-hidden="true"></span>
-    <span class="ov-welcome-time"><?= esc($timeGreet) ?>,</span>
-    <strong class="ov-welcome-name"><?= esc($adminFirstName) ?></strong>
-    <span class="ov-welcome-sep" aria-hidden="true">&middot;</span>
-    <span class="ov-welcome-date"><?= date('l, F j') ?></span>
+<div class="ov-welcome-wrap" id="ovWelcomeWrap" style="display:none">
+    <div class="ov-welcome">
+        <span class="ov-welcome-dot" aria-hidden="true"></span>
+        <span class="ov-welcome-time"><?= esc($timeGreet) ?>,</span>
+        <strong class="ov-welcome-name"><?= esc($adminFirstName) ?></strong>
+        <span class="ov-welcome-sep" aria-hidden="true">&middot;</span>
+        <span class="ov-welcome-date"><?= date('l, F j') ?></span>
+    </div>
 </div>
 <script>
     (function () {
-        var el = document.getElementById('ovWelcome');
-        if (!el) return;
+        var wrap = document.getElementById('ovWelcomeWrap');
+        if (!wrap) return;
         var loginTs = '<?= (int) session()->get('__ci_last_regenerate') ?>';
         var STORE_KEY = 'cv_greeted';
         if (sessionStorage.getItem(STORE_KEY) === loginTs) return;
         sessionStorage.setItem(STORE_KEY, loginTs);
-        el.style.display = 'flex';
+
+        /* Show the banner */
+        wrap.style.display = 'block';
+
+        /* After 10s, collapse everything together */
         setTimeout(function () {
-            el.classList.add('ov-welcome--hide');
-            el.addEventListener('transitionend', function (e) {
-                if (e.propertyName === 'max-height') el.style.display = 'none';
+            /* Step 1: measure and lock all animatable values to concrete px */
+            var h  = wrap.scrollHeight;
+            var mb = parseInt(window.getComputedStyle(wrap).marginBottom, 10) || 12;
+
+            wrap.style.overflow     = 'hidden';
+            wrap.style.maxHeight    = h + 'px';
+            wrap.style.marginBottom = mb + 'px';
+
+            /* Step 2: force reflow — commits start values before transition */
+            wrap.getBoundingClientRect();
+
+            /* Step 3: apply transition on all three at once */
+            var ease = 'cubic-bezier(0.4, 0, 0.2, 1)';
+            wrap.style.transition =
+                'max-height 600ms '    + ease + ', ' +
+                'opacity 500ms '       + ease + ' 50ms, ' +
+                'margin-bottom 600ms ' + ease;
+
+            /* Step 4: animate to zero */
+            wrap.style.maxHeight    = '0';
+            wrap.style.opacity      = '0';
+            wrap.style.marginBottom = '0';
+
+            /* Step 5: when opacity finishes element is invisible — cancel grid gap then hide */
+            wrap.addEventListener('transitionend', function (e) {
+                if (e.propertyName === 'opacity') {
+                    /* Snap margin to -16px to eat the CSS grid gap — invisible since opacity=0 */
+                    wrap.style.transition    = 'none';
+                    wrap.style.marginBottom  = '-16px';
+                    /* One frame later, display:none — grid gap & element gone together */
+                    requestAnimationFrame(function () {
+                        wrap.style.display = 'none';
+                    });
+                }
             }, { once: true });
         }, 10000);
     }());
@@ -291,14 +328,14 @@ $adminFirstName = explode(' ', trim((string) ($adminUser['name'] ?? 'Admin')))[0
                 <thead>
                 <tr>
                     <th class="fbk-check-col"><input type="checkbox" id="fbkSelectAll" title="Select all pending"></th>
-                    <th>Ref #</th>
-                    <th>Type</th>
-                    <th>Category</th>
+                    <th class="center-col">Reference ID</th>
+                    <th class="center-col">Type</th>
+                    <th class="center-col">Category</th>
                     <th class="col-subject">Subject</th>
-                    <th>Author</th>
-                    <th>Status</th>
-                    <th>Date</th>
-                    <th>Action</th>
+                    <th class="center-col">Author</th>
+                    <th class="center-col">Status</th>
+                    <th class="center-col">Date</th>
+                    <th class="center-col">Action</th>
                 </tr>
                 </thead>
                 <tbody id="feedback-table-body">
@@ -331,9 +368,11 @@ $adminFirstName = explode(' ', trim((string) ($adminUser['name'] ?? 'Admin')))[0
                                 <input type="checkbox" class="fbk-row-check" value="<?= (int) $item['id'] ?>">
                                 <?php endif; ?>
                             </td>
-                            <td><a href="<?= site_url('admin/feedback/' . (int) $item['id']) ?>" class="fbk-badge-link"><span class="fbk-badge">#FBK-<?= $fbkPadded ?></span></a></td>
-                            <td><span class="pill type-<?= esc((string) $item['type']) ?>"><?= esc(ucfirst((string) $item['type'])) ?></span></td>
-                            <td><?= esc((string) ($item['category_name'] ?? 'N/A')) ?></td>
+                            <td class="center-col">
+                                <a href="<?= site_url('admin/feedback/' . (int) $item['id']) ?>" class="fbk-badge-link"><span class="fbk-badge">#FBK-<?= $fbkPadded ?></span></a>
+                            </td>
+                            <td class="center-col"><span class="pill type-<?= esc((string) $item['type']) ?>"><?= esc(ucfirst((string) $item['type'])) ?></span></td>
+                            <td class="center-col"><?= esc((string) ($item['category_name'] ?? 'N/A')) ?></td>
                             <td class="col-subject">
                                 <?php
                                 $subject = trim((string) ($item['subject'] ?? ''));
@@ -344,16 +383,16 @@ $adminFirstName = explode(' ', trim((string) ($adminUser['name'] ?? 'Admin')))[0
                                 ?>
                                 <span class="subject-text" title="<?= esc($subject, 'attr') ?>"><?= esc($subject) ?></span>
                             </td>
-                            <td>
+                            <td class="center-col">
                                 <?php if ((int) ($item['is_anonymous'] ?? 0) === 1): ?>
                                     <span class="muted">Anonymous</span>
                                 <?php else: ?>
                                     <?= esc(trim(((string) ($item['first_name'] ?? '')) . ' ' . ((string) ($item['last_name'] ?? '')))) ?>
                                 <?php endif; ?>
                             </td>
-                            <td><span class="pill status-<?= esc($currentStatus) ?>"><?= esc(ucfirst($currentStatus)) ?></span></td>
-                            <td class="muted" style="font-size:0.8rem;white-space:nowrap;"><?= esc(date('M d, Y', strtotime((string) ($item['created_at'] ?? 'now')))) ?></td>
-                            <td class="fbk-actions-cell">
+                            <td class="center-col"><span class="pill status-<?= esc($currentStatus) ?>"><?= esc(ucfirst($currentStatus)) ?></span></td>
+                            <td class="center-col muted" style="font-size:0.8rem;white-space:nowrap;"><?= esc(date('M d, Y', strtotime((string) ($item['created_at'] ?? 'now')))) ?></td>
+                            <td class="fbk-actions-cell center-col">
                                 <?php if ($currentStatus === 'pending'): ?>
                                     <div class="fbk-action-btns">
                                         <form method="post" action="<?= site_url('admin/feedback/' . (int) $item['id'] . '/status') ?>">
@@ -689,6 +728,7 @@ $adminFirstName = explode(' ', trim((string) ($adminUser['name'] ?? 'Admin')))[0
                         >
                             <div class="ann-list-main">
                                 <div class="ann-list-top">
+                                    <p class="ann-list-title" title="<?= esc($annTitle, 'attr') ?>"><?= esc($annTitle) ?></p>
                                     <?php if ($annIsExpired): ?>
                                         <span class="ann-dash-pill ann-dash-pill--expired">Expired</span>
                                     <?php elseif ($annIsScheduled): ?>
@@ -702,7 +742,6 @@ $adminFirstName = explode(' ', trim((string) ($adminUser['name'] ?? 'Admin')))[0
                                         <span class="ann-dash-pinned-badge">📍 Pinned</span>
                                     <?php endif; ?>
                                 </div>
-                                <p class="ann-list-title" title="<?= esc($annTitle, 'attr') ?>"><?= esc($annTitle) ?></p>
                                 <p class="ann-list-preview"><?= esc($annBodyShort) ?></p>
                                 <div class="ann-list-meta">
                                     <span class="ann-list-meta-item">
@@ -814,7 +853,7 @@ $allCategories = $allCategories ?? [];
                     <th>Email</th>
                     <th class="status-col">Status</th>
                     <th>Last Login</th>
-                    <th>Actions</th>
+                    <th class="center-col">Actions</th>
                 </tr>
                 </thead>
                 <tbody id="user-table-body">
@@ -840,7 +879,7 @@ $allCategories = $allCategories ?? [];
                                 <?php endif; ?>
                             </td>
                             <td><?= ! empty($u['last_login_at']) ? esc(date('M d, Y H:i', strtotime((string) $u['last_login_at']))) : '<span class="muted">Never</span>' ?></td>
-                            <td>
+                            <td class="center-col">
                                 <div class="smgmt-actions">
                                     <form method="post" action="<?= site_url('admin/users/' . (int) $u['id'] . '/toggle-status') ?>">
                                         <button class="act-btn <?= $uActive === 1 ? 'act-deactivate' : 'act-activate' ?>" type="submit">
@@ -917,7 +956,7 @@ $allCategories = $allCategories ?? [];
                         <th>Name</th>
                         <th>Description</th>
                         <th>Status</th>
-                        <th>Actions</th>
+                        <th class="center-col">Actions</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -1646,7 +1685,9 @@ $allCategories = $allCategories ?? [];
                 }
 
                 openTab('announcements', true);
-                announcementForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                if (window.innerWidth <= 1024) {
+                    announcementForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
             });
         });
 
