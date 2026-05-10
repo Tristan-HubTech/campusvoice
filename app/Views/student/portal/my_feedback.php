@@ -56,7 +56,7 @@
                 $refNum = '#FBK-' . str_pad((string) (int) $item['id'], 4, '0', STR_PAD_LEFT);
             ?>
             <article class="myfb-card">
-                <!-- Left stripe by type -->
+                <!-- Top stripe by type -->
                 <div class="myfb-card__stripe myfb-stripe--<?= esc($typeKey) ?>"></div>
 
                 <div class="myfb-card__inner">
@@ -122,6 +122,8 @@
                         </div>
                     </div>
                 </div>
+                <!-- Bottom stripe mirror -->
+                <div class="myfb-card__stripe myfb-card__stripe--bottom myfb-stripe--<?= esc($typeKey) ?>"></div>
             </article>
             <?php endforeach; ?>
         </div>
