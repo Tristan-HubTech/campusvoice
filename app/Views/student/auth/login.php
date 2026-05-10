@@ -242,7 +242,7 @@
     align-items: center;
     justify-content: center;
     padding: 48px 28px;
-    background: linear-gradient(to bottom, #060e1c 0%, #091628 40%, #0d1e38 70%, #132440 100%);
+    background: linear-gradient(to bottom, #02060d 0%, #091530 55%, #102248 100%);
     position: relative;
     overflow: hidden;
 }
@@ -351,6 +351,14 @@
     pointer-events: none; z-index: 1;
 }
 
+/* soft gradient seam on right edge of left panel */
+.cv-lp-seam {
+    position: absolute; top: 0; bottom: 0; right: 0;
+    width: 80px;
+    background: linear-gradient(to left, rgba(6,14,28,.78) 0%, transparent 100%);
+    pointer-events: none; z-index: 3;
+}
+
 /* mobile brand */
 .cv-mob-brand {
     display: flex; align-items: center; gap: 10px;
@@ -402,14 +410,44 @@
 /* ── Flash alerts ── */
 .cv-alert {
     border-radius: 10px;
-    padding: 11px 14px;
+    padding: 10px 14px;
     font-size: .83rem; font-weight: 500;
-    margin-bottom: 22px;
-    display: flex; align-items: flex-start; gap: 9px;
+    margin-top: -16px;
+    margin-bottom: 18px;
+    display: flex; align-items: center; gap: 12px;
     line-height: 1.5;
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 8px 24px rgba(0,0,0,.25);
+    animation: alertPop .4s cubic-bezier(0.16, 1, 0.3, 1) both;
+    position: relative; overflow: hidden;
 }
-.cv-alert--error   { background: rgba(239,68,68,.12); border-left: 4px solid #f87171; color: #fca5a5; }
-.cv-alert--success { background: rgba(34,197,94,.12); border-left: 4px solid #4ade80; color: #86efac; }
+@keyframes alertPop {
+    0% { opacity: 0; transform: translateY(-8px) scale(0.97); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.cv-alert::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; bottom: 0; width: 4px;
+}
+.cv-alert--error {
+    background: linear-gradient(135deg, rgba(239,68,68,0.15) 0%, rgba(153,27,27,0.05) 100%);
+    border: 1px solid rgba(239,68,68,0.2);
+    color: #fca5a5;
+}
+.cv-alert--error::before {
+    background: linear-gradient(to bottom, #f87171, #ef4444);
+    box-shadow: 2px 0 12px rgba(239,68,68,0.5);
+}
+.cv-alert--success {
+    background: linear-gradient(135deg, rgba(34,197,94,0.15) 0%, rgba(21,128,61,0.05) 100%);
+    border: 1px solid rgba(34,197,94,0.2);
+    color: #86efac;
+}
+.cv-alert--success::before {
+    background: linear-gradient(to bottom, #4ade80, #22c55e);
+    box-shadow: 2px 0 12px rgba(34,197,94,0.5);
+}
+.cv-alert svg { filter: drop-shadow(0 2px 4px rgba(0,0,0,.3)); }
 
 /* ── Form head ── */
 .cv-head { margin-bottom: 26px; }
@@ -533,10 +571,16 @@
 
 /* pane animation */
 .auth-panes-host { position: relative; }
-.auth-pane { transition: opacity .18s ease, visibility .18s ease; }
+.auth-pane {
+    transition: opacity .35s cubic-bezier(0.16, 1, 0.3, 1), 
+                visibility .35s, 
+                transform .35s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity: 1; visibility: visible; transform: translateY(0);
+}
 .auth-pane--inactive {
     opacity: 0; visibility: hidden; pointer-events: none;
     position: absolute; top: 0; left: 0; right: 0; overflow: hidden;
+    transform: translateY(12px);
 }
 
 /* ── Mobile layout ── */
@@ -823,6 +867,7 @@
 
     <!-- Vignette -->
     <div class="cv-lp-vignette"></div>
+    <div class="cv-lp-seam" aria-hidden="true"></div>
 
     <!-- Overlay content -->
     <div class="cv-lp-overlay">
@@ -1255,6 +1300,8 @@
         // Only animate height when switching tabs, not on initial load
         if (animate) syncHeight(incoming);
         if (updateUrl) {
+            // Dismiss global flash alerts when user explicitly switches tabs
+            document.querySelectorAll('.cv-alert').forEach(function(el) { el.style.display = 'none'; });
             var url = mode === 'register'
                 ? <?= json_encode(site_url('users/login?mode=register')) ?>
                 : <?= json_encode(site_url('users/login?mode=login')) ?>;

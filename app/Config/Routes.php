@@ -14,6 +14,52 @@ use CodeIgniter\Router\RouteCollection;
  */
 $routes->get('/', static function () { return redirect()->to(site_url('users')); });
 
+// Serve uploaded feedback images directly (fallback when Apache static serving fails on XAMPP)
+$routes->get('uploads/feedback/(:any)', static function (string $path): void {
+    $safePath = preg_replace('/\.\.+/', '', $path); // prevent directory traversal
+    $safePath = str_replace('\\', '/', $safePath);
+    $fullPath = FCPATH . 'uploads' . DIRECTORY_SEPARATOR . 'feedback' . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $safePath);
+    if (!is_file($fullPath)) {
+        http_response_code(404);
+        exit('File not found.');
+    }
+    $ext = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
+    $mime = match ($ext) {
+        'jpg', 'jpeg' => 'image/jpeg',
+        'png'  => 'image/png',
+        'webp' => 'image/webp',
+        default => 'application/octet-stream',
+    };
+    header('Content-Type: ' . $mime);
+    header('Content-Length: ' . filesize($fullPath));
+    header('Cache-Control: public, max-age=31536000, immutable');
+    readfile($fullPath);
+    exit;
+});
+
+// Serve uploaded comment images directly
+$routes->get('uploads/social_comment/(:any)', static function (string $path): void {
+    $safePath = preg_replace('/\.\.+/', '', $path);
+    $safePath = str_replace('\\', '/', $safePath);
+    $fullPath = FCPATH . 'uploads' . DIRECTORY_SEPARATOR . 'social_comment' . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $safePath);
+    if (!is_file($fullPath)) {
+        http_response_code(404);
+        exit('File not found.');
+    }
+    $ext = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
+    $mime = match ($ext) {
+        'jpg', 'jpeg' => 'image/jpeg',
+        'png'  => 'image/png',
+        'webp' => 'image/webp',
+        default => 'application/octet-stream',
+    };
+    header('Content-Type: ' . $mime);
+    header('Content-Length: ' . filesize($fullPath));
+    header('Cache-Control: public, max-age=31536000, immutable');
+    readfile($fullPath);
+    exit;
+});
+
 $routes->get('feed', static function () { return redirect()->to(site_url('users')); });
 $routes->post('feed/post', 'Student\\FeedController::createPost');
 $routes->post('posts/(:num)/react', 'Student\\FeedController::react/$1');

@@ -45,13 +45,14 @@ $sessionOtp  = (string) ($forgotSessionOtp ?? '');
 .cv-lp-feat-label small { display:block; font-weight:400; font-size:.71rem; color:rgba(255,255,255,.75); margin-top:1px; }
 
 /* ── Right panel ── */
-.cv-rp { flex:1; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:48px 28px; background:linear-gradient(to bottom,#060e1c 0%,#091628 40%,#0d1e38 70%,#132440 100%); position:relative; overflow:hidden; }
+.cv-rp { flex:1; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:48px 28px; background:linear-gradient(to bottom,#02060d 0%,#091530 55%,#102248 100%); position:relative; overflow:hidden; }
 .cv-rp::before { content:''; position:absolute; top:0; left:0; width:1px; height:1px; border-radius:50%; background:rgba(255,255,255,.9); box-shadow:42px 22px 0 0 rgba(255,255,255,.85), 118px 14px 0 1px rgba(255,255,255,.70), 195px 38px 0 0 rgba(255,255,255,.60), 76px 60px 0 0 rgba(255,255,255,.75), 258px 28px 0 0 rgba(255,255,255,.50), 315px 50px 0 1px rgba(255,255,255,.65), 22px 85px 0 0 rgba(255,255,255,.55), 150px 80px 0 0 rgba(255,255,255,.45), 228px 70px 0 1px rgba(255,255,255,.40), 345px 63px 0 0 rgba(255,255,255,.70), 92px 108px 0 0 rgba(255,255,255,.35), 175px 118px 0 0 rgba(255,255,255,.42), 298px 100px 0 0 rgba(255,255,255,.48), 55px 130px 0 0 rgba(255,255,255,.30), 380px 45px 0 0 rgba(255,255,255,.55), 430px 18px 0 1px rgba(255,255,255,.88), 465px 68px 0 0 rgba(255,255,255,.50), 408px 95px 0 0 rgba(255,255,255,.40); pointer-events:none; z-index:0; }
 .cv-rp::after { content:''; position:absolute; top:0; left:0; width:2px; height:2px; border-radius:50%; background:rgba(255,255,255,.95); box-shadow:28px 16px 0 0 rgba(255,255,255,.90), 180px 8px 0 0 rgba(255,255,255,.80), 348px 11px 0 0 rgba(255,255,255,.88), 460px 24px 0 0 rgba(255,255,255,.72), 140px 68px 0 0 rgba(200,151,44,.72), 280px 43px 0 0 rgba(200,151,44,.52); pointer-events:none; z-index:0; }
 .cv-rp-g { position:absolute; border-radius:50%; pointer-events:none; z-index:0; }
 .cv-rp-g--gold { width:260px; height:260px; background:radial-gradient(circle,rgba(200,151,44,.12) 0%,rgba(200,151,44,.04) 45%,transparent 70%); top:-70px; right:-70px; }
 .cv-rp-g--blue { width:380px; height:180px; background:radial-gradient(ellipse,rgba(26,54,93,.22) 0%,rgba(26,54,93,.07) 50%,transparent 75%); bottom:0; left:0; }
 .cv-rp-seam { position:absolute; top:0; bottom:0; left:0; width:80px; background:linear-gradient(to right,rgba(6,14,28,.78) 0%,transparent 100%); pointer-events:none; z-index:1; }
+.cv-lp-seam { position:absolute; top:0; bottom:0; right:0; width:80px; background:linear-gradient(to left,rgba(6,14,28,.78) 0%,transparent 100%); pointer-events:none; z-index:3; }
 .cv-rp-skyline { position:absolute; bottom:0; left:0; right:0; height:220px; pointer-events:none; z-index:0; opacity:1; }
 
 /* ── Card ── */
@@ -357,26 +358,7 @@ $sessionOtp  = (string) ($forgotSessionOtp ?? '');
     .auth-alert--error { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
     .auth-alert--success { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
 
-    /* Step tracker */
-    .fp-steps {
-        display: flex; align-items: center;
-        background: rgba(10,27,66,0.05); border: 1px solid rgba(10,27,66,0.08);
-        border-radius: 14px; padding: 14px 16px; margin-bottom: 20px;
-    }
-    .fp-step { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; }
-    .fp-step__num {
-        width: 28px; height: 28px; border-radius: 50%;
-        display: grid; place-items: center;
-        font-size: 0.72rem; font-weight: 700;
-        background: rgba(10,27,66,0.07); color: rgba(10,27,66,0.35);
-        border: 1.5px solid rgba(10,27,66,0.12); transition: all .2s;
-    }
-    .fp-step__label { font-size: 0.65rem; font-weight: 600; color: rgba(10,27,66,0.35); letter-spacing: 0.03em; }
-    .fp-step--active .fp-step__num { background: #c8972c; color: #fff; border-color: #c8972c; box-shadow: 0 0 0 3px rgba(200,151,44,0.2); }
-    .fp-step--active .fp-step__label { color: #c8972c; }
-    .fp-step--done .fp-step__num { background: #22c55e; color: #fff; border-color: #22c55e; }
-    .fp-step--done .fp-step__label { color: #15803d; }
-    .fp-step__line { flex: 1; height: 1.5px; background: rgba(10,27,66,0.12); margin: 0 4px; margin-bottom: 18px; }
+
 
     /* Form */
     .auth-form { display: grid; gap: 16px; }
@@ -418,42 +400,7 @@ $sessionOtp  = (string) ($forgotSessionOtp ?? '');
     .otp-status-text { display: block; font-size: 0.77rem; margin-top: 5px; line-height: 1.4; }
     .fp-warn { display: block; font-size: 0.77rem; margin-top: 5px; color: #b91c1c; }
 
-    /* Standalone step action button */
-    .btn-step {
-        width: 100%; padding: 11px 22px; background: #0a1b42; color: #fff;
-        font-family: 'Manrope', sans-serif; font-size: 0.875rem; font-weight: 700; letter-spacing: 0.02em;
-        border: none; border-radius: 10px; cursor: pointer;
-        display: flex; align-items: center; justify-content: center; gap: 8px;
-        transition: background .2s, transform .15s, box-shadow .18s;
-        position: relative; overflow: hidden;
-    }
-    .btn-step::after {
-        content: ''; position: absolute; inset: 0;
-        background: linear-gradient(130deg, rgba(200,151,44,0.18), transparent 55%);
-        opacity: 0; transition: opacity .2s;
-    }
-    .btn-step:hover { background: #0e2152; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(10,27,66,0.24); }
-    .btn-step:hover::after { opacity: 1; }
-    .btn-step:active { transform: translateY(0); box-shadow: none; }
-    .btn-step:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
 
-    .btn-primary {
-        width: 100%; padding: 12px 22px; background: #0a1b42; color: #fff;
-        font-family: 'Manrope', sans-serif; font-size: 0.88rem; font-weight: 700; letter-spacing: 0.03em;
-        border: none; border-radius: 10px; cursor: pointer;
-        display: flex; align-items: center; justify-content: center; gap: 8px;
-        transition: background .2s, transform .15s, box-shadow .18s;
-        position: relative; overflow: hidden; margin-top: 4px;
-    }
-    .btn-primary::after {
-        content: ''; position: absolute; inset: 0;
-        background: linear-gradient(130deg, rgba(200,151,44,0.18), transparent 55%);
-        opacity: 0; transition: opacity .2s;
-    }
-    .btn-primary:hover { background: #0e2152; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(10,27,66,0.24); }
-    .btn-primary:hover::after { opacity: 1; }
-    .btn-primary:active { transform: translateY(0); box-shadow: none; }
-    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
 
     .auth-divider { border: none; border-top: 1px solid rgba(10,27,66,0.1); margin: 8px 0; }
     .auth-link-subtle { font-size: 0.8rem; color: #8a9ab8; text-decoration: none; font-weight: 500; transition: color .15s; }
@@ -734,6 +681,7 @@ $sessionOtp  = (string) ($forgotSessionOtp ?? '');
         </div>
     </div>
     <div class="cv-lp-vignette"></div>
+    <div class="cv-lp-seam" aria-hidden="true"></div>
     <div class="cv-lp-overlay">
         <div class="cv-lp-brand">
             <img src="<?= base_url('assets/admin/logo-mark.svg') ?>" alt="" class="cv-lp-brand-mark">
