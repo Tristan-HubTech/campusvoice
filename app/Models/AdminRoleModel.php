@@ -37,6 +37,9 @@ class AdminRoleModel extends Model
         'roles.edit',
         'roles.delete',
         'otp_tool.view',
+        'support.view',
+        'support.reply',
+        'support.change_status',
     ];
 
     public const PERMISSION_GROUPS = [
@@ -50,6 +53,7 @@ class AdminRoleModel extends Model
         'Admin Accounts' => ['admin.view', 'admin.create', 'admin.edit', 'admin.delete', 'admin.assign_roles'],
         'Roles'          => ['roles.view', 'roles.create', 'roles.edit', 'roles.delete'],
         'Tools'          => ['otp_tool.view'],
+        'Support'        => ['support.view', 'support.reply', 'support.change_status'],
     ];
 
     protected $table            = 'admin_roles';

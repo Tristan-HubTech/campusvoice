@@ -46,6 +46,9 @@ class AdminRbacSeeder extends Seeder
         'roles.edit',
         'roles.delete',
         'otp_tool.view',
+        'support.view',
+        'support.reply',
+        'support.change_status',
     ];
 
     public function run()

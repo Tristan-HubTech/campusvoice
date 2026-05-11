@@ -129,6 +129,14 @@ $routes->group('admin', ['filter' => 'adminauth'], static function (RouteCollect
 	$routes->get('roles/(:num)/edit', 'Admin\\RoleController::edit/$1');
 	$routes->post('roles/(:num)/update', 'Admin\\RoleController::update/$1');
 	$routes->post('roles/(:num)/delete', 'Admin\\RoleController::delete/$1');
+
+	// Support Tickets
+	$routes->get('support', 'Admin\\SupportController::index');
+	$routes->get('support/(:num)', 'Admin\\SupportController::show/$1');
+	$routes->post('support/(:num)/reply', 'Admin\\SupportController::reply/$1');
+	$routes->post('support/(:num)/status', 'Admin\\SupportController::updateStatus/$1');
+	$routes->post('support/(:num)/assign', 'Admin\\SupportController::assign/$1');
+	$routes->post('support/(:num)/priority', 'Admin\\SupportController::updatePriority/$1');
 });
 
 // Student Portal
@@ -158,6 +166,13 @@ $routes->group('users', ['filter' => 'studentauth'], static function (RouteColle
 	$routes->match(['get', 'post'], 'feedback/submit', 'Student\\PortalController::submitFeedback');
 	$routes->get('feedback/(:num)', 'Student\\PortalController::viewFeedback/$1');
 	$routes->post('feedback/(:num)/delete', 'Student\\PortalController::deleteFeedback/$1');
+
+	// Support Tickets
+	$routes->get('support', 'Student\\SupportController::index');
+	$routes->get('support/create', 'Student\\SupportController::create');
+	$routes->post('support', 'Student\\SupportController::store');
+	$routes->get('support/(:num)', 'Student\\SupportController::show/$1');
+	$routes->post('support/(:num)/close', 'Student\\SupportController::close/$1');
 });
 
 

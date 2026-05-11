@@ -14,11 +14,12 @@
       "mcp__claude-flow__neural_status",
       "mcp__claude-flow__hooks_model-stats",
       "mcp__claude-flow__swarm_status",
-      "mcp__claude-flow__swarm_health"
+      "mcp__claude-flow__swarm_health",
+      "Bash(python3 \"C:\\\\Users\\\\Ara\\\\.claude\\\\plugins\\\\cache\\\\ui-ux-pro-max-skill\\\\ui-ux-pro-max\\\\2.5.0\\\\.claude\\\\skills\\\\ui-ux-pro-max\\\\scripts\\\\search.py\" \"student portal support tickets dark navy institutional\" --design-system -p \"CampusVoice\")"
     ]
   },
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "claude-flow"
-  ],
-  "enableAllProjectMcpServers": true
+  ]
 }

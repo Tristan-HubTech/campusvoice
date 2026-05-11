@@ -9,12 +9,14 @@
   position: relative !important;
   overflow: hidden !important;
   background:
-    radial-gradient(circle at 12% -30%, rgba(53, 111, 211, 0.15), transparent 46%),
-    linear-gradient(130deg, #fefefe 0%, #f6f9ff 100%) !important;
-  border: 1px solid #d6e2f5 !important;
+    radial-gradient(ellipse at 18% 120%, rgba(44, 96, 212, 0.35) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% -20%, rgba(212, 168, 58, 0.18) 0%, transparent 50%),
+    linear-gradient(135deg, #0b1a35 0%, #102244 55%, #172d56 100%) !important;
+  border: 1px solid rgba(60, 100, 200, 0.3) !important;
   box-shadow:
-    0 10px 26px rgba(14, 32, 80, 0.08),
-    0 2px 5px rgba(14, 32, 80, 0.05) !important;
+    0 8px 28px rgba(6, 16, 48, 0.32),
+    0 2px 6px rgba(6, 16, 48, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
 }
 
 .admin-topbar::before {
@@ -27,23 +29,24 @@
   background: linear-gradient(
     90deg,
     transparent 0%,
-    #3a7bd5 20%,
-    #1a4ab8 50%,
-    #3a7bd5 80%,
+    #3a6fd5 15%,
+    #5090f0 45%,
+    #d4a83a 70%,
     transparent 100%
   ) !important;
   border-radius: 18px 18px 0 0 !important;
+  opacity: .85 !important;
 }
 
 .admin-topbar::after {
   content: '' !important;
   position: absolute !important;
-  right: -45px !important;
-  top: -36px !important;
-  width: 180px !important;
-  height: 180px !important;
+  right: -40px !important;
+  top: -40px !important;
+  width: 200px !important;
+  height: 200px !important;
   border-radius: 50% !important;
-  background: radial-gradient(circle, rgba(224, 183, 77, 0.22) 0%, rgba(224, 183, 77, 0) 70%) !important;
+  background: radial-gradient(circle, rgba(212, 168, 58, 0.28) 0%, rgba(212, 168, 58, 0) 68%) !important;
   pointer-events: none !important;
 }
 
@@ -63,13 +66,15 @@
   justify-content: center !important;
   flex-shrink: 0 !important;
   border-radius: 12px !important;
-  background: linear-gradient(135deg, rgba(21, 52, 115, 0.06), rgba(53, 111, 211, 0.04)) !important;
-  border: 1px solid rgba(53, 111, 211, 0.16) !important;
+  background: transparent !important;
+  border: 1px solid rgba(30, 60, 130, 0.35) !important;
+  overflow: hidden !important;
+  box-shadow: 0 2px 12px rgba(5, 15, 40, 0.25) !important;
 }
 
 .admin-topbar-graphic svg {
-  width: 136px !important;
-  height: 44px !important;
+  width: 148px !important;
+  height: 52px !important;
   display: block !important;
 }
 
@@ -82,24 +87,46 @@
   font-size: 0.67rem !important;
   letter-spacing: 0.1em !important;
   text-transform: uppercase !important;
-  color: #4f6ea7 !important;
+  color: rgba(160, 196, 255, 0.8) !important;
   font-weight: 800 !important;
   margin-bottom: 2px !important;
 }
 
 .admin-topbar-title {
   font-size: clamp(1.05rem, 2vw, 1.34rem) !important;
+  color: #e8f0ff !important;
+  -webkit-text-fill-color: #e8f0ff !important;
 }
 
 .admin-topbar-actions {
   gap: 12px !important;
 }
 
+/* Topbar is always dark — fix text/element colors globally */
+.admin-user strong {
+  color: #ddeaff !important;
+}
+.admin-user small {
+  color: rgba(160, 190, 248, 0.7) !important;
+}
+.admin-topbar-sep {
+  background: rgba(255, 255, 255, 0.12) !important;
+}
+.admin-topbar .menu-btn {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  color: #c8daf8 !important;
+}
+.admin-topbar .menu-btn:hover {
+  background: rgba(255, 255, 255, 0.14) !important;
+}
+
 [data-theme="dark"] .admin-topbar {
   background:
-    radial-gradient(circle at 14% -38%, rgba(76, 126, 223, 0.28), transparent 44%),
-    linear-gradient(135deg, #0c1831 0%, #132444 100%) !important;
-  border: 1px solid rgba(80, 130, 220, 0.24) !important;
+    radial-gradient(ellipse at 18% 120%, rgba(44, 96, 212, 0.32) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% -20%, rgba(212, 168, 58, 0.16) 0%, transparent 50%),
+    linear-gradient(135deg, #080f1e 0%, #0e1c36 55%, #122040 100%) !important;
+  border: 1px solid rgba(60, 100, 200, 0.24) !important;
 }
 
 [data-theme="dark"] .admin-topbar::after {
@@ -107,8 +134,8 @@
 }
 
 [data-theme="dark"] .admin-topbar-graphic {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.07), rgba(51, 89, 173, 0.08)) !important;
-  border-color: rgba(122, 158, 236, 0.24) !important;
+  background: transparent !important;
+  border-color: rgba(80, 130, 220, 0.3) !important;
 }
 
 [data-theme="dark"] .admin-topbar-kicker {

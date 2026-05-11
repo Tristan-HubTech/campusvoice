@@ -1,8 +1,8 @@
 {
-  "id": "swarm-1777919041290-tk21gb",
+  "id": "swarm-1778531324477-itxlms",
   "topology": "hierarchical",
   "maxAgents": 8,
   "strategy": "specialized",
-  "initializedAt": "2026-05-04T18:24:01.290Z",
+  "initializedAt": "2026-05-11T20:28:44.477Z",
   "status": "ready"
 }

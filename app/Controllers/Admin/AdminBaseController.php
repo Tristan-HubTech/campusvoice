@@ -4,6 +4,8 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
 use App\Models\AdminActivityLogModel;
+use App\Models\AdminRoleModel;
+use App\Models\AdminUserModel;
 use Throwable;
 
 abstract class AdminBaseController extends BaseController
@@ -11,7 +13,30 @@ abstract class AdminBaseController extends BaseController
     protected function adminUser(): array
     {
         $auth = session('admin_auth');
-        return is_array($auth) ? $auth : [];
+        if (! is_array($auth) || empty($auth['id'])) {
+            return [];
+        }
+
+        $user = (new AdminUserModel())->find((int) $auth['id']);
+        if ($user === null || empty($user['is_active'])) {
+            return $auth;
+        }
+
+        $roleModel   = new AdminRoleModel();
+        $role        = $roleModel->find((int) $user['role_id']);
+        if ($role !== null && ! empty($role['is_system'])) {
+            $permissions = array_fill_keys(AdminRoleModel::ALL_PERMISSIONS, true);
+        } else {
+            $permissions = $role !== null ? $roleModel->getPermissions($role) : [];
+        }
+
+        $auth['role_id']     = (int) $user['role_id'];
+        $auth['role']        = $role !== null ? (string) $role['name'] : $auth['role'];
+        $auth['permissions'] = $permissions;
+
+        session()->set('admin_auth', $auth);
+
+        return $auth;
     }
 
     protected function hasPermission(string $permission): bool

@@ -14,26 +14,50 @@
 <?= $this->section('content') ?>
 <?php
 use App\Libraries\FeedbackImageStorage;
-$canViewActivity = ! empty($canViewActivity);
-$allowedTabs = ['overview', 'feedback', 'announcements', 'users', 'categories'];
-if ($canViewActivity) {
-    $allowedTabs[] = 'activity';
-    $allowedTabs[] = 'student-activity';
-}
+$_p              = $adminUser['permissions'] ?? [];
+$canViewDash     = ! empty($_p['dashboard.view']);
+$canViewFeedback = ! empty($_p['feedback.view']);
+$canViewAnnounce = ! empty($_p['announcements.create']) || ! empty($_p['announcements.edit']) || ! empty($_p['announcements.delete']) || ! empty($_p['announcements.pin']);
+$canViewUsers    = ! empty($_p['users.view']);
+$canViewCats     = ! empty($_p['categories.view']);
+$canViewActivity = ! empty($_p['activity.view']);
+$canViewStudentAct = ! empty($_p['student_activity.view']);
 
-$safePanelTab = in_array($panelTab ?? 'overview', $allowedTabs, true)
-    ? (string) $panelTab
-    : 'overview';
+$allowedTabs = [];
+if ($canViewDash)       $allowedTabs[] = 'overview';
+if ($canViewFeedback)   $allowedTabs[] = 'feedback';
+if ($canViewAnnounce)   $allowedTabs[] = 'announcements';
+if ($canViewUsers)      $allowedTabs[] = 'users';
+if ($canViewCats)       $allowedTabs[] = 'categories';
+if ($canViewActivity)   $allowedTabs[] = 'activity';
+if ($canViewStudentAct) $allowedTabs[] = 'student-activity';
+
+$defaultTab   = ! empty($allowedTabs) ? $allowedTabs[0] : 'overview';
+$safePanelTab = in_array($panelTab ?? $defaultTab, $allowedTabs, true)
+    ? (string) ($panelTab ?? $defaultTab)
+    : $defaultTab;
 ?>
 
 <div class="tab-strip" id="adminTabStrip">
-    <button class="tab-btn active" type="button" data-tab-trigger="overview">Overview</button>
-    <button class="tab-btn" type="button" data-tab-trigger="feedback">Feedback</button>
-    <button class="tab-btn" type="button" data-tab-trigger="announcements">Announcements</button>
-    <button class="tab-btn" type="button" data-tab-trigger="users">Students</button>
-    <button class="tab-btn" type="button" data-tab-trigger="categories">Categories</button>
+    <?php if ($canViewDash): ?>
+        <button class="tab-btn" type="button" data-tab-trigger="overview">Overview</button>
+    <?php endif; ?>
+    <?php if ($canViewFeedback): ?>
+        <button class="tab-btn" type="button" data-tab-trigger="feedback">Feedback</button>
+    <?php endif; ?>
+    <?php if ($canViewAnnounce): ?>
+        <button class="tab-btn" type="button" data-tab-trigger="announcements">Announcements</button>
+    <?php endif; ?>
+    <?php if ($canViewUsers): ?>
+        <button class="tab-btn" type="button" data-tab-trigger="users">Students</button>
+    <?php endif; ?>
+    <?php if ($canViewCats): ?>
+        <button class="tab-btn" type="button" data-tab-trigger="categories">Categories</button>
+    <?php endif; ?>
     <?php if ($canViewActivity): ?>
         <button class="tab-btn" type="button" data-tab-trigger="activity">Admin Activity</button>
+    <?php endif; ?>
+    <?php if ($canViewStudentAct): ?>
         <button class="tab-btn" type="button" data-tab-trigger="student-activity">Student Activity</button>
     <?php endif; ?>
 </div>
@@ -1400,7 +1424,7 @@ $allCategories = $allCategories ?? [];
                 return safePanelTab;
             }
 
-            return 'overview';
+            return allowedTabs[0] || 'overview';
         }
 
         document.querySelectorAll(triggerSelector).forEach(function (button) {

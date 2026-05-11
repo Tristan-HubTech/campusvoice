@@ -1,9 +1,8 @@
 {
   "mcpServers": {
     "claude-flow": {
-      "command": "npx",
-      "args": ["@claude-flow/cli@latest", "mcp", "start"],
-      "env": {}
+      "command": "ruflo",
+      "args": ["mcp", "start"]
     }
   }
 }
