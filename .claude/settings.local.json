@@ -15,7 +15,8 @@
       "mcp__claude-flow__hooks_model-stats",
       "mcp__claude-flow__swarm_status",
       "mcp__claude-flow__swarm_health",
-      "Bash(python3 \"C:\\\\Users\\\\Ara\\\\.claude\\\\plugins\\\\cache\\\\ui-ux-pro-max-skill\\\\ui-ux-pro-max\\\\2.5.0\\\\.claude\\\\skills\\\\ui-ux-pro-max\\\\scripts\\\\search.py\" \"student portal support tickets dark navy institutional\" --design-system -p \"CampusVoice\")"
+      "Bash(python3 \"C:\\\\Users\\\\Ara\\\\.claude\\\\plugins\\\\cache\\\\ui-ux-pro-max-skill\\\\ui-ux-pro-max\\\\2.5.0\\\\.claude\\\\skills\\\\ui-ux-pro-max\\\\scripts\\\\search.py\" \"student portal support tickets dark navy institutional\" --design-system -p \"CampusVoice\")",
+      "Bash(timeout 10 cat \"C:\\\\Users\\\\Ara\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--xampp-htdocs-campusvoice\\\\c245ff51-f18c-47a0-8582-02e36b106d45\\\\tasks\\\\bxuy1gv4d.output\")"
     ]
   },
   "enableAllProjectMcpServers": true,

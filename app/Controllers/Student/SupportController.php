@@ -28,6 +28,7 @@ class SupportController extends StudentBaseController
     {
         return view('student/support/create', [
             'title'       => 'Submit Support Ticket',
+            'navTitle'    => 'My Support Tickets',
             'studentUser' => $this->viewer(),
         ]);
     }
@@ -92,6 +93,7 @@ class SupportController extends StudentBaseController
 
         return view('student/support/show', [
             'title'       => 'Ticket: ' . esc($ticket['subject']),
+            'navTitle'    => 'My Support Tickets',
             'studentUser' => $viewer,
             'ticket'      => $ticket,
             'replies'     => $replies,
@@ -114,7 +116,8 @@ class SupportController extends StudentBaseController
             return redirect()->to(site_url('users/support/' . $id))->with('error', 'This ticket is already closed.');
         }
 
-        $model->update($id, ['status' => 'closed']);
+        (new SupportReplyModel())->where('ticket_id', $id)->delete();
+        $model->delete($id);
 
         $this->logStudentActivity(
             'support.ticket_closed',
@@ -123,6 +126,6 @@ class SupportController extends StudentBaseController
             $id
         );
 
-        return redirect()->to(site_url('users/support/' . $id))->with('success', 'Ticket has been closed.');
+        return redirect()->to(site_url('users/support'))->with('success', 'Ticket closed and removed.');
     }
 }

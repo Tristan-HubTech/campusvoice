@@ -102,10 +102,14 @@
 /* ── Base Typography ───────────────────────────────────────────── */
 body {
   font-family: 'Plus Jakarta Sans', 'Manrope', sans-serif !important;
-  background-color: #e8edf8 !important;
+  background-color: #eaf0fb !important;
   background-image:
-    url("data:image/svg+xml,%3Csvg width='28' height='49' viewBox='0 0 28 49' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%230a1b42' fill-opacity='0.035' fill-rule='evenodd'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 26l12.98 7.5H15v-2l-12.99-7.5-2 1.15v2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 43.65V49h-2z'/%3E%3C/g%3E%3C/svg%3E"),
-    linear-gradient(160deg, #dce6f5 0%, #e8edf8 50%, #f0f4fb 100%) !important;
+    radial-gradient(ellipse at 10% 10%, rgba(26, 74, 184, 0.13) 0%, transparent 44%),
+    radial-gradient(ellipse at 92% 8%, rgba(200, 151, 44, 0.08) 0%, transparent 36%),
+    radial-gradient(ellipse at 78% 94%, rgba(26, 74, 184, 0.10) 0%, transparent 40%),
+    radial-gradient(ellipse at 18% 90%, rgba(60, 40, 160, 0.06) 0%, transparent 34%),
+    url("data:image/svg+xml,%3Csvg width='28' height='49' viewBox='0 0 28 49' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%230a1b42' fill-opacity='0.030' fill-rule='evenodd'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 26l12.98 7.5H15v-2l-12.99-7.5-2 1.15v2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 43.65V49h-2z'/%3E%3C/g%3E%3C/svg%3E"),
+    linear-gradient(160deg, #e8eef9 0%, #edf2fb 50%, #f2f6fd 100%) !important;
   background-attachment: fixed !important;
 }
 
@@ -1144,9 +1148,14 @@ html:not([data-theme="dark"]) .admin-topbar .theme-toggle--on-light:hover {
 
 /* Body background — dark mode */
 [data-theme="dark"] body {
+  background-color: #060d1c !important;
   background-image:
-    url("data:image/svg+xml,%3Csvg width='28' height='49' viewBox='0 0 28 49' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23c8972c' fill-opacity='0.035' fill-rule='evenodd'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 26l12.98 7.5H15v-2l-12.99-7.5-2 1.15v2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 43.65V49h-2z'/%3E%3C/g%3E%3C/svg%3E"),
-    linear-gradient(to bottom, #060e1c 0%, #091628 40%, #0d1e38 70%, #132440 100%) !important;
+    radial-gradient(ellipse at 10% 12%, rgba(44, 96, 212, 0.22) 0%, transparent 45%),
+    radial-gradient(ellipse at 90% 8%, rgba(200, 151, 44, 0.10) 0%, transparent 38%),
+    radial-gradient(ellipse at 70% 90%, rgba(44, 96, 212, 0.14) 0%, transparent 40%),
+    radial-gradient(ellipse at 22% 85%, rgba(80, 50, 180, 0.08) 0%, transparent 35%),
+    url("data:image/svg+xml,%3Csvg width='28' height='49' viewBox='0 0 28 49' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23c8972c' fill-opacity='0.030' fill-rule='evenodd'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 26l12.98 7.5H15v-2l-12.99-7.5-2 1.15v2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 43.65V49h-2z'/%3E%3C/g%3E%3C/svg%3E"),
+    linear-gradient(160deg, #060e1c 0%, #091628 45%, #0d1e38 75%, #101e36 100%) !important;
   background-attachment: fixed !important;
 }
 

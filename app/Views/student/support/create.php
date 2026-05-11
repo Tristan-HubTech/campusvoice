@@ -2,114 +2,114 @@
 <?= $this->section('content') ?>
 <style>
 /* ── Student Support Create ── */
-.sup-create-page { max-width: 640px; margin: 0 auto; padding: 2rem 1.25rem; }
+.sup-create-page { max-width: 620px; margin: 0 auto; padding: 2rem 1.25rem 3rem; }
 
 .sup-back-link {
     display: inline-flex; align-items: center; gap: .35rem;
     color: var(--ink-soft); font-size: .82rem; text-decoration: none;
-    margin-bottom: 1.5rem; transition: color .15s;
+    margin-bottom: 1.75rem; transition: color .15s;
 }
 .sup-back-link:hover { color: var(--ink); text-decoration: none; }
 
 .sup-create-card {
-    background: var(--surface); border: 1px solid var(--line);
-    border-radius: 16px; padding: 2rem;
-    box-shadow: 0 2px 12px rgba(10,27,66,.06);
+    background: rgba(255,255,255,.03);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 20px; padding: 2.25rem 2rem;
+    box-shadow: 0 8px 40px rgba(5,15,50,.3);
+    backdrop-filter: blur(6px);
+    position: relative; overflow: hidden;
 }
-.sup-create-title {
-    font-size: 1.35rem; font-weight: 700; color: var(--ink);
-    margin: 0 0 .35rem; letter-spacing: -.025em;
+.sup-create-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, #3b82f6 30%, #7aaeff 60%, #d4a83a, transparent);
+    opacity: .8;
 }
-.sup-create-subtitle { font-size: .84rem; color: var(--ink-soft); margin: 0 0 1.75rem; }
 
-.sup-field { margin-bottom: 1.25rem; }
+.sup-create-title {
+    font-size: 1.4rem; font-weight: 700; color: var(--ink);
+    margin: 0 0 .3rem; letter-spacing: -.03em;
+    font-family: 'Fraunces', Georgia, serif;
+}
+.sup-create-subtitle { font-size: .83rem; color: var(--ink-soft); margin: 0 0 2rem; }
+
+.sup-field { margin-bottom: 1.35rem; }
 .sup-label {
     display: flex; align-items: center; gap: .3rem;
-    font-size: .81rem; font-weight: 600; color: var(--ink);
-    margin-bottom: .42rem;
+    font-size: .8rem; font-weight: 700; color: var(--ink);
+    margin-bottom: .45rem; letter-spacing: .01em;
 }
-.sup-label-req { color: #ef4444; font-weight: 700; }
+.sup-label-req { color: #ef4444; }
 
 .sup-input, .sup-textarea {
-    width: 100%; padding: .65rem .9rem;
-    border: 1.5px solid var(--line);
-    border-radius: 10px;
-    background: var(--bg); color: var(--ink);
+    width: 100%; padding: .68rem .95rem;
+    border: 1.5px solid rgba(255,255,255,.12);
+    border-radius: 11px;
+    background: rgba(255,255,255,.05); color: var(--ink);
     font-size: .88rem; box-sizing: border-box;
-    transition: border-color .15s, box-shadow .15s;
+    transition: border-color .18s, box-shadow .18s, background .18s;
     outline: none; font-family: inherit;
 }
-.sup-input::placeholder, .sup-textarea::placeholder { color: var(--ink-soft); opacity: .7; }
+.sup-input::placeholder, .sup-textarea::placeholder { color: var(--ink-soft); opacity: .55; }
 .sup-input:focus, .sup-textarea:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(10,27,66,.1);
-    background: var(--surface);
+    border-color: #5080ff;
+    box-shadow: 0 0 0 3px rgba(80,128,255,.15);
+    background: rgba(80,128,255,.05);
 }
-.sup-textarea { resize: vertical; min-height: 148px; line-height: 1.65; }
+.sup-textarea { resize: vertical; min-height: 152px; line-height: 1.65; }
 
 /* Category chips */
-.sup-cat-chips { display: flex; gap: .45rem; flex-wrap: wrap; }
+.sup-cat-chips { display: flex; gap: .4rem; flex-wrap: wrap; }
 .sup-cat-radio { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
 .sup-cat-label {
     display: inline-flex; align-items: center;
-    padding: .38rem .9rem;
-    border: 1.5px solid var(--line);
+    padding: .36rem .9rem;
+    border: 1.5px solid rgba(255,255,255,.15);
     border-radius: 999px; cursor: pointer;
-    font-size: .79rem; font-weight: 600; color: var(--ink-soft);
-    background: var(--bg);
+    font-size: .78rem; font-weight: 600; color: var(--ink-soft);
+    background: rgba(255,255,255,.04);
     transition: border-color .15s, background .15s, color .15s;
     user-select: none;
 }
 .sup-cat-radio:checked + .sup-cat-label {
-    border-color: var(--primary);
-    background: rgba(10,27,66,.07);
-    color: var(--ink);
+    border-color: #5080ff;
+    background: rgba(80,128,255,.18);
+    color: #a8c8ff;
+    box-shadow: 0 0 0 3px rgba(80,128,255,.12);
 }
-.sup-cat-label:hover { border-color: var(--primary); color: var(--ink); }
+.sup-cat-label:hover { border-color: rgba(80,128,255,.5); color: var(--ink); }
 
-.sup-divider { border: none; border-top: 1px solid var(--line); margin: 1.5rem 0; }
+.sup-divider { border: none; border-top: 1px solid rgba(255,255,255,.08); margin: 1.5rem 0; }
 
 .sup-submit-btn {
-    width: 100%; padding: .72rem;
-    background: var(--primary); color: #fff;
-    border: none; border-radius: 10px;
-    font-size: .9rem; font-weight: 600; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: .45rem;
-    transition: opacity .15s, transform .12s;
+    width: 100%; padding: .78rem;
+    background: linear-gradient(135deg, #1a3a72, #1f4a90);
+    color: #fff; border: 1px solid rgba(100,160,255,.25);
+    border-radius: 11px;
+    font-size: .9rem; font-weight: 700; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: .5rem;
+    transition: opacity .15s, transform .12s, box-shadow .15s;
     font-family: inherit;
+    box-shadow: 0 4px 14px rgba(20,60,150,.35);
+    letter-spacing: .01em;
 }
-.sup-submit-btn:hover { opacity: .88; transform: translateY(-1px); }
-.sup-submit-btn:active { transform: translateY(0); opacity: .82; }
+.sup-submit-btn:hover { opacity: .9; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(20,60,150,.45); }
+.sup-submit-btn:active { transform: translateY(0); }
 
-/* ── Dark mode overrides ── */
-html[data-theme="dark"] .sup-back-link { color: #8aaad0; }
-html[data-theme="dark"] .sup-back-link:hover { color: #e0eaff; }
-html[data-theme="dark"] .sup-create-card { background: #131b2e; border-color: #1e2d4a; box-shadow: 0 4px 24px rgba(0,0,0,.3); }
-html[data-theme="dark"] .sup-create-title { color: #e0eaff; }
-html[data-theme="dark"] .sup-create-subtitle { color: #8aaad0; }
-html[data-theme="dark"] .sup-label { color: #c8d8f0; }
-html[data-theme="dark"] .sup-input,
-html[data-theme="dark"] .sup-textarea {
-    background: #0f1a30; border-color: #1e2d4a;
-    color: #e0eaff;
-}
-html[data-theme="dark"] .sup-input::placeholder,
-html[data-theme="dark"] .sup-textarea::placeholder { color: #4a5f80; opacity: 1; }
-html[data-theme="dark"] .sup-input:focus,
-html[data-theme="dark"] .sup-textarea:focus {
-    border-color: #5080ff; background: #131b2e;
-    box-shadow: 0 0 0 3px rgba(80,128,255,.15);
-}
-html[data-theme="dark"] .sup-cat-label {
-    background: #0f1a30; border-color: #2a3d60; color: #8aaad0;
-}
-html[data-theme="dark"] .sup-cat-radio:checked + .sup-cat-label {
-    border-color: #5080ff; background: rgba(80,128,255,.15); color: #c0d5ff;
-}
-html[data-theme="dark"] .sup-cat-label:hover { border-color: #5080ff; color: #c0d5ff; }
-html[data-theme="dark"] .sup-divider { border-color: #1e2d4a; }
-html[data-theme="dark"] .sup-submit-btn { background: #1e3a72; }
-html[data-theme="dark"] .sup-submit-btn:hover { background: #243f7d; }
+/* Light mode */
+html:not([data-theme="dark"]) .sup-create-card { background: #fff; border-color: #dde8f8; box-shadow: 0 4px 24px rgba(14,32,80,.08); }
+html:not([data-theme="dark"]) .sup-create-card::before { opacity: .5; }
+html:not([data-theme="dark"]) .sup-create-title { color: #0d1e42; }
+html:not([data-theme="dark"]) .sup-input,
+html:not([data-theme="dark"]) .sup-textarea { background: #f8faff; border-color: #c8d8f0; color: #0d1e42; }
+html:not([data-theme="dark"]) .sup-input::placeholder,
+html:not([data-theme="dark"]) .sup-textarea::placeholder { color: #7888a8; opacity: 1; }
+html:not([data-theme="dark"]) .sup-input:focus,
+html:not([data-theme="dark"]) .sup-textarea:focus { border-color: #2558c8; background: #fff; box-shadow: 0 0 0 3px rgba(37,88,200,.1); }
+html:not([data-theme="dark"]) .sup-cat-label { background: #f4f7ff; border-color: #c8d8f0; color: #4f6ea7; }
+html:not([data-theme="dark"]) .sup-cat-radio:checked + .sup-cat-label { border-color: #2558c8; background: #dbeafe; color: #1e3a8a; box-shadow: 0 0 0 3px rgba(37,88,200,.1); }
+html:not([data-theme="dark"]) .sup-cat-label:hover { border-color: #2558c8; color: #0d1e42; }
+html:not([data-theme="dark"]) .sup-divider { border-color: #dde8f8; }
+html:not([data-theme="dark"]) .sup-submit-btn { background: linear-gradient(135deg, #1a3a72, #235296); }
 </style>
 
 <div class="sup-create-page">
@@ -129,7 +129,7 @@ html[data-theme="dark"] .sup-submit-btn:hover { background: #243f7d; }
                 <label class="sup-label">Subject <span class="sup-label-req">*</span></label>
                 <input type="text" name="subject" class="sup-input"
                     value="<?= esc(old('subject', '')) ?>"
-                    required maxlength="200"
+                    required maxlength="200" autocomplete="off"
                     placeholder="Brief description of your issue">
             </div>
 
@@ -149,7 +149,7 @@ html[data-theme="dark"] .sup-submit-btn:hover { background: #243f7d; }
             <div class="sup-field">
                 <label class="sup-label">Message <span class="sup-label-req">*</span></label>
                 <textarea name="message" class="sup-textarea"
-                    required minlength="10"
+                    required minlength="10" autocomplete="off"
                     placeholder="Describe your issue in detail — the more context, the faster we can help."><?= esc(old('message', '')) ?></textarea>
             </div>
 

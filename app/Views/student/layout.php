@@ -23,7 +23,7 @@
 $studentPortalCss = FCPATH . 'css/portal.css';
 $studentPortalCssVersion = is_file($studentPortalCss) ? (string) filemtime($studentPortalCss) : '1';
 $studentIsAuthed = ! empty($studentUser['id']);
-$currentTitle = (string) ($title ?? '');
+$currentTitle = (string) ($navTitle ?? $title ?? '');
 $isAuthScreen = (bool) ($isAuthScreen ?? ($currentTitle === 'Student Portal Access'));
 ?>
     <link rel="stylesheet" href="<?= base_url('css/portal.css') . '?v=' . $studentPortalCssVersion ?>">

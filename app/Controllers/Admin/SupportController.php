@@ -140,6 +140,19 @@ class SupportController extends AdminBaseController
             return redirect()->back()->with('error', 'Ticket not found.');
         }
 
+        if ($status === 'closed') {
+            (new SupportReplyModel())->where('ticket_id', $id)->delete();
+            $model->delete($id);
+
+            $this->logActivity(
+                'support.status_changed',
+                'Closed and deleted support ticket.',
+                ['target_type' => 'support_ticket', 'target_id' => $id, 'from' => $ticket['status'], 'to' => 'closed']
+            );
+
+            return redirect()->to(site_url('admin/support'))->with('success', 'Ticket closed and deleted.');
+        }
+
         $model->update($id, ['status' => $status]);
 
         $this->logActivity(

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <?= $this->include('partials/theme_fouc') ?>
     <title><?= esc($title ?? 'Admin Panel') ?> | CampusVoice</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -236,8 +236,38 @@
                         <rect    x="137.5" y="40" width="1" height="1.5" fill="#091a10"/>
                         <!-- Ground line -->
                         <line x1="0" y1="41" x2="148" y2="41"           stroke="url(#cvGl)" stroke-width="1.8"/>
-                        <!-- Ground plane -->
-                        <rect x="0" y="41.5" width="148" height="10.5"   fill="#040a14" rx="0"/>
+                        <!-- Ground base -->
+                        <rect x="0" y="41.5" width="148" height="10.5"   fill="#030810"/>
+                        <!-- Cobblestone path strip (center walkway) -->
+                        <rect x="58" y="41.5" width="32" height="10.5"   fill="#050e1c" opacity=".7"/>
+                        <line x1="58" y1="41.5" x2="58" y2="52"         stroke="#0c1e38" stroke-width=".6" opacity=".5"/>
+                        <line x1="90" y1="41.5" x2="90" y2="52"         stroke="#0c1e38" stroke-width=".6" opacity=".5"/>
+                        <!-- Subtle ground grid (path tiles) -->
+                        <line x1="0"  y1="45" x2="148" y2="45"          stroke="#070f20" stroke-width=".5" opacity=".6"/>
+                        <line x1="0"  y1="48.5" x2="148" y2="48.5"      stroke="#070f20" stroke-width=".4" opacity=".45"/>
+                        <line x1="20" y1="41.5" x2="20" y2="52"         stroke="#070f20" stroke-width=".4" opacity=".4"/>
+                        <line x1="40" y1="41.5" x2="40" y2="52"         stroke="#070f20" stroke-width=".4" opacity=".4"/>
+                        <line x1="74" y1="41.5" x2="74" y2="52"         stroke="#080f22" stroke-width=".5" opacity=".5"/>
+                        <line x1="108" y1="41.5" x2="108" y2="52"       stroke="#070f20" stroke-width=".4" opacity=".4"/>
+                        <line x1="128" y1="41.5" x2="128" y2="52"       stroke="#070f20" stroke-width=".4" opacity=".4"/>
+                        <!-- Gold tower glow pool on ground -->
+                        <ellipse cx="74" cy="52" rx="16" ry="5"          fill="#d4a83a" opacity=".09"/>
+                        <ellipse cx="74" cy="50" rx="9"  ry="3"          fill="#d4a83a" opacity=".13"/>
+                        <!-- Window light spills (blue) -->
+                        <ellipse cx="26" cy="52" rx="6"  ry="2"          fill="#3060d0" opacity=".08"/>
+                        <ellipse cx="40" cy="52" rx="7"  ry="2.5"        fill="#d4a83a" opacity=".07"/>
+                        <ellipse cx="51" cy="52" rx="4"  ry="1.8"        fill="#3060d0" opacity=".08"/>
+                        <ellipse cx="88" cy="52" rx="7"  ry="2.5"        fill="#3060d0" opacity=".08"/>
+                        <ellipse cx="100" cy="52" rx="5" ry="2"          fill="#d4a83a" opacity=".07"/>
+                        <ellipse cx="122" cy="52" rx="5" ry="2"          fill="#3060d0" opacity=".07"/>
+                        <!-- Streetlamp posts left -->
+                        <line x1="19" y1="36" x2="19" y2="41.5"         stroke="#1a3060" stroke-width=".7"/>
+                        <circle cx="19" cy="35.5" r="1.2"                fill="#d4a83a" opacity=".7"/>
+                        <ellipse cx="19" cy="41.5" rx="3.5" ry="1.2"     fill="#d4a83a" opacity=".12"/>
+                        <!-- Streetlamp post right -->
+                        <line x1="129" y1="36" x2="129" y2="41.5"       stroke="#1a3060" stroke-width=".7"/>
+                        <circle cx="129" cy="35.5" r="1.2"               fill="#d4a83a" opacity=".7"/>
+                        <ellipse cx="129" cy="41.5" rx="3.5" ry="1.2"    fill="#d4a83a" opacity=".12"/>
                     </svg>
                 </div>
                 <div class="admin-topbar-heading">
@@ -274,6 +304,38 @@
 </div>
 
 <script>
+    (function () {
+        var minZoom = 1;
+        var maxZoom = 1.5;
+        var step = 0.1;
+        var currentZoom = 1;
+        function clampZoom(value) {
+            return Math.min(maxZoom, Math.max(minZoom, value));
+        }
+        function applyZoom(value) {
+            currentZoom = clampZoom(Math.round(value * 100) / 100);
+            document.documentElement.style.zoom = String(currentZoom * 100) + '%';
+        }
+        window.addEventListener('wheel', function (event) {
+            if (!event.ctrlKey && !event.metaKey) return;
+            event.preventDefault();
+            applyZoom(currentZoom + (event.deltaY < 0 ? step : -step));
+        }, { passive: false });
+        window.addEventListener('keydown', function (event) {
+            if (!event.ctrlKey && !event.metaKey) return;
+            if (event.key === '+' || event.key === '=' || event.key === 'Add') {
+                event.preventDefault();
+                applyZoom(currentZoom + step);
+            } else if (event.key === '-' || event.key === '_' || event.key === 'Subtract') {
+                event.preventDefault();
+                applyZoom(currentZoom - step);
+            } else if (event.key === '0') {
+                event.preventDefault();
+                applyZoom(1);
+            }
+        });
+    })();
+
     const menuBtn = document.getElementById('menuBtn');
     const sidebar = document.getElementById('adminSidebar');
     if (menuBtn && sidebar) {

@@ -78,21 +78,21 @@
 .adsup-empty { text-align: center; padding: 3.5rem 1rem; color: var(--cv-muted); font-size: .875rem; }
 
 /* Table */
-.adsup-table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--cv-border, #dce6f5); }
+.adsup-table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid #c8d8ee; }
 .adsup-table { width: 100%; border-collapse: collapse; min-width: 720px; }
-.adsup-table thead tr { background: var(--cv-surface-2, rgba(246,249,253,.9)); }
+.adsup-table thead tr { background: #eef4fb; }
 .adsup-table th {
     padding: .65rem 1rem; text-align: left;
     font-size: .7rem; font-weight: 700; color: var(--cv-muted);
-    border-bottom: 1px solid var(--cv-border, #dce6f5);
+    border-bottom: 2px solid #c2d4ec;
     white-space: nowrap; letter-spacing: .04em; text-transform: uppercase;
 }
 .adsup-table tbody tr {
-    border-bottom: 1px solid var(--cv-border, #dce6f5);
+    border-bottom: 1px solid #d4e2f4;
     transition: background .12s;
 }
 .adsup-table tbody tr:last-child { border-bottom: none; }
-.adsup-table tbody tr:hover { background: var(--cv-surface-hover, rgba(232,240,255,.7)); }
+.adsup-table tbody tr:hover { background: rgba(210,228,255,.5); }
 .adsup-td {
     padding: .7rem 1rem; font-size: .82rem;
     color: var(--cv-ink); vertical-align: middle;
@@ -126,12 +126,15 @@
 .adsup-table tbody tr[data-pri="urgent"] .adsup-td:first-child { box-shadow: inset 3px 0 0 #ef4444; }
 
 .adsup-view-link {
-    font-size: .78rem; color: var(--cv-navy-700, #1e4070);
-    text-decoration: none; font-weight: 600;
+    font-size: .78rem; color: #2c62d4;
+    text-decoration: none; font-weight: 700;
     padding: .25rem .6rem; border-radius: 6px;
-    transition: background .12s;
+    border: 1px solid rgba(44,98,212,.25);
+    transition: background .12s, color .12s, border-color .12s;
 }
-.adsup-view-link:hover { background: var(--cv-navy-50, #eef4fb); text-decoration: none; }
+.adsup-view-link:hover { background: rgba(44,98,212,.08); color: #1a4ab8; border-color: rgba(44,98,212,.45); text-decoration: none; }
+[data-theme="dark"] .adsup-view-link { color: #7aaeff; border-color: rgba(122,174,255,.25); }
+[data-theme="dark"] .adsup-view-link:hover { background: rgba(122,174,255,.1); color: #a8c8ff; border-color: rgba(122,174,255,.5); }
 
 /* ── Dark mode overrides for admin ── */
 [data-theme="dark"] .adsup-select {
@@ -180,25 +183,24 @@
     </div>
 
     <form method="get" action="<?= site_url('admin/support') ?>" class="adsup-filters">
-        <select name="status" class="adsup-select">
+        <select name="status" class="adsup-select" onchange="this.form.submit()">
             <option value="">All Status</option>
             <?php foreach (['open' => 'Open', 'in_progress' => 'In Progress', 'resolved' => 'Resolved', 'closed' => 'Closed'] as $v => $l): ?>
             <option value="<?= $v ?>" <?= ($filters['status'] ?? '') === $v ? 'selected' : '' ?>><?= $l ?></option>
             <?php endforeach; ?>
         </select>
-        <select name="category" class="adsup-select">
+        <select name="category" class="adsup-select" onchange="this.form.submit()">
             <option value="">All Category</option>
             <?php foreach (['general' => 'General', 'technical' => 'Technical', 'account' => 'Account', 'other' => 'Other'] as $v => $l): ?>
             <option value="<?= $v ?>" <?= ($filters['category'] ?? '') === $v ? 'selected' : '' ?>><?= $l ?></option>
             <?php endforeach; ?>
         </select>
-        <select name="priority" class="adsup-select">
+        <select name="priority" class="adsup-select" onchange="this.form.submit()">
             <option value="">All Priority</option>
             <?php foreach (['low' => 'Low', 'normal' => 'Normal', 'high' => 'High', 'urgent' => 'Urgent'] as $v => $l): ?>
             <option value="<?= $v ?>" <?= ($filters['priority'] ?? '') === $v ? 'selected' : '' ?>><?= $l ?></option>
             <?php endforeach; ?>
         </select>
-        <button type="submit" class="adsup-filter-btn">Filter</button>
         <?php if ($filters['status'] || $filters['category'] || $filters['priority']): ?>
         <a href="<?= site_url('admin/support') ?>" class="adsup-clear-link">Clear</a>
         <?php endif; ?>
