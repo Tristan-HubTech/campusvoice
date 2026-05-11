@@ -102,10 +102,11 @@ class SettingsController extends StudentBaseController
 
             $user = $userModel->find($viewerId);
             session()->set('student_auth', [
-                'id'    => (int) $user['id'],
-                'name'  => trim((string) $user['first_name'] . ' ' . (string) $user['last_name']),
-                'email' => (string) $user['email'],
-                'role'  => (string) ($viewer['role'] ?? 'user'),
+                'id'           => (int) $user['id'],
+                'name'         => trim((string) $user['first_name'] . ' ' . (string) $user['last_name']),
+                'email'        => (string) $user['email'],
+                'role'         => (string) ($viewer['role'] ?? 'user'),
+                'avatar_color' => $profilePayload['avatar_color'],
             ]);
 
             if ($password !== '') {

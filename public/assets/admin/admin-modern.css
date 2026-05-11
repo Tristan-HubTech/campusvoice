@@ -5439,7 +5439,7 @@ span.type-praise {
   pointer-events: none;
 }
 
-/* Glowing pill line at top — premium redesign */
+/* Glowing pill line at top ï¿½ premium redesign */
 .ov-kpi::after {
   content: '';
   position: absolute;
@@ -5790,7 +5790,7 @@ span.type-praise {
     grid-template-columns: repeat(2, 1fr);
   }
 }
-[data-theme="dark"] /* Glowing pill line at top — premium redesign */
+[data-theme="dark"] /* Glowing pill line at top ï¿½ premium redesign */
 .ov-kpi::after {
   content: '';
   position: absolute;
@@ -5817,7 +5817,7 @@ span.type-praise {
 [data-theme="dark"] .ov-kpi {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.28) !important;
 }
-[data-theme="dark"] /* Glowing pill line at top — premium redesign */
+[data-theme="dark"] /* Glowing pill line at top ï¿½ premium redesign */
 .ov-kpi::after {
   content: '';
   position: absolute;
@@ -5856,7 +5856,7 @@ span.type-praise {
   color: #e8edf8 !important;
 }
 
-/* Dark mode — stronger glow on dark backgrounds */
+/* Dark mode ï¿½ stronger glow on dark backgrounds */
 [data-theme="dark"] .ov-kpi::after {
   filter: drop-shadow(0 0 7px var(--kc, #4a80d0)) drop-shadow(0 0 3px var(--kc, #4a80d0));
   opacity: 1;

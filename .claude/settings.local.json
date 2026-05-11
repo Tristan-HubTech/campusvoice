@@ -16,5 +16,9 @@
       "mcp__claude-flow__swarm_status",
       "mcp__claude-flow__swarm_health"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "claude-flow"
+  ],
+  "enableAllProjectMcpServers": true
 }

@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="<?= base_url('assets/admin/control-panel.css') . '?v=' . $cpCssV ?>">
     <?php $modCssV = is_file(FCPATH . 'assets/admin/admin-modern.css') ? filemtime(FCPATH . 'assets/admin/admin-modern.css') : '1'; ?>
     <link rel="stylesheet" href="<?= base_url('assets/admin/admin-modern.css') . '?v=' . $modCssV ?>">
+    <?php $topbarCssV = is_file(FCPATH . 'assets/admin/topbar-redesign.css') ? filemtime(FCPATH . 'assets/admin/topbar-redesign.css') : '1'; ?>
+    <link rel="stylesheet" href="<?= base_url('assets/admin/topbar-redesign.css') . '?v=' . $topbarCssV ?>">
     <?= $this->include('partials/theme_styles') ?>
 </head>
 <body>
@@ -91,7 +93,32 @@
             <button type="button" class="menu-btn" id="menuBtn" aria-label="Toggle navigation">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             </button>
-            <h1 class="admin-topbar-title"><?= esc($title ?? 'Control Panel') ?></h1>
+            <div class="admin-topbar-brand">
+                <div class="admin-topbar-graphic" aria-hidden="true">
+                    <svg viewBox="0 0 148 52" xmlns="http://www.w3.org/2000/svg" role="presentation" focusable="false">
+                        <defs>
+                            <linearGradient id="cvHeaderGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#1f4eb6"/>
+                                <stop offset="55%" stop-color="#356fd3"/>
+                                <stop offset="100%" stop-color="#e0b74d"/>
+                            </linearGradient>
+                        </defs>
+                        <circle cx="14" cy="13" r="1.6" fill="#9bbaf8" opacity=".75"/>
+                        <circle cx="24" cy="7" r="1.2" fill="#9bbaf8" opacity=".55"/>
+                        <circle cx="35" cy="13" r="1.3" fill="#9bbaf8" opacity=".65"/>
+                        <path d="M7 39h134" stroke="url(#cvHeaderGlow)" stroke-width="2.1" stroke-linecap="round"/>
+                        <rect x="65.5" y="18" width="17" height="21" rx="2.4" fill="none" stroke="#2b5fc6" stroke-width="1.9"/>
+                        <path d="M74 9.4l8.8 8.4H65.2L74 9.4z" fill="#e0b74d" opacity=".95"/>
+                        <circle cx="74" cy="28.6" r="4.5" fill="none" stroke="#e0b74d" stroke-width="1.6"/>
+                        <path d="M74 26v2.8l1.7 1.1" stroke="#e0b74d" stroke-width="1.6" stroke-linecap="round"/>
+                        <path d="M50 39V30.5h10V39M88 39V30.5h10V39" fill="none" stroke="#2b5fc6" stroke-width="1.5" opacity=".8"/>
+                    </svg>
+                </div>
+                <div class="admin-topbar-heading">
+                    <span class="admin-topbar-kicker">CampusVoice Admin Portal</span>
+                    <h1 class="admin-topbar-title"><?= esc($title ?? 'Control Panel') ?></h1>
+                </div>
+            </div>
             <div class="admin-topbar-actions">
                 <?= $this->include('partials/theme_toggle', ['toggleClass' => 'theme-toggle--on-light']) ?>
                 <div class="admin-topbar-sep"></div>

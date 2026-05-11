@@ -200,7 +200,7 @@ abstract class StudentBaseController extends BaseController
                 ? $this->anonymousAlias((int) $row['user_id'])
                 : trim((string) $row['first_name'] . ' ' . (string) $row['last_name']);
             $row['avatar_color'] = $commentIsAnonymous
-                ? 'violet'
+                ? (string) ($row['avatar_color'] ?? 'blue')
                 : (string) ($row['avatar_color'] ?? 'blue');
 
             $parentId = ! empty($row['parent_id']) ? (int) $row['parent_id'] : 0;
@@ -284,7 +284,7 @@ abstract class StudentBaseController extends BaseController
                 ? $this->anonymousAlias($postUserId)
                 : trim((string) $post['first_name'] . ' ' . (string) $post['last_name']);
             $post['avatar_color'] = $postIsAnonymous
-                ? 'violet'
+                ? (string) ($post['avatar_color'] ?? $this->avatarPalette[$postUserId % count($this->avatarPalette)])
                 : (string) ($post['avatar_color'] ?? $this->avatarPalette[$postUserId % count($this->avatarPalette)]);
             $post['initials'] = $postIsAnonymous
                 ? 'AN'

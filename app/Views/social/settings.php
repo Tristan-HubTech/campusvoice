@@ -217,8 +217,27 @@ var colorMap = {
 (function () {
     var sel = document.getElementById('avatar_color');
     var dot = document.getElementById('avatarDot');
-    function updateDot() { if (dot && sel) dot.style.background = colorMap[sel.value] || '#3b82f6'; }
-    if (sel) { sel.addEventListener('change', updateDot); updateDot(); }
+
+    // Only updates the small dot preview — runs on page load
+    function updateDotPreview() {
+        if (dot && sel) dot.style.background = colorMap[sel.value] || '#3b82f6';
+    }
+
+    // Updates the header avatar ONLY when the user actively picks a color
+    function onColorChange() {
+        updateDotPreview();
+        var headerAvatars = document.querySelectorAll('.portal-user-info .avatar-small');
+        if (headerAvatars.length > 0 && sel) {
+            headerAvatars.forEach(function(avatar) {
+                avatar.className = 'avatar avatar-small avatar-' + sel.value;
+            });
+        }
+    }
+
+    if (sel) {
+        sel.addEventListener('change', onColorChange);
+        updateDotPreview(); // Only update dot on load, NOT the header
+    }
 })();
 
 /* ── Password section toggle ── */

@@ -218,12 +218,15 @@ class AuthController extends Controller
         // Hard reset: never let a student session coexist with an admin session in the same browser.
         session()->remove('admin_auth');
 
+        $profile = (new \App\Models\SocialProfileModel())->where('user_id', $user['id'])->first();
+
         session()->set('student_auth', [
-            'id'         => (int) $user['id'],
-            'name'       => trim(((string) ($user['first_name'] ?? '')) . ' ' . ((string) ($user['last_name'] ?? ''))),
-            'email'      => $user['email'],
-            'role'       => $user['role'],
-            'is_new_user' => $isNewUser,
+            'id'           => (int) $user['id'],
+            'name'         => trim(((string) ($user['first_name'] ?? '')) . ' ' . ((string) ($user['last_name'] ?? ''))),
+            'email'        => $user['email'],
+            'role'         => $user['role'],
+            'is_new_user'  => $isNewUser,
+            'avatar_color' => $profile['avatar_color'] ?? 'blue',
         ]);
 
         (new StudentActivityLogModel())->log(

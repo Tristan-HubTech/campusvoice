@@ -1,9 +1,9 @@
-/* ============================================================
+﻿/* ============================================================
    PORTAL STYLES
    Used across the student portal: home, feedback forms, layout
    ============================================================ */
 
-/* Global CSS Variables — Colors, backgrounds, and shadows */
+/* Global CSS Variables  Colors, backgrounds, and shadows */
 :root {
     --bg: #e8e4dc;
     --bg-alt: #ddd9d0;
@@ -35,7 +35,7 @@ body {
     color: var(--ink);
     background-color: var(--bg);
     background-image:
-        url("data:image/svg+xml,%3Csvg width='28' height='49' viewBox='0 0 28 49' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%230a1b42' fill-opacity='0.025' fill-rule='evenodd'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 26l12.98 7.5H15v-2l-12.99-7.5-2 1.15v2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 43.65V49h-2z'/%3E%3C/g%3E%3C/svg%3E"),
+        url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%230a1b42' fill-opacity='0.05'%3E%3Cpath d='M20 15 L21 18 L24 19 L21 20 L20 23 L19 20 L16 19 L19 18 Z' opacity='0.8'/%3E%3Cpath d='M75 35 L76 38 L79 39 L76 40 L75 43 L74 40 L71 39 L74 38 Z' opacity='0.5'/%3E%3Cpath d='M45 80 L46 83 L49 84 L46 85 L45 88 L44 85 L41 84 L44 83 Z' opacity='0.7'/%3E%3Ccircle cx='10' cy='60' r='1.5' opacity='0.6'/%3E%3Ccircle cx='35' cy='10' r='2' opacity='0.4'/%3E%3Ccircle cx='60' cy='20' r='1.5' opacity='0.5'/%3E%3Ccircle cx='85' cy='70' r='1.5' opacity='0.8'/%3E%3Ccircle cx='30' cy='90' r='2.5' opacity='0.3'/%3E%3Ccircle cx='90' cy='15' r='2' opacity='0.5'/%3E%3C/g%3E%3C/svg%3E"),
         linear-gradient(to bottom, var(--bg) 0%, var(--bg-alt) 100%);
     background-size: auto;
     background-attachment: fixed;
@@ -44,9 +44,15 @@ body {
     flex-direction: column;
 }
 
+/* Prevent horizontal topbar jump when page scrollbar appears/disappears. */
+html {
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
+}
+
 body.is-auth-screen {
     background-image:
-        url("data:image/svg+xml,%3Csvg width='28' height='49' viewBox='0 0 28 49' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%230a1b42' fill-opacity='0.025' fill-rule='evenodd'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 26l12.98 7.5H15v-2l-12.99-7.5-2 1.15v2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 43.65V49h-2z'/%3E%3C/g%3E%3C/svg%3E"),
+        url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%230a1b42' fill-opacity='0.05'%3E%3Cpath d='M20 15 L21 18 L24 19 L21 20 L20 23 L19 20 L16 19 L19 18 Z' opacity='0.8'/%3E%3Cpath d='M75 35 L76 38 L79 39 L76 40 L75 43 L74 40 L71 39 L74 38 Z' opacity='0.5'/%3E%3Cpath d='M45 80 L46 83 L49 84 L46 85 L45 88 L44 85 L41 84 L44 83 Z' opacity='0.7'/%3E%3Ccircle cx='10' cy='60' r='1.5' opacity='0.6'/%3E%3Ccircle cx='35' cy='10' r='2' opacity='0.4'/%3E%3Ccircle cx='60' cy='20' r='1.5' opacity='0.5'/%3E%3Ccircle cx='85' cy='70' r='1.5' opacity='0.8'/%3E%3Ccircle cx='30' cy='90' r='2.5' opacity='0.3'/%3E%3Ccircle cx='90' cy='15' r='2' opacity='0.5'/%3E%3C/g%3E%3C/svg%3E"),
         linear-gradient(to bottom, var(--bg) 0%, var(--bg-alt) 100%);
     background-size: auto;
     background-attachment: fixed;
@@ -56,7 +62,7 @@ html[data-theme="dark"] body,
 html[data-theme="dark"] body.is-auth-screen {
     background-color: #080f1e;
     background-image:
-        url("data:image/svg+xml,%3Csvg width='28' height='49' viewBox='0 0 28 49' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23c8972c' fill-opacity='0.035' fill-rule='evenodd'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 26l12.98 7.5H15v-2l-12.99-7.5-2 1.15v2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 43.65V49h-2z'/%3E%3C/g%3E%3C/svg%3E"),
+        url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23c8972c' fill-opacity='0.15'%3E%3Cpath d='M20 15 L21 18 L24 19 L21 20 L20 23 L19 20 L16 19 L19 18 Z' opacity='0.8'/%3E%3Cpath d='M75 35 L76 38 L79 39 L76 40 L75 43 L74 40 L71 39 L74 38 Z' opacity='0.5'/%3E%3Cpath d='M45 80 L46 83 L49 84 L46 85 L45 88 L44 85 L41 84 L44 83 Z' opacity='0.7'/%3E%3Ccircle cx='10' cy='60' r='1.5' opacity='0.6'/%3E%3Ccircle cx='35' cy='10' r='2' opacity='0.4'/%3E%3Ccircle cx='60' cy='20' r='1.5' opacity='0.5'/%3E%3Ccircle cx='85' cy='70' r='1.5' opacity='0.8'/%3E%3Ccircle cx='30' cy='90' r='2.5' opacity='0.3'/%3E%3Ccircle cx='90' cy='15' r='2' opacity='0.5'/%3E%3C/g%3E%3C/svg%3E"),
         linear-gradient(to bottom, #060e1c 0%, #091628 40%, #0d1e38 70%, #132440 100%);
     background-size: auto;
     background-attachment: fixed;
@@ -71,24 +77,78 @@ a:hover {
     text-decoration: underline;
 }
 
-/* Main Portal Header — dark navy sticky top navigation */
+/* Main Portal Header — light/dark theme-aware */
 .portal-header {
     position: sticky;
     top: 0;
     z-index: 10;
-    border-bottom: 1px solid rgba(133, 172, 255, 0.32);
-    backdrop-filter: blur(10px);
-    background: linear-gradient(175deg, #0a1535 0%, #0d214e 58%, #102a62 100%);
+    overflow: hidden;
+    /* Light mode: crisp white-blue tint */
+    background-color: #ffffff;
+    background-image:
+        url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%230a1b42' fill-opacity='0.05'%3E%3Cpath d='M20 15 L21 18 L24 19 L21 20 L20 23 L19 20 L16 19 L19 18 Z' opacity='0.8'/%3E%3Cpath d='M75 35 L76 38 L79 39 L76 40 L75 43 L74 40 L71 39 L74 38 Z' opacity='0.5'/%3E%3Cpath d='M45 80 L46 83 L49 84 L46 85 L45 88 L44 85 L41 84 L44 83 Z' opacity='0.7'/%3E%3Ccircle cx='10' cy='60' r='1.5' opacity='0.6'/%3E%3Ccircle cx='35' cy='10' r='2' opacity='0.4'/%3E%3Ccircle cx='60' cy='20' r='1.5' opacity='0.5'/%3E%3Ccircle cx='85' cy='70' r='1.5' opacity='0.8'/%3E%3Ccircle cx='30' cy='90' r='2.5' opacity='0.3'/%3E%3Ccircle cx='90' cy='15' r='2' opacity='0.5'/%3E%3C/g%3E%3C/svg%3E"),
+        linear-gradient(95deg, #f8faff 0%, #ffffff 40%, #f4f7ff 100%);
+    background-size: auto, cover;
+    border-bottom: 1.5px solid #dde3f0;
+    box-shadow: 0 2px 18px rgba(10, 27, 66, 0.08), 0 1px 0 rgba(10,27,66,0.03);
 }
+
+/* Left accent streak */
+.portal-header::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, transparent 0%, #c8972c 35%, #1a4fd6 75%, transparent 100%);
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+/* Bottom shimmer line */
+.portal-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 8%;
+    right: 8%;
+    height: 1.5px;
+    background: linear-gradient(90deg, transparent 0%, rgba(200,151,44,0.5) 30%, rgba(26,79,214,0.35) 70%, transparent 100%);
+    pointer-events: none;
+}
+
+/* Dark mode: deep navy + golden circuit */
+html[data-theme="dark"] .portal-header {
+    background-color: #080f1f;
+    background-image:
+        url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23c8972c' fill-opacity='0.15'%3E%3Cpath d='M20 15 L21 18 L24 19 L21 20 L20 23 L19 20 L16 19 L19 18 Z' opacity='0.8'/%3E%3Cpath d='M75 35 L76 38 L79 39 L76 40 L75 43 L74 40 L71 39 L74 38 Z' opacity='0.5'/%3E%3Cpath d='M45 80 L46 83 L49 84 L46 85 L45 88 L44 85 L41 84 L44 83 Z' opacity='0.7'/%3E%3Ccircle cx='10' cy='60' r='1.5' opacity='0.6'/%3E%3Ccircle cx='35' cy='10' r='2' opacity='0.4'/%3E%3Ccircle cx='60' cy='20' r='1.5' opacity='0.5'/%3E%3Ccircle cx='85' cy='70' r='1.5' opacity='0.8'/%3E%3Ccircle cx='30' cy='90' r='2.5' opacity='0.3'/%3E%3Ccircle cx='90' cy='15' r='2' opacity='0.5'/%3E%3C/g%3E%3C/svg%3E"),
+        linear-gradient(95deg, #070d1c 0%, #0a1535 40%, #070d1c 100%);
+    background-size: auto, cover;
+    border-bottom-color: rgba(255,255,255,0.055);
+    box-shadow: 0 4px 30px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.03);
+}
+
+html[data-theme="dark"] .portal-header::before {
+    background: linear-gradient(180deg, transparent 0%, #c8972c 35%, #60a5fa 75%, transparent 100%);
+    opacity: 0.45;
+}
+
+html[data-theme="dark"] .portal-header::after {
+    background: linear-gradient(90deg, transparent 0%, rgba(200,151,44,0.4) 30%, rgba(96,165,250,0.25) 70%, transparent 100%);
+}
+
 
 .portal-header-inner {
     max-width: none;
     margin: 0;
-    padding: 12px 22px;
+    padding: 10px 22px 8px;
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
     gap: 18px;
+    position: relative;
+    z-index: 2;
 }
 
 .portal-header-end {
@@ -98,20 +158,31 @@ a:hover {
     gap: 10px;
 }
 
+
 .portal-brand {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    color: #fff;
+    gap: 9px;
+    /* Dark in light mode */
+    color: var(--ink);
     font-family: 'Fraunces', serif;
     font-weight: 600;
-    font-size: 1.05rem;
+    font-size: 1rem;
     letter-spacing: 0.2px;
+    cursor: default;
+    user-select: none;
+    position: relative;
+    z-index: 1;
+}
+
+/* Dark mode brand: white */
+html[data-theme="dark"] .portal-brand {
+    color: #fff;
 }
 
 .portal-logo {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     object-fit: contain;
 }
 
@@ -154,6 +225,46 @@ a:hover {
     line-height: 1;
 }
 
+.portal-brand-text {
+    background: linear-gradient(to right, #ffffff, #e2e8f0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+}
+
+.portal-badge-beta {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(200, 151, 44, 0.15);
+    border: 1px solid rgba(200, 151, 44, 0.3);
+    color: #dfa931;
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 2px 6px;
+    border-radius: 6px;
+    margin-left: 6px;
+    box-shadow: 0 0 10px rgba(200, 151, 44, 0.1);
+}
+
+.portal-nav-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 6px;
+    opacity: 0.7;
+    transition: opacity 0.2s ease, color 0.2s ease;
+    vertical-align: middle;
+}
+
+.portal-nav a:hover .portal-nav-icon,
+.portal-nav a.active .portal-nav-icon {
+    opacity: 1;
+    color: #c8972c;
+}
 .portal-nav {
     display: flex;
     align-items: center;
@@ -163,26 +274,104 @@ a:hover {
 }
 
 .portal-nav a {
-    padding: 9px 12px;
+    display: inline-flex;
+    align-items: center;
+    padding: 9px 16px;
     border-radius: 999px;
-    font-weight: 700;
-    color: rgba(219, 231, 255, 0.85);
-    transition: background 0.18s ease, color 0.18s ease;
+    font-size: 0.84rem;
+    font-weight: 600;
+    /* Light mode: dark text */
+    color: rgba(10, 27, 66, 0.6);
+    letter-spacing: 0.01em;
+    transition: all 0.2s ease;
+    position: relative;
+    white-space: nowrap;
+    text-decoration: none;
 }
 
-.portal-nav a.active,
 .portal-nav a:hover {
+    color: var(--ink);
+    background: rgba(10, 27, 66, 0.08);
+}
+
+.portal-nav a.active {
+    color: var(--ink);
+    font-weight: 700;
+    background: rgba(10, 27, 66, 0.1);
+}
+
+/* Dark mode nav */
+html[data-theme="dark"] .portal-nav a {
+    color: rgba(219, 231, 255, 0.7);
+}
+html[data-theme="dark"] .portal-nav a:hover {
     color: #fff;
-    background: linear-gradient(120deg, rgba(47, 107, 255, 0.28), rgba(11, 31, 77, 0.34));
-    text-decoration: none;
+    background: rgba(255, 255, 255, 0.09);
+}
+html[data-theme="dark"] .portal-nav a.active {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Modern glowing gold underline for active state */
+.portal-nav a.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 24px;
+    height: 2px;
+    border-radius: 2px;
+    background: #c8972c;
+    box-shadow: 0 0 8px rgba(200, 151, 44, 0.8);
 }
 
 .portal-user-info {
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    color: rgba(219, 231, 255, 0.85);
-    font-weight: 600;
+    /* Light mode pill */
+    background: rgba(10, 27, 66, 0.05);
+    border: 1.5px solid rgba(10, 27, 66, 0.1);
+    border-radius: 999px;
+    padding: 6px 16px 6px 6px;
+    color: rgba(10, 27, 66, 0.85);
+    font-weight: 500;
+    font-size: 0.85rem;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+/* Dark mode user info pill */
+html[data-theme="dark"] .portal-user-info {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.09);
+    color: rgba(255, 255, 255, 0.9);
+}
+html[data-theme="dark"] .portal-user-info:hover {
+    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.portal-user-info:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Beautiful Gold Avatar Circle */
+.portal-user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #dfa931 0%, #b8861c 100%);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 3px rgba(200, 151, 44, 0.2);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .portal-nav-wrap {
@@ -303,7 +492,7 @@ body.portal-nav-open .portal-menu-btn__line:nth-child(3) {
     padding: 14px 22px 40px;
 }
 
-/* ── Announcements Banner ── */
+/* â”€â”€ Announcements Banner â”€â”€ */
 .announcements-banner {
     background: linear-gradient(135deg, #fff8e1 0%, #fff3cd 100%);
     border: 1px solid #ffe082;
@@ -519,7 +708,7 @@ html[data-theme="dark"] .portal-alert.error {
     flex-shrink: 0;
 }
 
-/* Centre branding block — shared by both login & forgot-password topbars */
+/* Centre branding block  shared by both login & forgot-password topbars */
 .auth-topbar-center {
     display: inline-flex;
     align-items: center;
@@ -630,7 +819,7 @@ html[data-theme="dark"] .portal-alert.error {
     gap: 4px;
 }
 
-/* Single-title variant — no interactive tabs, e.g. Reset Password page */
+/* Single-title variant  no interactive tabs, e.g. Reset Password page */
 .auth-tab-switch--title {
     pointer-events: none;
 }
@@ -717,7 +906,7 @@ html[data-theme="dark"] .portal-alert.error {
     color: #20479a;
 }
 
-/* ── Forgot password link under login button ── */
+/* â”€â”€ Forgot password link under login button â”€â”€ */
 .auth-form-footer {
     text-align: center;
     margin-top: 10px;
@@ -735,7 +924,7 @@ html[data-theme="dark"] .portal-alert.error {
     text-decoration: underline;
 }
 
-/* ── Alert messages ── */
+/* â”€â”€ Alert messages â”€â”€ */
 .auth-otp-row {
     display: flex;
     gap: 8px;
@@ -754,7 +943,7 @@ html[data-theme="dark"] .portal-alert.error {
     padding: 10px 16px;
 }
 
-/* ── Alert messages ── */
+/* â”€â”€ Alert messages â”€â”€ */
 .auth-alert {
     padding: 11px 14px;
     border-radius: 14px;
@@ -776,7 +965,7 @@ html[data-theme="dark"] .portal-alert.error {
     border: 1px solid #a8dfbc;
 }
 
-/* ═══ Forgot Password — Premium Redesign ═══ */
+/* â•â•â• Forgot Password  Premium Redesign â•â•â• */
 .fp-panel {
     max-width: 440px;
     width: min(100%, 440px);
@@ -1246,7 +1435,7 @@ html[data-theme="dark"] .fp-step__line {
     border-bottom: 2px solid var(--line);
 }
 
-/* CATEGORY (col 4) and SUBMITTED (col 7) — left aligned */
+/* CATEGORY (col 4) and SUBMITTED (col 7)  left aligned */
 .data-table th:nth-child(4),
 .data-table td:nth-child(4),
 .data-table th:nth-child(7),
@@ -1254,7 +1443,7 @@ html[data-theme="dark"] .fp-step__line {
     text-align: left;
 }
 
-/* Per-column widths — compact layout */
+/* Per-column widths  compact layout */
 .data-table th:nth-child(1),
 .data-table td:nth-child(1) {
     width: 48px;
@@ -1319,7 +1508,7 @@ html[data-theme="dark"] .fp-step__line {
     background: rgba(214, 226, 255, 0.28);
 }
 
-/* Action buttons (View + Delete) — keep side-by-side, centered in cell */
+/* Action buttons (View + Delete)  keep side-by-side, centered in cell */
 .row-actions {
     display: inline-flex;
     align-items: center;
@@ -1343,7 +1532,7 @@ html[data-theme="dark"] .fp-step__line {
     white-space: nowrap;
 }
 
-/* ═══ Share Feedback — Premium Redesign ═══ */
+/* â•â•â• Share Feedback  Premium Redesign â•â•â• */
 
 /* Hero */
 .fb-hero {
@@ -1438,7 +1627,7 @@ html[data-theme="dark"] .fp-step__line {
     color: #0b1f4d;
 }
 
-/* ═══ My Voice — Card List ═══ */
+/* â•â•â• My Voice  Card List â•â•â• */
 .myfb-list {
     display: flex;
     flex-direction: column;
@@ -1485,7 +1674,7 @@ html[data-theme="dark"] .fp-step__line {
     opacity: 0.65;
 }
 
-/* Bottom stripe hidden � pill only on left */
+/* Bottom stripe hidden ï¿½ pill only on left */
 .myfb-card__stripe--bottom {
     display: none;
 }
@@ -2407,7 +2596,7 @@ html[data-theme="dark"] .fb-status-card--pending {
     transform: translateY(0);
 }
 
-/* ── Dark mode ── */
+/* â”€â”€ Dark mode â”€â”€ */
 html[data-theme="dark"] .fb-hero {
     background: linear-gradient(135deg, #071022 0%, #102850 100%);
     border: 1px solid rgba(133, 172, 255, 0.1);
@@ -2480,8 +2669,8 @@ html[data-theme="dark"] .fb-anon-title {
     color: #e6ebf5;
 }
 
-/* ── Announcements page ── */
-/* ═══ Announcements Page — Premium Redesign ═══ */
+/* â”€â”€ Announcements page â”€â”€ */
+/* â•â•â• Announcements Page  Premium Redesign â•â•â• */
 
 .announce-hero {
     display: flex;
@@ -2551,7 +2740,7 @@ html[data-theme="dark"] .fb-anon-title {
     color: rgba(255, 255, 255, 0.65);
 }
 
-/* ─ Card Stack ─ */
+/* â”€ Card Stack â”€ */
 .announce-stack {
     display: flex;
     flex-direction: column;
@@ -2772,7 +2961,7 @@ html[data-theme="dark"] .ann-read-more-btn:hover {
     font-size: 0.9rem;
 }
 
-/* ─ Dark mode ─ */
+/* â”€ Dark mode â”€ */
 html[data-theme="dark"] .announce-hero {
     background: linear-gradient(135deg, #071022 0%, #0c1a3a 60%, #102850 100%);
 }
@@ -2896,7 +3085,7 @@ html[data-theme="dark"] .ann-empty p {
     line-height: 1.4;
 }
 
-/* Post label container — stacks category + type pills beside the date */
+/* Post label container  stacks category + type pills beside the date */
 .post-labels {
     display: inline-flex;
     flex-direction: column;
@@ -2904,7 +3093,7 @@ html[data-theme="dark"] .ann-empty p {
     gap: 3px;
 }
 
-/* Category pill — neutral gray */
+/* Category pill  neutral gray */
 .pill-category {
     display: inline-flex;
     align-items: center;
@@ -3085,7 +3274,7 @@ html[data-theme="dark"] .ann-empty p {
     color: var(--ink, #203253);
 }
 
-/* ── Comment image uploader ── */
+/* â”€â”€ Comment image uploader â”€â”€ */
 .cmt-img-field {
     display: flex;
     align-items: center;
@@ -3159,7 +3348,7 @@ html[data-theme="dark"] .ann-empty p {
     color: #b91c1c;
 }
 
-/* Legacy selectors — keep for any remaining direct usages */
+/* Legacy selectors  keep for any remaining direct usages */
 .comment-image-label {
     display: flex;
     flex-direction: column;
@@ -3277,7 +3466,7 @@ html[data-theme="dark"] .cmt-img-clear:hover {
     margin-top: 14px;
 }
 
-/* ── Scrollable comment list with border ── */
+/* â”€â”€ Scrollable comment list with border â”€â”€ */
 .comment-list {
     max-height: 400px;
     overflow-y: auto;
@@ -3536,42 +3725,43 @@ html[data-theme="dark"] .cmt-img-clear:hover {
     place-items: center;
     font-weight: 800;
     color: #fff;
-    border-radius: 16px;
+    border-radius: 50%;
     width: 50px;
     height: 50px;
     flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+    letter-spacing: 0.02em;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.25);
 }
+
+.avatar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0.0) 50%);
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.avatar:hover { transform: scale(1.08); }
 
 .avatar-small {
-    width: 36px;
-    height: 36px;
-    border-radius: 12px;
-    font-size: 0.8rem;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    font-size: 0.72rem;
+    font-weight: 800;
 }
 
-.avatar-blue {
-    background: linear-gradient(135deg, #2b5bd7, #5f85f6);
-}
-
-.avatar-teal {
-    background: linear-gradient(135deg, #0b6a62, #1aa397);
-}
-
-.avatar-coral {
-    background: linear-gradient(135deg, #d55b54, #ef8c74);
-}
-
-.avatar-violet {
-    background: linear-gradient(135deg, #6548d2, #9074f3);
-}
-
-.avatar-amber {
-    background: linear-gradient(135deg, #cc7e1d, #efb14d);
-}
-
-.avatar-rose {
-    background: linear-gradient(135deg, #c1447f, #eb73a4);
-}
+.avatar-blue   { background: linear-gradient(135deg, #1a4fd6 0%, #60a5fa 100%); box-shadow: 0 0 0 2.5px rgba(96,165,250,0.35), 0 4px 14px rgba(26,79,214,0.4); }
+.avatar-teal   { background: linear-gradient(135deg, #0f766e 0%, #2dd4bf 100%); box-shadow: 0 0 0 2.5px rgba(45,212,191,0.35), 0 4px 14px rgba(15,118,110,0.4); }
+.avatar-coral  { background: linear-gradient(135deg, #c2410c 0%, #fb923c 100%); box-shadow: 0 0 0 2.5px rgba(251,146,60,0.35), 0 4px 14px rgba(194,65,12,0.4); }
+.avatar-violet { background: linear-gradient(135deg, #5b21b6 0%, #a78bfa 100%); box-shadow: 0 0 0 2.5px rgba(167,139,250,0.35), 0 4px 14px rgba(91,33,182,0.4); }
+.avatar-amber  { background: linear-gradient(135deg, #b45309 0%, #fbbf24 100%); box-shadow: 0 0 0 2.5px rgba(251,191,36,0.35), 0 4px 14px rgba(180,83,9,0.4); }
+.avatar-rose   { background: linear-gradient(135deg, #9f1239 0%, #fb7185 100%); box-shadow: 0 0 0 2.5px rgba(251,113,133,0.35), 0 4px 14px rgba(159,18,57,0.4); }
 
 .composer-form,
 .comment-form {
@@ -3656,7 +3846,7 @@ html[data-theme="dark"] .cmt-img-clear:hover {
     margin-bottom: 6px;
 }
 
-/* ── Delete Confirmation Modal ── */
+/* â”€â”€ Delete Confirmation Modal â”€â”€ */
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -3997,9 +4187,9 @@ html[data-theme="dark"] .cmt-img-clear:hover {
     }
 }
 
-/* ═══════════════════════════════════════════
-   HOME FEED — PORTRAIT LAYOUT
-═══════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   HOME FEED  PORTRAIT LAYOUT
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .home-feed {
     max-width: 920px;
     margin: 0 auto;
@@ -4257,7 +4447,7 @@ html[data-theme="dark"] .cmt-img-clear:hover {
     }
 }
 
-/* ── Announcements Section: Gold & Pinned ── */
+/* â”€â”€ Announcements Section: Gold & Pinned â”€â”€ */
 .home-announce {
     margin-bottom: 20px;
 }
@@ -4291,7 +4481,7 @@ html[data-theme="dark"] .cmt-img-clear:hover {
    Used in: student/portal/home.php
    ============================================================ */
 
-/* Main card container — white bg, rounded, shadow */
+/* Main card container  white bg, rounded, shadow */
 .h-ann-card {
     display: flex;
     background: #ffffff;
@@ -4488,7 +4678,7 @@ html[data-theme="dark"] .h-ann-read-link:hover {
     color: #e0be6a;
 }
 
-/* ── Dark mode: portal structure ── */
+/* â”€â”€ Dark mode: portal structure â”€â”€ */
 html[data-theme="dark"] .portal-footer {
     border-top-color: rgba(255, 255, 255, 0.07);
     background: rgba(255, 255, 255, 0.02);
@@ -4592,7 +4782,7 @@ html[data-theme="dark"] .fb-dropzone:hover {
     background: #0c1626;
 }
 
-/* ── Inline comment validation error ── */
+/* â”€â”€ Inline comment validation error â”€â”€ */
 .cv-comment-error {
     display: none;
     font-size: 0.78rem;
@@ -4611,7 +4801,7 @@ html[data-theme="dark"] .cv-comment-error {
     border-color: rgba(239, 68, 68, 0.25);
 }
 
-/* ── Comment bubbles ── */
+/* â”€â”€ Comment bubbles â”€â”€ */
 html[data-theme="dark"] .comment-bubble {
     background: rgba(20, 35, 60, 0.75) !important;
     color: #d0dcf5 !important;
@@ -4629,7 +4819,7 @@ html[data-theme="dark"] .comment-bubble p {
     color: #b8ccee !important;
 }
 
-/* ── Comment form + textarea ── */
+/* â”€â”€ Comment form + textarea â”€â”€ */
 html[data-theme="dark"] .comment-form {
     background: rgba(15, 28, 46, 0.6) !important;
     border-color: rgba(255, 255, 255, 0.08) !important;
@@ -4647,7 +4837,7 @@ html[data-theme="dark"] .comment-form .comment-body-input::placeholder {
     color: #94a3b8 !important;
 }
 
-/* ── Attach bar + anonymous label ── */
+/* â”€â”€ Attach bar + anonymous label â”€â”€ */
 html[data-theme="dark"] .comment-form .summary-muted {
     color: #7a90b4 !important;
 }
@@ -4656,7 +4846,7 @@ html[data-theme="dark"] .cmt-img-field {
     border-top-color: rgba(255, 255, 255, 0.06) !important;
 }
 
-/* ── Submit button ── */
+/* â”€â”€ Submit button â”€â”€ */
 html[data-theme="dark"] .comment-form .solid-btn {
     background: rgba(79, 125, 255, 0.7) !important;
     border-color: rgba(79, 125, 255, 0.4) !important;
@@ -4667,7 +4857,7 @@ html[data-theme="dark"] .comment-form .solid-btn:hover {
     background: rgba(79, 125, 255, 0.9) !important;
 }
 
-/* ── Reply indicator bar ── */
+/* â”€â”€ Reply indicator bar â”€â”€ */
 html[data-theme="dark"] .reply-indicator {
     background: rgba(200, 151, 44, 0.12) !important;
     color: #d4a843 !important;
@@ -4677,14 +4867,14 @@ html[data-theme="dark"] .cancel-reply-btn {
     color: #7a90b4 !important;
 }
 
-/* ── Reaction picker flyout ── */
+/* â”€â”€ Reaction picker flyout â”€â”€ */
 html[data-theme="dark"] .comment-reaction-picker {
     background: #0f1a2e !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
 }
 
-/* ── Reply-mode form ── */
+/* â”€â”€ Reply-mode form â”€â”€ */
 html[data-theme="dark"] .comment-form.replying {
     background: rgba(15, 28, 55, 0.72) !important;
     border-color: rgba(30, 110, 240, 0.28) !important;

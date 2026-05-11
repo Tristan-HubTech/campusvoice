@@ -13,9 +13,12 @@ $socialCss = FCPATH . 'css/social.css';
 $socialCssVersion = is_file($socialCss) ? (string) filemtime($socialCss) : '1';
 $portalCss = FCPATH . 'css/portal.css';
 $portalCssVersion = is_file($portalCss) ? (string) filemtime($portalCss) : '1';
+$portalTopbarV2Css = FCPATH . 'css/portal-topbar-v2.css';
+$portalTopbarV2CssVersion = is_file($portalTopbarV2Css) ? (string) filemtime($portalTopbarV2Css) : '1';
 ?>
     <link rel="stylesheet" href="<?= base_url('css/portal.css') . '?v=' . $portalCssVersion ?>">
     <link rel="stylesheet" href="<?= base_url('css/social.css') . '?v=' . $socialCssVersion ?>">
+    <link rel="stylesheet" href="<?= base_url('css/portal-topbar-v2.css') . '?v=' . $portalTopbarV2CssVersion ?>">
     <?= $this->include('partials/theme_styles') ?>
 </head>
 <body>
@@ -25,20 +28,28 @@ $portalCssVersion = is_file($portalCss) ? (string) filemtime($portalCss) : '1';
 <header class="portal-header">
     <div class="portal-header-inner">
         <?php if (! empty($currentUser['id'])): ?>
-            <a href="<?= site_url('users') ?>" class="portal-brand">
-                <img src="<?= base_url('assets/admin/logo-mark.svg') ?>" alt="CampusVoice" class="portal-logo">
-                <span>CampusVoice</span>
-            </a>
+            <div class="portal-brand">
+                <img src="<?= base_url('assets/admin/logo.svg') ?>" alt="CampusVoice" class="portal-logo">
+                <span class="portal-brand-text">CampusVoice</span>
+                <span class="portal-badge-beta">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                    Beta
+                </span>
+            </div>
             <?php
             $headerUserName = (string) (! empty($isAnonymous) ? ($anonAlias ?? 'Anonymous') : ($currentUser['name'] ?? 'User'));
+            // Always read avatar_color fresh from the profile DB — not the stale session
+            $profileForHeader = (new App\Models\SocialProfileModel())->where('user_id', (int) ($currentUser['id'] ?? 0))->first();
+            $headerAvatarColor = (string) ($profileForHeader['avatar_color'] ?? 'blue');
             $this->setVar('headerUserName', $headerUserName);
+            $this->setVar('headerAvatarColor', $headerAvatarColor);
             $this->setVar('currentTitle', $currentTitle);
             ?>
             <?= $this->include('partials/portal_header_authed') ?>
         <?php else: ?>
             <div aria-hidden="true"></div>
             <div class="portal-brand portal-brand--hero">
-                <img src="<?= base_url('assets/admin/logo-mark.svg') ?>" alt="CampusVoice" class="portal-logo">
+                <img src="<?= base_url('assets/admin/logo.svg') ?>" alt="CampusVoice" class="portal-logo">
                 <div class="brand-hero-text">
                     <span class="brand-hero-name">CampusVoice</span>
                     <span class="brand-hero-sub">Your campus, your voice</span>
@@ -91,6 +102,43 @@ $portalHeaderJsPath = FCPATH . 'assets/student/portal-header.js';
 $portalHeaderJsVersion = is_file($portalHeaderJsPath) ? (string) filemtime($portalHeaderJsPath) : '1';
 ?>
 <script src="<?= base_url('assets/student/portal-header.js') ?>?v=<?= esc($portalHeaderJsVersion, 'attr') ?>"></script>
+<script>
+(function () {
+    var minZoom = 1;
+    var maxZoom = 1.5;
+    var step = 0.1;
+    var currentZoom = 1;
+
+    function clampZoom(value) {
+        return Math.min(maxZoom, Math.max(minZoom, value));
+    }
+
+    function applyZoom(value) {
+        currentZoom = clampZoom(Math.round(value * 100) / 100);
+        document.documentElement.style.zoom = String(currentZoom * 100) + '%';
+    }
+
+    window.addEventListener('wheel', function (event) {
+        if (!event.ctrlKey && !event.metaKey) return;
+        event.preventDefault();
+        applyZoom(currentZoom + (event.deltaY < 0 ? step : -step));
+    }, { passive: false });
+
+    window.addEventListener('keydown', function (event) {
+        if (!event.ctrlKey && !event.metaKey) return;
+        if (event.key === '+' || event.key === '=' || event.key === 'Add') {
+            event.preventDefault();
+            applyZoom(currentZoom + step);
+        } else if (event.key === '-' || event.key === '_' || event.key === 'Subtract') {
+            event.preventDefault();
+            applyZoom(currentZoom - step);
+        } else if (event.key === '0') {
+            event.preventDefault();
+            applyZoom(1);
+        }
+    });
+})();
+</script>
 <?= $this->include('partials/theme_script') ?>
 </body>
 </html>
