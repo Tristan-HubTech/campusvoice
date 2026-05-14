@@ -1139,5 +1139,42 @@ body { margin: 0; padding: 0; background: var(--cv-navy-ink, #06080f); }
 </div><!-- /.cv-rp -->
 </div><!-- /.cv-shell -->
 
+<script>
+(function () {
+    var minZoom = 1;
+    var maxZoom = 1.5;
+    var step = 0.1;
+    var currentZoom = 1;
+
+    function clampZoom(value) {
+        return Math.min(maxZoom, Math.max(minZoom, value));
+    }
+
+    function applyZoom(value) {
+        currentZoom = clampZoom(Math.round(value * 100) / 100);
+        document.documentElement.style.zoom = String(currentZoom * 100) + '%';
+    }
+
+    window.addEventListener('wheel', function (event) {
+        if (!event.ctrlKey && !event.metaKey) return;
+        event.preventDefault();
+        applyZoom(currentZoom + (event.deltaY < 0 ? step : -step));
+    }, { passive: false });
+
+    window.addEventListener('keydown', function (event) {
+        if (!event.ctrlKey && !event.metaKey) return;
+        if (event.key === '+' || event.key === '=' || event.key === 'Add') {
+            event.preventDefault();
+            applyZoom(currentZoom + step);
+        } else if (event.key === '-' || event.key === '_' || event.key === 'Subtract') {
+            event.preventDefault();
+            applyZoom(currentZoom - step);
+        } else if (event.key === '0') {
+            event.preventDefault();
+            applyZoom(1);
+        }
+    });
+})();
+</script>
 </body>
 </html>
